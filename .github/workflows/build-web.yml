@@ -24,4 +24,4 @@ jobs:
           push: true
           build-args: |
             SERVER_CONFIG=production.conf
-            API_URL=${{ secrets.HERMES_API }}
+            API_URL=${{ secrets.API_URL }}

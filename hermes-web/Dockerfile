@@ -1,9 +1,6 @@
 FROM node:lts AS build
 
 ARG SERVER_CONFIG=local.conf
-ARG API_URL=http://127.0.0.1
-ENV REACT_APP_HERMES_API_URL=${API_URL}
-
 COPY ${SERVER_CONFIG} ./server.conf
 WORKDIR /hermes-ui
 COPY package.json .
@@ -12,6 +9,8 @@ COPY . .
 RUN npm run build
 
 FROM nginx:latest
+ARG API_URL=http://127.0.0.1
+ENV REACT_APP_HERMES_API_URL=${API_URL}
 WORKDIR /usr/share/nginx/html
 COPY --from=build /hermes-ui/build .
 COPY --from=build /server.conf /etc/nginx/conf.d/default.conf

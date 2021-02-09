@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
     paths:
-      - '.github/workflows/build-web.yaml'
+      - './.github/workflows/build-web.yaml'
       - 'hermes-web/**'
 
 jobs:

@@ -16,7 +16,7 @@ jobs:
       - name: Build & Push
         uses: docker/build-push-action@v2.2.2
         with:
-          tags: ${REGISTRY}/hermes-api:latest
+          tags: ${{ secrets.REGISTRY }}/hermes-api:latest
           file: ./hermes-api/Dockerfile
           context: ./hermes-api
           push: true

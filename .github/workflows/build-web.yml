@@ -23,5 +23,5 @@ jobs:
           context: ./hermes-web
           push: true
           build-args: |
-            SERVER_CONFIG=server.conf
+            SERVER_CONFIG=production.conf
             API_URL=${{ secrets.HERMES_API }}

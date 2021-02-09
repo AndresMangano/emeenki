@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  queue:
+    image: rabbitmq:3.8.11
+    container_name: hermes-queue
+    ports:
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${QUEUE_USER}
+      - RABBITMQ_DEFAULT_PASS=${QUEUE_PASSWORD}
+    networks:
+      - inner
+  db:
+    image: mysql:5.7.29
+    container_name: hermes-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=hermes
+    networks:
+      - inner
+  worker:
+    image: ${REGISTRY}/hermes-worker:latest
+    container_name: hermes-worker
+    environment: 
+      - ConnectionString=${DB_SQL_CONNECTION}
+    networks:
+      - inner
+  api:
+    image: ${REGISTRY}/hermes-api:latest
+    container_name: hermes-api
+    ports:
+      - "8080:8080"
+    environment: 
+      - SQLConnection=${DB_SQL_CONNECTION}
+      - Authentication__Secret=${API_AUTH_SECRET}
+      - UIServer=${WEB_URL}
+    networks:
+      - inner
+  web:
+    image: ${REGISTRY}/hermes-web:latest
+    container_name: hermes-web
+    ports:
+      - "80:80"
+      - "433:433"
+    volumes:
+      - "/etc/letsencrypt:/etc/letsencrypt"
+      - "/var/www/data/.well-known/acme-challenge:/usr/share/nginx/html/.well-known/acme-challenge"
+    environment: 
+      - REACT_APP_HERMES_API_URL=${API_URL}
+    networks:
+      - "inner"
+
+networks:
+  inner:

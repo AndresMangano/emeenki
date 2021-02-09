@@ -1,0 +1,10 @@
+CREATE TABLE GoogleAccount_Events (
+    Seq BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ID VARCHAR(255) NOT NULL,
+    Version INT NOT NULL,
+    EventName VARCHAR(64) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+    Payload TEXT NOT NULL,
+
+    UNIQUE(ID, Version)
+);

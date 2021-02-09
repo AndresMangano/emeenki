@@ -1,8 +1,6 @@
 name: deploy-production
 
 on:
-  push:
-    branches: [ "master" ]
   workflow_run:
     workflows: [ "build-api", "build-web", "build-worker" ]
     branches: [ "master" ]

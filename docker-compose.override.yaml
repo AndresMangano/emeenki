@@ -19,8 +19,6 @@ services:
       - UIServer=http://127.0.0.1
   web:
     image: localhost:5000/hermes-web:latest
-    environment: 
-      - REACT_APP_HERMES_API_URL=http://127.0.0.1
 
 networks:
   inner:

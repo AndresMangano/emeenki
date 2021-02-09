@@ -34,8 +34,6 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/data/.well-known/acme-challenge:/usr/share/nginx/html/.well-known/acme-challenge
     networks: [ inner ]
-    environment: 
-      - REACT_APP_HERMES_API_URL=${HERMES_API_URL}
 
 networks:
   inner:

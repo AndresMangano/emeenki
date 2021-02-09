@@ -35,5 +35,4 @@ jobs:
               export HERMES_DB_CONNECTION=${{ secrets.DB_SQL_CONNECTION }}
               export HERMES_API_AUTH_SECRET=${{ secrets.API_AUTH_SECRET }}
               export HERMES_WEB_URL=https://emeenki.net
-              export HERMES_API_URL=https://emeenki.net
               docker stack deploy -c docker-compose.yaml hermes

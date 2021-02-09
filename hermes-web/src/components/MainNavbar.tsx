@@ -28,7 +28,7 @@ export function HNavbar({ items }: MainNavbarProps) {
     return (
         <Navbar className='HNavbar' color="primary" dark expand="md" fixed='top'>
             <NavbarBrand className='HNavbar-brand appBrandFont' tag={Link} to='/'>Emeenki</NavbarBrand>
-            <Badge color='secondary'>beta</Badge>
+            <Badge color='secondary'>2.0</Badge>
             <NavbarToggler onClick={handleToggle} />
             <Collapse isOpen={isOpen} navbar>
                 <Nav navbar>

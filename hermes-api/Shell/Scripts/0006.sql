@@ -1,0 +1,2 @@
+ALTER TABLE Query_ArticleComments
+ADD Deleted BIT NOT NULL DEFAULT 0;

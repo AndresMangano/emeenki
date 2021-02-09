@@ -1,0 +1,1 @@
+ALTER TABLE Query_Article MODIFY PhotoURL TEXT;

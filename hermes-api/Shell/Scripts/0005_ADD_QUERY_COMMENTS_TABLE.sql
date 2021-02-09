@@ -1,0 +1,10 @@
+CREATE TABLE Query_ArticleComments(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	CommentIndex INT NOT NULL,
+	`Comment` TEXT NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+	`Timestamp` DATETIME NOT NULL,
+
+	UNIQUE(ArticleID, CommentIndex)
+);

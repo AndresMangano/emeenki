@@ -1,0 +1,2 @@
+ALTER TABLE Query_User
+ADD `SignInType` VARCHAR(32);

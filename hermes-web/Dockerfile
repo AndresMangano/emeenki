@@ -1,9 +1,10 @@
 FROM node:lts AS build
 
-ARG API_URL
+ARG SERVER_CONFIG=local.conf
+ARG API_URL=http://localhost:8080
 ENV REACT_APP_HERMES_API_URL=${API_URL}
 
-COPY server.conf .
+COPY ${SERVER_CONFIG} ./server.conf
 WORKDIR /hermes-ui
 COPY package.json .
 RUN npm install

@@ -23,8 +23,8 @@ jobs:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
-            source: "docker-compose.yaml"
-            target: "/root/docker-compose.yaml"
+            source: "docker-compose.yml"
+            target: "/root/docker-compose.yml"
         - name: Deploy Stack
           uses: appleboy/ssh-action@v0.1.4
           with:

@@ -17,5 +17,6 @@ jobs:
         uses: docker/build-push-action@v2.2.2
         with:
           tags: ${REGISTRY}/hermes-api:latest
-          file: /hermes-api/Dockerfile
+          file: ./hermes-api/Dockerfile
+          context: ./hermes-api
           push: true

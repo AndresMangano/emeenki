@@ -17,7 +17,8 @@ jobs:
         uses: docker/build-push-action@v2.2.2
         with:
           tags: ${{ secrets.REGISTRY }}/hermes-ui:latest
-          file: /hermes-web/Dockerfile
+          file: ./hermes-web/Dockerfile
+          context: ./hermes-web
           push: true
           build-args: |
             API_URL=${{ secrets.HERMES_API }}

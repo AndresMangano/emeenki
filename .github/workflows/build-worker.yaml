@@ -17,5 +17,6 @@ jobs:
         uses: docker/build-push-action@v2.2.2
         with:
           tags: ${{ secrets.REGISTRY }}/hermes-worker:latest
-          file: /hermes-worker/Dockerfile
+          file: ./hermes-worker/Dockerfile
+          context: ./hermes-worker
           push: true

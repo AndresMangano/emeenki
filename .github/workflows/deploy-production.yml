@@ -18,7 +18,7 @@ jobs:
           with:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
-            ket: ${{ secrets.SSH_KEY }}
+            key: ${{ secrets.SSH_KEY }}
             source: "docker-compose.yaml"
             target: "/root/docker-compose.yaml"
         - name: Deploy Stack

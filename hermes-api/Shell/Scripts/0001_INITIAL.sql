@@ -1,0 +1,222 @@
+ALTER SCHEMA `hermes`  DEFAULT COLLATE utf8mb4_bin;
+
+CREATE TABLE Language_Language (
+    LanguageID CHAR(3) NOT NULL PRIMARY KEY,
+    Description VARCHAR(64) NOT NULL
+);
+
+INSERT INTO Language_Language(LanguageID, Description) VALUES
+('ENG', 'English'),
+('SPA', 'Spanish'),
+('RUS', 'Ruso');
+
+CREATE TABLE Article_Events (
+    Seq BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ID CHAR(36) NOT NULL,
+    Version INT NOT NULL,
+    EventName VARCHAR(64) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+    Payload TEXT NOT NULL,
+
+    UNIQUE(ID, Version)
+);
+
+CREATE TABLE ArticleTemplate_Events (
+    Seq BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ID CHAR(36) NOT NULL,
+    Version INT NOT NULL,
+    EventName VARCHAR(64) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+    Payload TEXT NOT NULL,
+
+    UNIQUE(ID, Version)
+);
+
+CREATE TABLE Room_Events (
+    Seq BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ID VARCHAR(32) NOT NULL,
+    Version INT NOT NULL,
+    EventName VARCHAR(64) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+    Payload TEXT NOT NULL,
+
+    UNIQUE(ID, Version)
+);
+
+CREATE TABLE User_Events (
+    Seq BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ID VARCHAR(32) NOT NULL,
+    Version INT NOT NULL,
+    EventName VARCHAR(64) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+    Payload TEXT NOT NULL,
+
+    UNIQUE(ID, Version)
+);
+
+CREATE TABLE Query_Article(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    ArticleID CHAR(36) NOT NULL,
+    ArticleTemplateID CHAR(36) NOT NULL,
+    Archived BIT NOT NULL,
+    RoomID VARCHAR(50) NOT NULL,
+    OriginalLanguageID CHAR(3) NOT NULL,
+    TranslationLanguageID CHAR(3) NOT NULL,
+    `Source` VARCHAR(255) NOT NULL,
+    PhotoURL VARCHAR(1024) NOT NULL,
+    `Timestamp` DATETIME NOT NULL,
+
+	UNIQUE(ArticleID)
+);
+
+CREATE TABLE Query_Sentence(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	OriginalText TEXT NOT NULL,
+
+	UNIQUE(ArticleID, InText, SentenceIndex)
+);
+
+CREATE TABLE Query_Translation(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	TranslationIndex INT NOT NULL,
+	Translation TEXT NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+	`Timestamp` DATETIME NOT NULL,
+
+	UNIQUE(ArticleID, InText, SentenceIndex, TranslationIndex)
+);
+
+CREATE TABLE Query_TranslationComment(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	TranslationIndex INT NOT NULL,
+	CommentIndex INT NOT NULL,
+	`Comment` TEXT NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+	`Timestamp` DATETIME NOT NULL,
+
+	UNIQUE(ArticleID, InText, SentenceIndex, TranslationIndex, CommentIndex)
+);
+
+CREATE TABLE Query_Upvotes(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	TranslationIndex INT NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+
+	UNIQUE(ArticleID, InText, SentenceIndex, TranslationIndex, UserID)
+);
+
+CREATE TABLE Query_Downvotes(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	TranslationIndex INT NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+
+	UNIQUE(ArticleID, InText, SentenceIndex, TranslationIndex, UserID)
+);
+
+CREATE TABLE Query_Articles(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleID CHAR(36) NOT NULL,
+	RoomID VARCHAR(255) NOT NULL,
+	Title TEXT NOT NULL,
+	Created DATETIME NOT NULL,
+	OriginalLanguageID CHAR(3) NOT NULL,
+	TranslationLanguageID CHAR(3) NOT NULL,
+	PhotoURL VARCHAR(1024) NOT NULL,
+	Archived BIT NOT NULL,
+
+	UNIQUE(ArticleID)
+);
+
+CREATE TABLE Query_ArticleTemplate(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleTemplateID CHAR(36) NOT NULL,
+	Deleted BIT NOT NULL,
+	LanguageID CHAR(3) NOT NULL,
+	`Source` VARCHAR(255) NOT NULL,
+	PhotoURL VARCHAR(1024) NOT NULL,
+	`Timestamp` DATETIME NOT NULL,
+
+	UNIQUE(ArticleTemplateID)
+);
+
+CREATE TABLE Query_ArticleTemplateSentence(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleTemplateID CHAR(36) NOT NULL,
+	InText BIT NOT NULL,
+	SentenceIndex INT NOT NULL,
+	Sentence TEXT NOT NULL,
+
+	UNIQUE(ArticleTemplateID, InText, SentenceIndex)
+);
+
+CREATE TABLE Query_ArticleTemplates(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	ArticleTemplateID CHAR(36) NOT NULL,
+	Title TEXT NOT NULL,
+	Created DATETIME NOT NULL,
+	LanguageID CHAR(3) NOT NULL,
+	PhotoURL VARCHAR(1024) NOT NULL,
+	Archived BIT NOT NULL,
+
+	UNIQUE(ArticleTemplateID)
+);
+
+CREATE TABLE Query_Room(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	RoomID VARCHAR(255) NOT NULL,
+	LanguageID1 CHAR(3) NOT NULL,
+	LanguageID2 CHAR(3) NOT NULL,
+	Closed BIT NOT NULL,
+	Restricted BIT NOT NULL,
+	UsersLimit TINYINT NOT NULL,
+
+	UNIQUE(RoomID)
+);
+
+CREATE TABLE Query_RoomUser(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	RoomID VARCHAR(255) NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+	Permission VARCHAR(50) NOT NULL,
+
+	UNIQUE(RoomID, UserID)
+);
+
+CREATE TABLE Query_RoomQueue(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	RoomID VARCHAR(255) NOT NULL,
+	UserID VARCHAR(255) NOT NULL,
+
+	UNIQUE(RoomID, UserID)
+);
+
+CREATE TABLE Query_User(
+	ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	UserID VARCHAR(255) NOT NULL,
+	Rights VARCHAR(50) NOT NULL,
+	ProfilePhotoURL VARCHAR(1024) NOT NULL,
+	NativeLanguageID CHAR(3) NOT NULL,
+
+	UNIQUE(UserID)
+);
+
+-- HANDLERS
+CREATE TABLE EventHandlers(
+	HandlerID CHAR(36) NOT NULL PRIMARY KEY,
+	Seq BIGINT NOT NULL
+);

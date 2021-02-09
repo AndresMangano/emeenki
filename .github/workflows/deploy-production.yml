@@ -1,6 +1,10 @@
 name: deploy-production
 
 on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - '.github/workflows/deploy-production.yaml'
   workflow_run:
     workflows: [ "build-api", "build-web", "build-worker" ]
     branches: [ "master" ]

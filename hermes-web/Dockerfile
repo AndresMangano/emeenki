@@ -1,7 +1,7 @@
 FROM node:lts AS build
 
 ARG SERVER_CONFIG=local.conf
-ARG API_URL=http://localhost:8080
+ARG API_URL=http://localhost
 ENV REACT_APP_HERMES_API_URL=${API_URL}
 
 COPY ${SERVER_CONFIG} ./server.conf

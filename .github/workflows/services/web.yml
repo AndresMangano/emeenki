@@ -1,11 +1,11 @@
-name: Production
+name: build-web
 
 on:
   push:
     branches: [ master ]
 
 jobs:
-  build_ui:
+  build_web:
     name: Build UI
     runs-on: ubuntu-latest
     steps:
@@ -20,11 +20,3 @@ jobs:
           push: true
           build-args: |
             API_URL=${{ secrets.HERMES_API }}
-      - name: Update
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          script: |
-            docker service update hermes-ui --image ${{ secrets.REGISTRY }}/hermes-ui:latest

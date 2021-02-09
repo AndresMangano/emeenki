@@ -1,19 +1,38 @@
-name: Production
+name: deploy-production
 
 on:
   push:
-    branches: [ master ]
+    workflows: [ "build-api", "build-web", "build-worker" ]
+    branches: [ "master" ]
+    types:
+      - completed
 
 jobs:
   deploy:
-      - name: Deploy
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
-          script: |
-            docker service update hermes-api --image ${{ secrets.REGISTRY }}/hermes-api:latest \
-              --env-add SQLConnection="${{ secrets.SQL_CONNECTION }}" \
-              --env-add Authentication__Secret="${{ secrets.AUTH_SECRET }}" \
-              --env-add UIServer="${{ secrets.UI_SERVER }}"
+      name: Deploy
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Copy docker-compose.yaml
+          uses: appleboy/scp-action@v0.0.1
+          with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            ket: ${{ secrets.SSH_KEY }}
+            source: "docker-compose.yaml"
+            target: "/root/docker-compose.yaml"
+        - name: Deploy Stack
+          uses: appleboy/ssh-action@v0.1.4
+          with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            key: ${{ secrets.SSH_KEY }}
+            script: |
+              export QUEUE_USER=${{ secrets.QUEUE_USER }}
+              export QUEUE_PASSWORD=${{ secrets.QUEUE_PASSWORD }}
+              export DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+              export DB_SQL_CONNECTION=${{ secrets.DB_SQL_CONNECTION }}
+              export API_AUTH_SECRET=${{ secrets.API_AUTH_SECRET }}
+              export WEB_URL=https://emeenki.net
+              export API_URL=https://emeenki.net
+              docker stack deploy -c docker-compose-yaml hermes

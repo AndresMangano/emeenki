@@ -38,4 +38,4 @@ jobs:
               export API_AUTH_SECRET=${{ secrets.API_AUTH_SECRET }}
               export WEB_URL=https://emeenki.net
               export API_URL=https://emeenki.net
-              docker stack deploy -c docker-compose-yaml hermes
+              docker stack deploy -c docker-compose.yaml hermes

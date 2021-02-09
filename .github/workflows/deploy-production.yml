@@ -16,13 +16,13 @@ jobs:
       steps:
         - uses: actions/checkout@v2
         - name: Copy docker-compose.yaml
-          uses: appleboy/scp-action@v0.0.1
+          uses: appleboy/scp-action@master
           with:
             host: ${{ secrets.SSH_HOST }}
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
-            source: "docker-compose.yml"
-            target: "/root/docker-compose.yml"
+            source: "./docker-compose.yaml"
+            target: "/root/docker-compose.yaml"
         - name: Deploy Stack
           uses: appleboy/ssh-action@v0.1.4
           with:

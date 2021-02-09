@@ -1,7 +1,7 @@
 FROM node:lts AS build
 
 ARG SERVER_CONFIG=local.conf
-ARG API_URL=http://localhost
+ARG API_URL=http://127.0.0.1
 ENV REACT_APP_HERMES_API_URL=${API_URL}
 
 COPY ${SERVER_CONFIG} ./server.conf
@@ -19,3 +19,4 @@ RUN mkdir -p ./.well-known/acme-challenge
 VOLUME [ "/etc/letsencrypt" ]
 VOLUME [ "/usr/share/nginx/html/.well-known/acme-challenge" ]
 EXPOSE 80
+EXPOSE 443

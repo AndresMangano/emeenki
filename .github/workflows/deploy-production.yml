@@ -28,12 +28,12 @@ jobs:
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
             script: |
-              export REGISTRY=${{ secrets.REGISTRY }}
-              export QUEUE_USER=${{ secrets.QUEUE_USER }}
-              export QUEUE_PASSWORD=${{ secrets.QUEUE_PASSWORD }}
-              export DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
-              export DB_SQL_CONNECTION=${{ secrets.DB_SQL_CONNECTION }}
-              export API_AUTH_SECRET=${{ secrets.API_AUTH_SECRET }}
-              export WEB_URL=https://emeenki.net
-              export API_URL=https://emeenki.net
+              export HERMES_REGISTRY=${{ secrets.REGISTRY }}
+              export HERMES_QUEUE_USER=${{ secrets.QUEUE_USER }}
+              export HERMES_QUEUE_PASSWORD=${{ secrets.QUEUE_PASSWORD }}
+              export HERMES_DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+              export HERMES_DB_CONNECTION=${{ secrets.DB_SQL_CONNECTION }}
+              export HERMES_API_AUTH_SECRET=${{ secrets.API_AUTH_SECRET }}
+              export HERMES_WEB_URL=https://emeenki.net
+              export HERMES_API_URL=https://emeenki.net
               docker stack deploy -c docker-compose.yaml hermes

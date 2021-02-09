@@ -2,55 +2,41 @@ version: "3.9"
 services:
   queue:
     image: rabbitmq:3.8.11
-    container_name: hermes-queue
-    ports:
-      - "15672:15672"
+    ports: [ 15672:15672 ]
+    networks: [ inner ]
     environment:
-      - RABBITMQ_DEFAULT_USER=${QUEUE_USER}
-      - RABBITMQ_DEFAULT_PASS=${QUEUE_PASSWORD}
-    networks:
-      - inner
+      - RABBITMQ_DEFAULT_USER=${HERMES_QUEUE_USER}
+      - RABBITMQ_DEFAULT_PASS=${HERMES_QUEUE_PASSWORD}
   db:
     image: mysql:5.7.29
-    container_name: hermes-db
-    ports:
-      - "3306:3306"
+    ports: [ 3306:3306 ]
+    networks: [ inner ]
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${HERMES_DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=hermes
-    networks:
-      - inner
   worker:
-    image: ${REGISTRY}/hermes-worker:latest
-    container_name: hermes-worker
+    image: ${HERMES_REGISTRY}/hermes-worker:latest
+    networks: [ inner ]
     environment: 
-      - ConnectionString=${DB_SQL_CONNECTION}
-    networks:
-      - inner
+      - ConnectionString=${HERMES_DB_CONNECTION}
   api:
-    image: ${REGISTRY}/hermes-api:latest
-    container_name: hermes-api
-    ports:
-      - "8080:8080"
+    image: ${HERMES_REGISTRY}/hermes-api:latest
+    ports: [ 8080:8080 ]
+    networks: [ inner ]
     environment: 
-      - SQLConnection=${DB_SQL_CONNECTION}
-      - Authentication__Secret=${API_AUTH_SECRET}
-      - UIServer=${WEB_URL}
-    networks:
-      - inner
+      - SQLConnection=${HERMES_DB_CONNECTION}
+      - Authentication__Secret=${HERMES_API_AUTH_SECRET}
+      - UIServer=${HERMES_WEB_URL}
   web:
-    image: ${REGISTRY}/hermes-web:latest
-    container_name: hermes-web
-    ports:
-      - "80:80"
-      - "433:433"
+    image: ${HERMES_REGISTRY}/hermes-web:latest
+    ports: [ 80:80, 443:443 ]
     volumes:
-      - "/etc/letsencrypt:/etc/letsencrypt"
-      - "/var/www/data/.well-known/acme-challenge:/usr/share/nginx/html/.well-known/acme-challenge"
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/data/.well-known/acme-challenge:/usr/share/nginx/html/.well-known/acme-challenge
+    networks: [ inner ]
     environment: 
-      - REACT_APP_HERMES_API_URL=${API_URL}
-    networks:
-      - "inner"
+      - REACT_APP_HERMES_API_URL=${HERMES_API_URL}
 
 networks:
   inner:
+    driver: overlay

@@ -3,6 +3,9 @@ name: build-web
 on:
   push:
     branches: [ master ]
+    paths:
+      - '.github/workflows/build-web.yaml'
+      - 'hermes-web/**'
 
 jobs:
   build_web:
@@ -21,4 +24,5 @@ jobs:
           context: ./hermes-web
           push: true
           build-args: |
+            SERVER_CONFIG=server.conf
             API_URL=${{ secrets.HERMES_API }}

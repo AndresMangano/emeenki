@@ -3,6 +3,9 @@ name: build-api
 on:
   push:
     branches: [ master ]
+    paths:
+      - '.github/workflows/build-api.yaml'
+      - 'hermes-api/**'
 
 jobs:
   build_api:

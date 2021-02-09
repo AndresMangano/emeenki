@@ -3,6 +3,9 @@ name: build-worker
 on:
   push:
     branches: [ master ]
+    paths:
+      - '.github/workflows/build-worker.yaml'
+      - 'hermes-worker/**'
 
 jobs:
   build_api:

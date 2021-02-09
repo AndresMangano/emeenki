@@ -1,7 +1,7 @@
 name: deploy-production
 
 on:
-  push:
+  workflow_run:
     workflows: [ "build-api", "build-web", "build-worker" ]
     branches: [ "master" ]
     types:
@@ -28,6 +28,7 @@ jobs:
             username: ${{ secrets.SSH_USER }}
             key: ${{ secrets.SSH_KEY }}
             script: |
+              export REGISTRY=${{ secrets.REGISTRY }}
               export QUEUE_USER=${{ secrets.QUEUE_USER }}
               export QUEUE_PASSWORD=${{ secrets.QUEUE_PASSWORD }}
               export DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}

@@ -1,0 +1,19 @@
+name: Production
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            docker service update hermes-api --image ${{ secrets.REGISTRY }}/hermes-api:latest \
+              --env-add SQLConnection="${{ secrets.SQL_CONNECTION }}" \
+              --env-add Authentication__Secret="${{ secrets.AUTH_SECRET }}" \
+              --env-add UIServer="${{ secrets.UI_SERVER }}"

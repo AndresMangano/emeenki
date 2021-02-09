@@ -25,7 +25,7 @@ namespace Hermes.Worker.Core.Commands
                 case "unrestricted": Handle<IO, dbIO>(io, JsonConvert.DeserializeObject<DefaultMessage<string, RoomUnrestrictedEvent>>(message).Message); break;
             }
         }
-        // Event Handler
+        
         static void Handle<IO, dbIO>(IO io, DefaultMessageBody<string, RoomOpenedEvent> message)
         where IO : IUnitOfWorkPort<dbIO>, ISignalRPort
         where dbIO : IRoomRepository, IRoomUserRepository {

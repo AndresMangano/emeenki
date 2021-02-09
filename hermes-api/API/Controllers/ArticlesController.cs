@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hermes.Core;
 using Hermes.Shell;
-using Hermes.Shell.Write;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,12 +67,14 @@ namespace Hermes.API
             ArticleCommands.Execute(_interpreter, command, GetUserID());
             return Ok();
         }
+
         [HttpPost("commentMain")]
         public ActionResult CommentMain([FromBody]ArticleCommentMainCommand command)
         {
             ArticleCommands.Execute(_interpreter, command, GetUserID());
             return Ok();
         }
+
         [HttpPost("deleteMainComment")]
         public ActionResult DeleteMainComment([FromBody]ArticleDeleteMainCommentCommand command)
         {

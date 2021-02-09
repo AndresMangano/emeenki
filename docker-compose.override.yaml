@@ -19,7 +19,3 @@ services:
       - UIServer=http://127.0.0.1
   web:
     image: localhost:5000/hermes-web:latest
-
-networks:
-  inner:
-    driver: overlay

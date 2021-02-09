@@ -1,0 +1,22 @@
+name: build-web
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build_web:
+    name: Build UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "{ \"insecure-registries\" : [\"${{ secrets.REGISTRY }}\"] }" | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+      - name: Build & Push
+        uses: docker/build-push-action@v2.2.2
+        with:
+          tags: ${{ secrets.REGISTRY }}/hermes-ui:latest
+          push: true
+          build-args: |
+            API_URL=${{ secrets.HERMES_API }}

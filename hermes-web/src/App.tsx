@@ -1,0 +1,74 @@
+import './App.scss';
+import React, { useReducer } from 'react';
+import { Switch, Route } from 'react-router-dom';
+import { UploadView } from './views/Upload/UploadView';
+import { TranslateView } from './views/Translate/TranslateView';
+import { HNavbar } from './components/MainNavbar';
+import { Container } from 'reactstrap';
+import { LoginView } from './views/LogIn/LoginView';
+import { RootView } from './views/Root/RootView';
+import { ArticleTemplatesIndex } from './views/ArticleTemplates/ArticleTemplatesView';
+import { RoomsIndex } from './views/Rooms/Index';
+import { ProfileView } from './views/Profile/ProfileView';
+import { RankingView } from './views/Ranking/RankingView';
+import { Footer } from './components/AppFooter';
+import { ErrorModal } from './components/ErrorModal';
+
+export function App() {
+    const [{ errorIsOpen, error }, dispatch] = useReducer(reducer, {
+        errorIsOpen: false,
+        error: ''
+    });
+
+    function handleError(error: any) {
+        dispatch({ _type: 'ERROR_RAISED', error: error });
+    }
+
+    return (
+        <div className="App">
+            <HNavbar items={[
+                { label: 'RANKING', url: '/ranking', admin: false },
+                { label: 'TEXT STORAGE', url: '/templates/active', admin: true },
+                { label: 'ROOMS', url: '/rooms', admin: false }
+            ]}/>
+            <Container className='App-MainPanel' fluid>
+                <Switch>
+                    <Route exact path='/' render={(props) => {
+                        if (localStorage.getItem("hermes.userID") === null) {
+                            return <LoginView {...props} onError={handleError}/>
+                        } else {
+                            props.history.push('/rooms');
+                            return undefined;
+                        }}}/>
+                    <Route path='/templates/:archived/:roomID?' render={(props) => <ArticleTemplatesIndex {...props} onError={handleError}/>} />
+                    <Route path='/rooms' render={(props) => <RoomsIndex {...props} onError={handleError}/>}/>
+                    <Route path='/upload' render={(props) => <UploadView {...props} onError={handleError}/>}/>
+                    <Route path='/translate/:articleID/:inText?/:sentencePos?/:translationPos?/:comments?' render={(props) => <TranslateView {...props} onError={handleError}/>}/>
+                    <Route path='/root' render={(props) => <RootView {...props} onError={handleError}/>}/>
+                    <Route path='/profile/:userID' render={(props) => <ProfileView {...props} onError={handleError}/>}/>
+                    <Route path='/ranking' render={() => <RankingView/>}/>
+                </Switch>
+            </Container>
+            <Footer />
+            <ErrorModal
+                isOpen={errorIsOpen}
+                onAccept={() => dispatch({ _type: 'ERROR_CLOSED'})}
+                error={error}
+            />
+        </div>
+    );
+}
+
+type State = {
+    errorIsOpen: boolean;
+    error: any;
+}
+type Action =
+| { _type: 'ERROR_RAISED', error: any; }
+| { _type: 'ERROR_CLOSED' }
+function reducer(state: State, event: Action) : State {
+    switch (event._type) {
+        case 'ERROR_RAISED': return { errorIsOpen: true, error: event.error };
+        case 'ERROR_CLOSED': return { errorIsOpen: false, error: '' };
+    }
+}

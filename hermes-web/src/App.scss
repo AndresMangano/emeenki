@@ -1,0 +1,427 @@
+@import url('https://fonts.googleapis.com/css?family=Anonymous+Pro|Russo+One');
+
+.App-MainPanel {
+    min-height: 100vh;
+}
+
+.appBrandFont{
+    font-family: 'Russo One', sans-serif !important;
+}
+
+*{
+    font-family: 'Anonymous Pro', sans-serif;
+}
+
+button:focus {
+    box-shadow: none !important;
+}
+
+.App{
+    &-MainPanel{
+        margin-top: 4rem;
+    }
+}
+a, a:hover{
+    text-decoration: none !important;
+} 
+
+button:focus {
+    box-shadow: none !important;
+}
+
+*{
+    ::-webkit-scrollbar {
+        width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+        box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+        box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+        background: rgb(201, 201, 201); 
+    }
+    ::-webkit-scrollbar-corner {
+        background: grey;
+    }
+}
+
+.translationColor{
+    &-notTranslated{
+        color: #3232e0;
+    }
+    &-translatedByMe{
+        color: #25b125;
+    }
+    &-likedByMe{
+        color: #25b125;
+    }
+    &-replacedByOthers{
+        color: red;
+    }
+    &-translatedByOthers{
+        color: rgb(37, 35, 35);
+    }
+}
+
+.articleTranslator{
+    &-detailedForm{ 
+        &-history{
+            overflow-y: scroll;
+            background-color: white;
+            max-height: 30vh;
+            padding: .5rem !important;
+            border-radius: 0.5em;
+        }
+    }
+}
+.articleComments{
+    &-history{
+        max-height: 70vh !important;
+        padding: .5rem !important;
+    }
+    &-table {
+        overflow-y: scroll;
+        font-size: 1em;
+        line-height: 1.3em;
+    }
+}
+.articleText{
+    font-size: 1em;
+    line-height: 1.3em;
+}
+.HArticleList
+{
+    &:hover
+    {
+        margin: -.5rem 1rem .5rem -1rem;
+        transition: margin .2s;
+    }
+    margin: 0;
+    transition: margin .2s;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-style: none !important;
+    border-radius: 1rem !important;
+    box-shadow: .5rem .5rem 2rem 0 rgba(0,0,0,0.75);
+    &-item
+    {
+        border-radius: 1rem !important;
+        color: #000000;
+        height: 15rem;
+        padding-bottom: 0 !important;
+    }
+    &-item:hover
+    {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+}
+
+.HNavbar
+{
+    &-brand
+    {
+        font-family: Righteous, sans-serif;
+    }
+    &-link
+    {
+        width: 3.5rem;
+        height: 2.3rem;
+        border-radius: .3rem;
+        background-size: cover !important;
+        background-repeat: no-repeat;
+    }
+}
+.HRoomUser
+{
+    &-card
+    {
+        width: 100%;
+        height: 15rem;
+        background-size: cover !important;
+        background-repeat: no-repeat;
+        overflow: hidden;
+    }
+}
+.HRoomItem
+{
+    border-radius: 2rem !important;
+    box-shadow: .5rem .5rem 2rem 0 rgba(0,0,0,0.75);
+    &-header
+    {
+        border-radius: 2rem 2rem 0 0 !important;
+    }
+    &-badge
+    {
+        color: white !important;
+        background-color: rgba(0,0,0,0.3) !important;
+    }
+}
+.HSpinner
+{
+    background-color: rgba(0,0,0,0.1);
+}
+.HSentence
+{
+    &-hovered {
+        background-color: rgb(252, 252, 126);
+    }
+}
+.popover {
+    border-style: none !important;
+}
+
+.TranslationBox {
+    background: #f3f3f3 !important;
+    border: solid 2px #a3a3a3 !important;
+    border-radius: 4% !important;
+}
+
+.LikeButton {
+    color: white !important;
+    border-radius: 50% !important;
+    padding: 7px !important;
+}
+
+.TranslationNumber {
+    font-size:15px;
+    margin-top: 9px !important;
+}
+
+.TranslationPhoto {
+    width:  31px;
+    height: 31px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 7px;
+}
+
+.UserNameTranslation {
+    margin-top: 4px;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+.TranslationHistoryPhoto {
+    width:  25px;
+    height: 25px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+
+.UserNameHistoryTranslation {
+    margin-top: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.ActivityFeed {
+    border-radius: 1rem !important;
+    box-shadow: .3rem .3rem 1rem 0 rgba(0,0,0,0.75);
+}
+.ActivityBox {
+    max-width: 450px !important;
+    .ActivityHeader {
+        display: flex;
+        justify-content: space-between;
+        
+        color: #09475f !important;
+    }
+    .rounded {
+        width: 35px !important;
+        height: 35px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+    }
+}
+.language-flag {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.user-card {
+    &-name {
+        padding-left: 0px !important;
+    }
+    &-photo img {
+        width: 2.8em;
+    }
+    &-photo-sm img {
+        width: 2em;
+    }
+}
+.app-footer {
+    margin-top: 60px;
+}
+
+@import '../node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css';
+@import '../node_modules/bootswatch/dist/lumen/bootstrap.min.css';
+
+
+
+.Footer {
+    display: flex;
+    
+    background-color: #050f1d;
+    color: white;
+    border: solid;
+    border-color: #0c2733;
+    margin-top: 15px;
+}
+
+.BrandFooter {
+    margin-left: 75px;
+    font-size: 50px;
+}
+
+.FooterList ul {
+    list-style-type: none;
+    font-size: 20px;
+
+    border-left-style: solid;
+    border-left-color: white;
+}
+
+.SocialMediaWeb {
+    display: flex;
+    justify-content: space-around;
+}
+
+.FaTwitterWeb {
+    :hover {
+    opacity: .5;
+    }
+    color: rgba(75, 243, 255, 0.904);
+}
+
+.FaYoutubeWeb { 
+    :hover {
+        opacity: .5;
+    }
+    color:red;
+}
+
+.UserHeader {
+    display: flex;
+    flex-direction: column;
+
+    text-align: center;   
+
+    ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    
+        font-size: 50px;
+        list-style: none;
+        margin: 10px 0;
+        font-weight: bold;
+    }
+}
+
+.CameraIcon :hover{
+    opacity: .5;
+    cursor: pointer;
+}
+
+.Modal {
+    list-style: none;
+    margin: 10px 0px;
+}
+
+.ProfileInput ul {
+    list-style: none;
+}
+
+.CardLanguage {
+    width: 25%;
+    text-align: center;
+    margin: 15px 125px;
+}
+ 
+.ProfileTabs {
+    .nav-tabs {
+        display: flex;
+        justify-content: center;
+
+        border-bottom: 3px solid;
+        color: grey;
+        margin-bottom: 20px;
+    }
+    .nav-link {
+        color: white !important;
+        font-weight: bold;
+        background-color: #0c2733 !important;
+        opacity: .8 !important;
+        margin-bottom: 7px;
+
+        &:hover {
+            cursor: pointer; 
+        }
+
+        &.active {
+            opacity : 1 !important;
+        }  
+    }
+}
+
+.ProfilePostsBorder {
+    border-right-style: solid;
+    border-right-color: grey;
+    border-right-width: 1px;
+}
+
+.ProfileActivityBorder {
+    border-left-style: solid;
+    border-left-color: grey;
+    border-left-width: 1px;
+}
+
+.PostsCommentsUpperPart {
+    display:flex;
+    justify-content: space-between;
+
+    .PostsCommentsPhoto {
+        width:  40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-right: 11px;
+    }
+    
+    .PostsCommentsUserData { 
+        margin-top: 7px;
+        font-size: 17px;
+        color: #215b72;
+        font-weight: bold;
+    }
+    
+    .PostsCommentsTimeStamp { 
+        font-size: 14px;
+        color: #215b72;
+        font-weight: bold;
+        margin-left: auto;
+        margin-top: 7px;
+    }
+}
+
+.PostsCommentsText {
+    margin-top: 7px;
+    font-size: 15.9px;
+    font-family: verdana;
+    word-break: break-all;
+}
+
+.app-modal-reply-id {
+    p {
+        font-size: 10px !important;
+    }
+}
+
+.GoogleButton {
+    text-align: center;
+}

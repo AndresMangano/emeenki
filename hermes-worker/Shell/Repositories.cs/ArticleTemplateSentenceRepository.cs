@@ -1,0 +1,25 @@
+using System;
+using Dapper;
+using Hermes.Worker.Core.Repositories;
+
+namespace Hermes.Worker.Shell
+{
+    public partial class DBInterpreter : IArticleTemplateSentenceRepository
+    {
+        public void InsertArticleTemplateSentence(Guid articleTemplateID, bool inText, int sentenceIndex, string sentence)
+        {
+            _connection.Execute(@"
+                INSERT INTO Query_ArticleTemplateSentence(ArticleTemplateID, InText, SentenceIndex, Sentence)
+                VALUES(@articleTemplateID, @inText, @sentenceIndex, @sentence)
+                    ON DUPLICATE KEY UPDATE ArticleTemplateID = @articleTemplateID",
+                new {
+                    articleTemplateID,
+                    inText,
+                    sentenceIndex,
+                    sentence
+                },
+                transaction: _transaction
+            );
+        }
+    }
+}

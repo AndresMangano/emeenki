@@ -23,6 +23,8 @@ services:
     networks: [ inner ]
     environment: 
       - ConnectionString=${HERMES_DB_CONNECTION}
+      - Queue__UserName=${HERMES_QUEUE_USER}
+      - Queue__Password=${HERMES_QUEUE_PASSWORD}
   api:
     image: ${HERMES_REGISTRY}/hermes-api:latest
     ports: [ 8080:8080 ]
@@ -31,6 +33,8 @@ services:
       - SQLConnection=${HERMES_DB_CONNECTION}
       - Authentication__Secret=${HERMES_API_AUTH_SECRET}
       - UIServer=${HERMES_WEB_URL}
+      - Queue__UserName=${HERMES_QUEUE_USER}
+      - Queue__Password=${HERMES_QUEUE_PASSWORD}
   web:
     image: ${HERMES_REGISTRY}/hermes-web:latest
     ports: [ 80:80, 443:443 ]

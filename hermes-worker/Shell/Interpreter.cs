@@ -1,3 +1,6 @@
+using System;
+using Newtonsoft.Json;
+
 namespace Hermes.Worker.Shell
 {
     public partial class Interpreter

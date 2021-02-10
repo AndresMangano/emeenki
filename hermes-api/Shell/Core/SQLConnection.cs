@@ -12,8 +12,8 @@ namespace Hermes.Shell
         public SQLConnection(string connectionString)
         {
             ConnectionString = connectionString;
-
-            for (var retries=10; retries > 0; ) {
+            var retries = 10;
+            while (retries > 0) {
                 try {
                     var upgraderResult =
                         DeployChanges

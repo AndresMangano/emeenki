@@ -1,9 +1,11 @@
 version: "3.9"
 services:
   queue:
-    image: rabbitmq:3.8.11
+    image: rabbitmq:3.8.11-management
     ports: [ 15672:15672 ]
     networks: [ inner ]
+    volumes:
+      - queue_data:/var/lib/rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${HERMES_QUEUE_USER}
       - RABBITMQ_DEFAULT_PASS=${HERMES_QUEUE_PASSWORD}
@@ -11,6 +13,8 @@ services:
     image: mysql:5.7.29
     ports: [ 3306:3306 ]
     networks: [ inner ]
+    volumes:
+      - db_data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=${HERMES_DB_ROOT_PASSWORD}
       - MYSQL_DATABASE=hermes
@@ -38,3 +42,7 @@ services:
 networks:
   inner:
     driver: overlay
+
+volumes:
+  db_data:
+  queue_data:

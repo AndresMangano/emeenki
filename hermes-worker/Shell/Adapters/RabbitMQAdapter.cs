@@ -56,7 +56,11 @@ namespace Hermes.Worker.Shell
         public void CreateModelAndWait(Action<IRabbitMQHandler> model)
         {
             var retries = 10;
-            var factory = new ConnectionFactory { HostName = _settings.RabbitMQ };
+            var factory = new ConnectionFactory {
+                HostName = _settings.Queue.HostName,
+                UserName = _settings.Queue.UserName,
+                Password = _settings.Queue.Password
+            };
             while (retries > 0) {
                 try {
                     using (var connection = factory.CreateConnection()) {

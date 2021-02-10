@@ -105,7 +105,11 @@ namespace API
         {
             // Init DB
             services.AddSingleton<SQLConnection>(new SQLConnection(Configuration["SQLConnection"]));
-            services.AddSingleton<ConnectionFactory>(new ConnectionFactory { HostName = Configuration["RabbitMQ"]});
+            services.AddSingleton<ConnectionFactory>(new ConnectionFactory {
+                HostName = Configuration["Queue:HostName"],
+                UserName = Configuration["Queue:UserName"],
+                Password = Configuration["Queue:Password"]
+            });
             // Inject Queries
             services.AddSingleton<IArticleQueries, ArticleQuery>();
             services.AddSingleton<IArticleTemplateQueries, ArticleTemplateQuery>();

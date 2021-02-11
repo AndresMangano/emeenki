@@ -101,6 +101,18 @@ export class UserAPI
     {
         return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/user/changeLanguage`, command, getHeaders());
     }
+    static updateDescription(command: UserUpdateDescriptionCommand)
+    {
+       return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/user/updateDescription`, command, getHeaders()); 
+    }
+    static updateCountry (command: UserUpdateCountryCommand)
+    {
+       return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/user/updateCountry`, command, getHeaders()); 
+    }
+    static changePassword (command: ChangePasswordCommand)
+    {
+       return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/user/changePassword`, command, getHeaders()); 
+    }
     static getRanking()
     {
         return axios.get<UserRankingDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/user/ranking`, getHeaders());
@@ -130,7 +142,10 @@ export type UserDetailsDTO = {
     userID: string;
     profilePhotoURL: string;
     nativeLanguageID: string;
+    description?: string|null;
+    country: string;
     points: number;
+    signInType: string;
 }
 export type UserRankingDTO = {
     userID: string;
@@ -153,12 +168,14 @@ export type UserRegisterWithPasswordCommand = {
     password: string;
     profilePhotoURL: string;
     languageID: string;
+    country: string;
 }
 export type UserRegisterWithGoogleCommand = {
     userID: string;
     googleEmail: string;
     profilePhotoURL: string;
     languageID: string;
+    country: string;
 }
 export type UserRegisterResult = {
     userID: string;
@@ -202,6 +219,14 @@ export type UserChangeLanguageCommand = {
     userID: string;
     nativeLanguageID: string;
 }
+export type UserUpdateDescriptionCommand = {
+    userID: string;
+    description: string|null;
+}
+export type UserUpdateCountryCommand = {
+    userID: string;
+    country: string;
+}
 export type UserAddPostCommand = {
     userID: string;
     text: string;
@@ -211,4 +236,9 @@ export type DeleteUserPostCommand = {
     userID: string;
     userPostID: string;
     childUserPostID: string|null;
+}
+
+export type ChangePasswordCommand = {
+    actualPassword: string;
+    newPassword: string;
 }

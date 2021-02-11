@@ -14,9 +14,10 @@ type RegisterProfileDataProps = {
     }[]
 }
 export function RegisterProfileData({ onError, onSubmit, email, signInType, password, languages }: RegisterProfileDataProps) {
-    const [{ userID, profilePhotoURL, languageID }, dispatch] = useReducer(reducer, {
+    const [{ userID, profilePhotoURL, languageID, country }, dispatch] = useReducer(reducer, {
         userID: '',
         profilePhotoURL: '',
+        country: '',
         languageID: languages[0].languageID
     });
 
@@ -28,7 +29,8 @@ export function RegisterProfileData({ onError, onSubmit, email, signInType, pass
                 userID: userID,
                 googleEmail: email,
                 profilePhotoURL: profilePhotoURL,
-                languageID: languageID
+                languageID: languageID,
+                country: country
             })
             .then(() => onSubmit())
             .catch(onError);
@@ -37,7 +39,8 @@ export function RegisterProfileData({ onError, onSubmit, email, signInType, pass
                 userID: userID,
                 password: password,
                 profilePhotoURL: profilePhotoURL,
-                languageID: languageID
+                languageID: languageID,
+                country: country
             })
             .then(() => onSubmit())
             .catch(onError);
@@ -49,6 +52,7 @@ export function RegisterProfileData({ onError, onSubmit, email, signInType, pass
             case 'userID': dispatch({ _type: 'CHANGE_USER_ID', userID: event.currentTarget.value }); break;
             case 'profilePhotoURL': dispatch({ _type: 'CHANGE_PROFILE_PHOTO_URL', profilePhotoURL: event.currentTarget.value }); break;
             case 'languageID': dispatch({ _type: 'CHANGE_LANGUAGE_ID', languageID: event.currentTarget.value }); break;
+            case 'country': dispatch({_type: 'CHANGE_COUNTRY', country: event.currentTarget.value}); break;
         }
     }
 
@@ -75,6 +79,10 @@ export function RegisterProfileData({ onError, onSubmit, email, signInType, pass
                             )}
                         </Input>
                     </FormGroup>
+                    <FormGroup>
+                        <Label for='languageID'>Country</Label>
+                        <Input type='text' name='country' id='country' value={country} onChange={handleInputChange} required/>
+                    </FormGroup>
                     <Button color='primary'>Register</Button>
                 </Form>
             </CardBody>
@@ -86,17 +94,20 @@ type State = {
     userID: string;
     profilePhotoURL: string;
     languageID: string;
+    country: string;
 }
 type Action =
 | { _type: 'CHANGE_USER_ID', userID: string }
 | { _type: 'CHANGE_PROFILE_PHOTO_URL', profilePhotoURL: string }
 | { _type: 'CHANGE_LANGUAGE_ID', languageID: string }
+| { _type: 'CHANGE_COUNTRY', country: string}
 | { _type: 'SUBMIT' }
 function reducer(state: State, action: Action) : State {
     switch (action._type) {
         case 'CHANGE_USER_ID': return { ...state, userID: action.userID };
         case 'CHANGE_PROFILE_PHOTO_URL': return { ...state, profilePhotoURL: action.profilePhotoURL };
         case 'CHANGE_LANGUAGE_ID': return { ...state, languageID: action.languageID };
-        case 'SUBMIT': return { ...state, userID: '', profilePhotoURL: '' };
+        case 'CHANGE_COUNTRY': return { ...state, country: action.country};
+        case 'SUBMIT': return { ...state, userID: '', profilePhotoURL: '', country: '' };
     }
 }

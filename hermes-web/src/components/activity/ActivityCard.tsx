@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Card, CardBody, Row, Col, Badge, Media, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 type ActivityCardProps = {
     profilePhoto: ReactNode;
@@ -16,7 +17,7 @@ export function ActivityCard({ profilePhoto, userID, title, points, timestamp, c
             <div className="toast-header ActivityHeader">
                 <h4><Badge color='primary'>+{points} XP</Badge></h4>
                 <span className="ml-auto ActivityPhoto">{profilePhoto}</span>
-                <h5 className="mr-auto mt-2"><strong>{userID}</strong></h5>
+                <Link className="mr-auto mt-2" to={`/profile/${userID}`}><strong>{userID}</strong></Link>
                 <small>{moment.utc(timestamp).fromNow()}</small>
             </div>
             <ToastBody>
@@ -33,4 +34,3 @@ function transformText(count: number): string {
             ? `Added ${count} translations to the article`
             : ''
 }
-

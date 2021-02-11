@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import { Media, Button, Modal, ModalHeader, ModalBody, Container, Row, Col } from 'reactstrap';
 import { ProfilePostForm } from './ProfilePostForm';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 type ProfilePostProps = {
     onSubmit: (post: string, parentUserPostID:string|null) => void;
@@ -47,7 +48,7 @@ export function ProfilePost({ onSubmit, onDelete, senderUserID, profilePhotoURL,
             <Media className='m-3' heading>
                 <Media className="PostsCommentsUpperPart">
                     <img className="PostsCommentsPhoto" src={profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhotoURL} alt=''/>
-                    <big className='PostsCommentsUserData'>{`${senderUserID}`}</big>
+                    <Link className='PostsCommentsUserData' to={`/profile/${senderUserID}`}>{`${senderUserID}`}</Link>
                     <big className='mt-1 PostsCommentsTimeStamp'>{`${moment.utc(timestamp).fromNow()}`}</big>
                 </Media>
                 <Media body>
@@ -71,7 +72,7 @@ export function ProfilePost({ onSubmit, onDelete, senderUserID, profilePhotoURL,
                                 <Media className='m-3' heading>
                                     <Media className="PostsCommentsUpperPart">
                                         <img className="PostsCommentsPhoto" src={profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhotoURL} alt=''/>
-                                        <big className='PostsCommentsUserData mr-auto'>{`${senderUserID}`}</big>
+                                        <Link className='PostsCommentsUserData mr-auto' to={`/profile/${senderUserID}`}>{`${senderUserID}`}</Link>
                                         <big className='PostsCommentsTimeStamp'>{`${moment.utc(timestamp).fromNow()}`}</big>
                                     </Media>
                                     <Media body>
@@ -91,7 +92,7 @@ export function ProfilePost({ onSubmit, onDelete, senderUserID, profilePhotoURL,
                                         <Media key={r.childUserPostID!} className='m-3' heading>
                                             <Media className="PostsCommentsUpperPart">
                                                 <img className="PostsCommentsPhoto" src={r.profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : r.profilePhotoURL} alt=''/>
-                                                <big className='PostsCommentsUserData mr-auto'>{`${r.senderUserID}`}</big>
+                                                <Link className='PostsCommentsUserData mr-auto' to={`/profile/${r.senderUserID}`}>{`${r.senderUserID}`}</Link>
                                                 <big className='PostsCommentsTimeStamp'>{`${moment.utc(r.timestamp).fromNow()}`}</big>
                                             </Media>
                                             <Media body>

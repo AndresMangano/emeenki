@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Container } from 'reactstrap';
+import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { ArticleTranslator } from '../../components/ArticleTranslator';
 import { ArticleAPI, ArticleDTO } from '../../api/ArticleAPI';
@@ -51,6 +51,7 @@ interface IArticle
     text: ISentence[];
     comments: IArticleComment[];
 }
+
 type TranslateViewProps = RouteComponentProps<{ articleID: string, inText?: string, sentencePos?: string, translationPos?: string, comments?: string }> & {
     onError: (error: any) => void;
 }
@@ -152,28 +153,42 @@ export function TranslateView({ onError, history, match }: TranslateViewProps) {
                         }
                     />
                     <hr />
-                    <ArticleCommentsPanel
-                        form={
-                            <ArticleCommentForm 
-                                onSubmit={handleCommentArticle} 
-                                parentCommentPos={null}
-                            />
+                    <Row>
+                        <Col md={6}>
+                            <ArticleCommentsPanel
+                                form={
+                                    <ArticleCommentForm 
+                                        onSubmit={handleCommentArticle} 
+                                        parentCommentPos={null}
+                                    />
 
-                        }
-                    >
-                        { article.comments.filter(c => c.childCommentIndex === null).map((e, index) =>
-                            <React.Fragment key={index}>
-                                <ArticleComment {...e} 
-                                    key={index}
-                                    onSubmit={handleCommentRepliesArticle}
-                                    actualUserID={userID}
-                                    onDelete={handleDeleteArticleComment}
-                                    replies={article.comments.filter(c => c.childCommentIndex !== null && c.commentIndex === e.commentIndex)}
-                                />
-                                <hr />
-                            </React.Fragment>
-                        )}
-                    </ArticleCommentsPanel>
+                                }
+                            >
+                                { article.comments.filter(c => c.childCommentIndex === null).map((e, index) =>
+                                    <React.Fragment key={index}>
+                                        <ArticleComment {...e} 
+                                            key={index}
+                                            onSubmit={handleCommentRepliesArticle}
+                                            actualUserID={userID}
+                                            onDelete={handleDeleteArticleComment}
+                                            replies={article.comments.filter(c => c.childCommentIndex !== null && c.commentIndex === e.commentIndex)}
+                                        />
+                                        <hr />
+                                    </React.Fragment>
+                                )}
+                            </ArticleCommentsPanel>
+                        </Col>
+                        <Col md={6}>
+                            <Card className="app-translation-color-card">
+                                <CardBody className="app-translation-color-card-body">
+                                    <p className="app-translation-color-card-body-empty">■ Empty Translation</p>
+                                    <p className="app-translation-color-card-body-your">■ Your Translation or Liked Translation</p>
+                                    <p className="app-translation-color-card-body-activity">■ Activity in your Translation</p>
+                                    <p className="app-translation-color-card-body-other">■ Other User's Translation</p>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                    </Row>
                 </>
             }
         </Container>

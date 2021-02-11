@@ -45,7 +45,7 @@ export function TranslationHistory({ onUpvote, onDownvote, buildCommentsUrl, his
                                         {f.upvotesCount}
                                     </Button>
                                     <b><u><Link
-                                        className='text-white pl-2 mt-2 ml-1'
+                                        className='text-black pl-2 mt-2 ml-1'
                                         to={buildCommentsUrl(f.translationPos)}
                                         style={{ fontSize: '.7rem'}}
                                     >
@@ -56,7 +56,7 @@ export function TranslationHistory({ onUpvote, onDownvote, buildCommentsUrl, his
                                         src={f.profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : f.profilePhotoURL}
                                         alt='profile photo'
                                     />
-                                    <span className="UserNameHistoryTranslation">{f.userID}</span>
+                                    <Link to={`/profile/${f.userID}`}className="UserNameHistoryTranslation">{f.userID}</Link>
                                     <LanguageFlag languageID={f.nativeLanguageID} size='16px'/>
                                     <small className="d-flex ml-auto h6">{moment.utc(f.timestamp).fromNow()}</small>
                             </Media>

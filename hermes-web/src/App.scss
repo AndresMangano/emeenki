@@ -72,8 +72,9 @@ button:focus {
     }
 }
 
-.app-translation-color-card {
+.app-translation-color-card { display: flex !important; align-items: flex-end !important;
     width: 50%;
+    border: solid 2.2px grey !important;
     &-body {
         &-empty {
             color: #3232e0;

@@ -5,8 +5,9 @@ const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 type GoogleSignInProps = {
     onSuccess: (email: string) => void;
+    buttonText: 'Log In'|'Sign Up'
 }
-export function GoogleSignIn({ onSuccess }: GoogleSignInProps)  {
+export function GoogleSignIn({ onSuccess, buttonText }: GoogleSignInProps)  {
     function handleSuccess(result: any) {
         localStorage.setItem('hermes.googleToken', result.tokenId);    
         onSuccess(result.profileObj.email);
@@ -19,7 +20,7 @@ export function GoogleSignIn({ onSuccess }: GoogleSignInProps)  {
             clientId={clientId || ''}
             onSuccess={handleSuccess}
             onFailure={handleFailure}
-            buttonText="Sign In"
+            buttonText={buttonText}
             cookiePolicy={'single_host_origin'}
         />
     );

@@ -46,6 +46,7 @@ export function RegisterMain({ onError, onGoogleSignIn, onPasswordSignIn }: Regi
             <CardBody className="GoogleButton">
                 <GoogleSignIn
                     onSuccess={handleGoogleSubmit}
+                    buttonText='Sign Up'
                 />
             </CardBody>
         </Card>

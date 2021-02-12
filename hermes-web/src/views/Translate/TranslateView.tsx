@@ -178,7 +178,7 @@ export function TranslateView({ onError, history, match }: TranslateViewProps) {
                                 )}
                             </ArticleCommentsPanel>
                         </Col>
-                        <Col md={6}>
+                        <Col className="d-flex justify-content-center" md={6}>
                             <Card className="app-translation-color-card">
                                 <CardBody className="app-translation-color-card-body">
                                     <p className="app-translation-color-card-body-empty">■ Empty Translation</p>

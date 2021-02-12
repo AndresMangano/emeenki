@@ -31,7 +31,7 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(c => c.AddDefaultPolicy(build => {
-                build.WithOrigins(Configuration["UIServer"]);
+                build.WithOrigins("http://localhost:3000", Configuration["UIServer"]);
                 build.AllowCredentials();
                 build.AllowAnyHeader();
                 build.AllowAnyMethod();

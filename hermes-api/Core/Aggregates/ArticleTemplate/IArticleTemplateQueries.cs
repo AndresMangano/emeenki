@@ -7,6 +7,6 @@ namespace Hermes.Core
     public interface IArticleTemplateQueries
     {
         Task<ArticleTemplateDTO> Get(Guid articleTemplateID);
-        Task<IEnumerable<ArticleTemplatesDTO>> Query(string languageID, bool archived);
+        Task<IEnumerable<ArticleTemplatesDTO>> Query(string languageID, string topicID, bool archived);
     }
 }

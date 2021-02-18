@@ -9,15 +9,21 @@ namespace Hermes.API
     [ApiController]
     public class StaticController : ControllerBase
     {
-        readonly ILanguageQueries _queries;
+        readonly ILanguageQueries _languageQueries;
+        readonly ITopicQueries _topicQueries;
 
-        public StaticController(ILanguageQueries queries)
+        public StaticController(ILanguageQueries languageQueries, ITopicQueries topicQueries)
         {
-            _queries = queries;
+            _languageQueries = languageQueries;
+            _topicQueries = topicQueries;
         }
 
-        [HttpGet("getLanguages")]
-        public async Task<ActionResult<IEnumerable<LanguageDTO>>> GetLanguages()
-            => Ok(await _queries.List());
+        [HttpGet("getLanguages")] // TODO: Change to /languages
+        public async Task<ActionResult<IEnumerable<LanguageDTO>>> GetLanguages() =>
+            Ok(await _languageQueries.List());
+
+        [HttpGet("topics")]
+        public async Task<ActionResult<IEnumerable<TopicDTO>>> GetTopics() =>
+            Ok(await _topicQueries.List());
     }
 }

@@ -9,14 +9,16 @@ namespace Hermes.Core
         public List<string> Text { get; }
         public string Source { get; }
         public string PhotoURL { get; }
+        public string TopicID { get; }
 
-        public ArticleTemplateUploadedEvent(string languageID, List<string> title, List<string> text, string source, string photoURL)
+        public ArticleTemplateUploadedEvent(string languageID, List<string> title, List<string> text, string source, string photoURL, string topicID)
         {
             LanguageID = languageID;
             Title = title;
             Text = text;
             Source = source;
             PhotoURL = photoURL;
+            TopicID = topicID;
         }
     }
 }

@@ -8,12 +8,14 @@ namespace Hermes.Core
     public static class ArticleTemplateCommands
     {
         public static ArticleTemplateUploadResult Execute<IO>(IO io, ArticleTemplateUploadCommand cmd, string userID)
-        where IO : IEventsRepository, IUsersRepository, ILanguagesRepository
+        where IO : IEventsRepository, IUsersRepository, ILanguagesRepository, ITopicsRepository
         {
             var user = io.FetchUser(userID);
             var language = io.FetchLanguage(cmd.LanguageID);
+            var topic = io.FetchTopic(cmd.TopicID);
             UserService.ValidateAdminRights(user);
             LanguageService.ValidateExistence(language);
+            TopicService.ValidateExistence(topic);
             if (string.IsNullOrEmpty(cmd.Title)) throw new DomainException("Empty title");
             else if (string.IsNullOrEmpty(cmd.Text)) throw new DomainException("Empty text");
             else if (string.IsNullOrEmpty(cmd.Source)) throw new DomainException("Empty source");
@@ -30,7 +32,8 @@ namespace Hermes.Core
                     title: new List<string>(Regex.Split(cmd.Title, "\\.+\\s")),
                     text: new List<string>(Regex.Split(cmd.Text, "\\.+\\s")),
                     source: cmd.Source,
-                    photoURL: cmd.PhotoURL
+                    photoURL: cmd.PhotoURL,
+                    topicID: cmd.TopicID
                 )
             ));
             return new ArticleTemplateUploadResult(articleTemplateID);

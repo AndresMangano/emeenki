@@ -53,7 +53,7 @@ export function CreateRoomForm({ languages, onCreateRoom, onCancel }: CreateRoom
                         </Input>
                     </Col>
                     <Col md={6}>
-                        <Input type='select' name='languageID1' value={languageID2} onChange={handleInputChange}>
+                        <Input type='select' name='languageID2' value={languageID2} onChange={handleInputChange}>
                             {
                                 renderLanguageOptions(languageID1)
                             }

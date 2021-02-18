@@ -9,10 +9,10 @@ export function ArticleCommentsPanel({ form, children }: ArticleCommentsPanelPro
     return (
         <Container fluid>
             <Row>
-                <Col md={{ size: 5, offset: 1 }}>{ form }</Col>
+                <Col md={8}>{ form }</Col>
             </Row>
             <Row>
-                <Col md={{ size: 5, offset: 1}}>{ children }</Col>
+                <Col md={10}>{ children }</Col>
             </Row>
         </Container>
     );

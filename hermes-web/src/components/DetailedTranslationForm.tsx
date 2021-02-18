@@ -64,7 +64,7 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
                                         src={history[0].profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : history[0].profilePhotoURL}
                                         alt='profile photo'
                                     /> 
-                                    <span className="mr-auto UserNameTranslation">{history[0].userID}</span>
+                                    <Link to={`/profile/${history[0].userID}`} className="mr-auto UserNameTranslation">{history[0].userID}</Link>
                                     <LanguageFlag languageID={history[0].nativeLanguageID} size='24px'/>
                                 </Media>
                                 <Media/>

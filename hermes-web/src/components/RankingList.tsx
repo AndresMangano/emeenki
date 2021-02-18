@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Row, Badge, Table } from 'reactstrap';
 import { LanguageFlag } from './LanguageFlag';
 
@@ -28,7 +29,7 @@ export function RankingList({ ranking }: RankingListProps) {
                                     />
                                 </td>
                                 <td><LanguageFlag languageID={e.nativeLanguageID} size="24px"/></td>
-                                <td><h4><strong>{e.userID}</strong></h4></td>
+                                <td><Link to={`/profile/${e.userID}`}><h4><strong>{e.userID}</strong></h4></Link></td>
                                 <td><h5><Badge color='primary'>{e.points} XP</Badge></h5></td>
                             </tr>
                         )}

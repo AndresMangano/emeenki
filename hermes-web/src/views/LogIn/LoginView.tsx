@@ -38,7 +38,7 @@ export function LoginView({ onError, history }: LoginViewProps) {
                         <Button color="primary" onClick={() => dispatch({ _type: 'SWITCH_LOGIN' })} active={form === 'login'}>LogIn</Button>
                         <Button color="primary" onClick={() => dispatch({ _type: 'SWITCH_REGISTER'})} active={form === 'register'}>Register</Button>
                     </ButtonGroup>
-                    <DiscordButton channel='https://discord.gg/jkNBqkN'/>
+                    <DiscordButton channel='https://discord.gg/yVqVhMAMM5'/>
                     { (form === 'register') &&
                         <RegisterMain
                             onError={onError}
@@ -46,7 +46,7 @@ export function LoginView({ onError, history }: LoginViewProps) {
                             onPasswordSignIn={handlePasswordSignIn}
                         />
                     }
-                    { (form === 'profile' && languagesData !== undefined) &&
+                    { (form === 'profile' && languagesData !== undefined ) &&
                         <RegisterProfileData
                             onError={onError}
                             signInType={signInType}

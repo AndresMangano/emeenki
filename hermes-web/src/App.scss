@@ -51,19 +51,47 @@ button:focus {
 
 .translationColor{
     &-notTranslated{
+        font-weight: bold;
         color: #3232e0;
     }
     &-translatedByMe{
+        font-weight: bold;
         color: #25b125;
     }
     &-likedByMe{
+        font-weight: bold;
         color: #25b125;
     }
     &-replacedByOthers{
-        color: red;
+        font-weight: bold;
+        color: #ac3598;
     }
     &-translatedByOthers{
-        color: rgb(37, 35, 35);
+        font-weight: bold;
+        color: #252323;
+    }
+}
+
+.app-translation-color-card { display: flex !important; align-items: flex-end !important;
+    width: 50%;
+    border: solid 2.2px grey !important;
+    &-body {
+        &-empty {
+            color: #3232e0;
+            font-weight: bold;
+        }
+        &-your {
+            color: #25b125;
+            font-weight: bold;
+        }
+        &-activity {
+            color: #ac3598;
+            font-weight: bold;
+        }
+        &-other {
+            color: #252323;
+            font-weight: bold;
+        }
     }
 }
 
@@ -308,6 +336,7 @@ button:focus {
 .UserHeader {
     display: flex;
     flex-direction: column;
+    align-items: center;
 
     text-align: center;   
 
@@ -328,6 +357,11 @@ button:focus {
     cursor: pointer;
 }
 
+.EditIcon :hover{
+    opacity: .5;
+    cursor: pointer;
+}
+
 .Modal {
     list-style: none;
     margin: 10px 0px;
@@ -336,13 +370,11 @@ button:focus {
 .ProfileInput ul {
     list-style: none;
 }
-
-.CardLanguage {
-    width: 25%;
+.ConfigurationCard {
+    width: 50%;
     text-align: center;
     margin: 15px 125px;
 }
- 
 .ProfileTabs {
     .nav-tabs {
         display: flex;
@@ -424,4 +456,28 @@ button:focus {
 
 .GoogleButton {
     text-align: center;
+}
+
+.UserDescription {
+    p {
+        text-align: center;
+        color: grey;
+        font-weight: bold;
+        font-size: 1.2em;
+        word-break: break-all;
+    }
+}
+
+.UserCountry {
+    p {
+        text-align: center;
+        color: #0c2733;
+        font-weight: bold;
+        font-size: 2em;
+    }
+}
+
+.MapmarkerIcon {
+    margin-left: 5px;
+    color: rgb(252, 33, 33);
 }

@@ -54,6 +54,7 @@ export function LogInForm({ onSubmit, onError }: LoginFormProps) {
             <CardBody className="GoogleButton">
                 <GoogleSignIn
                     onSuccess={handleLoginWithGoogle}
+                    buttonText='Log In'
                 />
             </CardBody>
         </Card>

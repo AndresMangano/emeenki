@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import { Media, Button, Modal, ModalHeader, Container, Row, Col, ModalBody } from 'reactstrap';
 import moment from 'moment';
 import { ArticleCommentForm } from './ArticleCommentForm';
+import { Link } from 'react-router-dom';
 
 type ArticleCommentProps = {
     onSubmit: (comment: string, parentCommentPos:number|null) => void;
@@ -47,7 +48,7 @@ export function ArticleComment({onDelete, onSubmit, actualUserID, userID, profil
             <Media className='m-3' heading>
                 <Media className="PostsCommentsUpperPart">
                     <img className="PostsCommentsPhoto" src={profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhotoURL} alt=''/>
-                    <big className='PostsCommentsUserData'>{`${userID}`}</big>
+                    <Link className='PostsCommentsUserData' to={`/profile/${userID}`}>{`${userID}`}</Link>
                     <big className='PostsCommentsTimeStamp'>{`${moment.utc(timestamp).fromNow()}`}</big>
 
                 </Media>
@@ -73,7 +74,7 @@ export function ArticleComment({onDelete, onSubmit, actualUserID, userID, profil
                                 <Media className='m-3' heading>
                                     <Media className="PostsCommentsUpperPart">
                                         <img className="PostsCommentsPhoto" src={profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhotoURL} alt=''/>
-                                        <big className='PostsCommentsUserData mr-auto'>{`${userID}`}</big>
+                                        <Link className='PostsCommentsUserData mr-auto' to={`/profile/${userID}`}>{`${userID}`}</Link>
                                         <big className='PostsCommentsTimeStamp'>{`${moment.utc(timestamp).fromNow()}`}</big>
                                     </Media>
                                     <Media body>
@@ -93,7 +94,7 @@ export function ArticleComment({onDelete, onSubmit, actualUserID, userID, profil
                                         <Media key={r.childCommentIndex!} className='m-3' heading>
                                             <Media className="PostsCommentsUpperPart">
                                                 <img className="PostsCommentsPhoto" src={r.profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : r.profilePhotoURL} alt=''/>
-                                                <big className='PostsCommentsUserData mr-auto'>{`${r.userID}`}</big>
+                                                <Link className='PostsCommentsUserData mr-auto' to={`/profile/${r.userID}`}>{`${r.userID}`}</Link>
                                                 <big className='PostsCommentsTimeStamp'>{`${moment.utc(r.timestamp).fromNow()}`}</big>
                                             </Media>
                                             <Media body>

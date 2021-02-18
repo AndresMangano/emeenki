@@ -34,29 +34,22 @@ namespace Hermes.Shell.Read
             }
         }
 
-        public async Task<IEnumerable<ArticleTemplatesDTO>> Query(string languageID, bool archived)
+        public async Task<IEnumerable<ArticleTemplatesDTO>> Query(string languageID, string topicID, bool archived)
         {
             using(MySqlConnection conn = new MySqlConnection(_connectionString)){
                 conn.Open();
-                if (languageID == null) {
-                    return await conn.QueryAsync<ArticleTemplatesDTO>(
-                        @"  SELECT *
-                                FROM Query_ArticleTemplates
-                                WHERE   Archived = @Archived", 
-                        new { Archived = archived }
-                    );
-                } else {
-                    return await conn.QueryAsync<ArticleTemplatesDTO>(
-                        @"  SELECT *
-                                FROM Query_ArticleTemplates
-                                WHERE   Archived = @Archived AND
-                                        LanguageID = @LanguageID",
-                        new {
-                            Archived = archived,
-                            LanguageID = languageID
-                        }
-                    );
-                }
+                return await conn.QueryAsync<ArticleTemplatesDTO>(
+                    @"  SELECT *
+                            FROM Query_ArticleTemplates
+                            WHERE   Archived = @archived AND
+                                (@languageID IS NULL OR @languageID = LanguageID) AND
+                                (@topicID IS NULL OR @topicID = TopicID)", 
+                    new {
+                        archived,
+                        languageID,
+                        topicID
+                    }
+                );
             }
         }
     }

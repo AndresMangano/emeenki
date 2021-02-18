@@ -27,6 +27,7 @@ namespace Hermes.Worker.Core.Commands
                     articleTemplateID: message.Metadata.ID,
                     title: String.Join(" ", message.Payload.Title),
                     created: message.Metadata.Timestamp,
+                    topicID: message.Payload.TopicID,
                     languageID: message.Payload.LanguageID,
                     photoURL: message.Payload.PhotoURL,
                     archived: false
@@ -34,6 +35,7 @@ namespace Hermes.Worker.Core.Commands
                 dbIO.InsertArticleTemplate(
                     articleTemplateID: message.Metadata.ID,
                     deleted: false,
+                    topicID: message.Payload.TopicID,
                     languageID: message.Payload.LanguageID,
                     source: message.Payload.Source,
                     photoURL: message.Payload.PhotoURL,

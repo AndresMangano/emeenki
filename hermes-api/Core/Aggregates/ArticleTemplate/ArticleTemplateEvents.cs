@@ -13,6 +13,7 @@ namespace Hermes.Core
                 case ArticleTemplateUploadedEvent e:
                     articleTemplate.ID = @event.Metadata.ID;
                     articleTemplate.LanguageID = e.LanguageID;
+                    articleTemplate.TopicID = e.TopicID;
                     articleTemplate.Title = e.Title;
                     articleTemplate.Text = e.Text;
                     articleTemplate.Source = e.Source;

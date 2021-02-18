@@ -7,15 +7,16 @@ namespace Hermes.Worker.Shell
 {
     public partial class DBInterpreter : IArticleTemplateRepository
     {
-        public void InsertArticleTemplate(Guid articleTemplateID, bool deleted, string languageID, string source, string photoURL, DateTime timestamp)
+        public void InsertArticleTemplate(Guid articleTemplateID, bool deleted, string topicID, string languageID, string source, string photoURL, DateTime timestamp)
         {
             _connection.Execute(@"
-                INSERT INTO Query_ArticleTemplate(ArticleTemplateID, Deleted, LanguageID, `Source`, PhotoURL, `Timestamp`)
-                VALUES(@articleTemplateID, @deleted, @languageID, @source, @photoURL, @timestamp)
+                INSERT INTO Query_ArticleTemplate(ArticleTemplateID, Deleted, TopicID, LanguageID, `Source`, PhotoURL, `Timestamp`)
+                VALUES(@articleTemplateID, @deleted, @topicID, @languageID, @source, @photoURL, @timestamp)
                     ON DUPLICATE KEY UPDATE ArticleTemplateID = @articleTemplateID",
                 new {
                     articleTemplateID,
                     deleted,
+                    topicID,
                     languageID,
                     source,
                     photoURL,

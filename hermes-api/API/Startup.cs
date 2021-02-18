@@ -116,6 +116,7 @@ namespace API
             services.AddSingleton<IRoomQueries, RoomQuery>();
             services.AddSingleton<IUserQueries, UserQuery>();
             services.AddSingleton<ILanguageQueries, LanguageQuery>();
+            services.AddSingleton<ITopicQueries, TopicQuery>();
             // Inject Interpreters
             services.AddSingleton<DomainInterpreter>();
         }

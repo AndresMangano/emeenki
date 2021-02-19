@@ -7,9 +7,15 @@ export class ArticleTemplateAPI
     {
         return axios.get<ArticleTemplateDTO>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/get/${articleTemplateID}`, getHeaders());
     }
-    static query(deleted:boolean, languageID: string|null)
+    static query(archived: boolean, languageID:string|null, topicID: string|null)
     {
-        return axios.get<ArticleTemplateListDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/query/${deleted}${languageID !== null ? '/'+languageID : ''}`, getHeaders());
+        return axios.get<ArticleTemplateListDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/query/${archived}`, { 
+            ...getHeaders(),
+            params: {
+                languageID,
+                topicID
+            }            
+        });
     }
     static upload(command:ArticleTemplateUploadCommand)
     {
@@ -42,6 +48,7 @@ export type ArticleTemplateListDTO = {
 
 export type ArticleTemplateUploadCommand = {
     languageID: string;
+    topicID: string;
     title: string;
     text: string;
     source: string;

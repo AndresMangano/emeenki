@@ -1,11 +1,11 @@
 import React, { useReducer, useMemo } from 'react';
 import { RouteComponentProps, Link } from 'react-router-dom';
-import { Container, Row, Col, Button, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Input, Label } from 'reactstrap';
 import { PageHeader } from '../../components/PageHeader';
 import { ArticlesList } from '../../components/ArticleList';
 import { ArticleTemplateAPI } from '../../api/ArticleTemplateAPI';
 import { useSignalR } from '../../services/signalr-service';
-import { useArticleTemplatesQuery, useLanguagesQuery } from '../../services/queries-service';
+import { useArticleTemplatesQuery, useLanguagesQuery, useTopicsQuery } from '../../services/queries-service';
 import { ArticleCard } from '../../components/ArticleCard';
 import { ArticleAPI } from '../../api/ArticleAPI';
 
@@ -19,11 +19,13 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     const { roomID } = match.params;
 
     useSignalR('articleTemplates');
-    const [{ languageID }, dispatch] = useReducer(reducer, {
-        languageID: 'ENG'
+    const [{ languageID, topicID }, dispatch] = useReducer(reducer, {
+        languageID: 'ENG',
+        topicID: ''
     });
     const { data: languagesData } = useLanguagesQuery();
-    const { data: articleTemplatesData } = useArticleTemplatesQuery(archived, languageID === '' ? null : languageID);
+    const { data: topicsData } = useTopicsQuery();
+    const { data: articleTemplatesData } = useArticleTemplatesQuery( archived, languageID, topicID);
     const articleTemplates = useMemo(() => {
         if (articleTemplatesData !== undefined) {
             return articleTemplatesData.map(e => ({
@@ -40,6 +42,7 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         switch (event.currentTarget.name) {
             case 'languageID': dispatch({ _type: 'CHANGE_LANGUAGE_ID', languageID: event.currentTarget.value }); break;
+            case 'topicID': dispatch( { _type: 'CHANGE_TOPIC_ID', topicID: event.currentTarget.value}); break;
         }
     }
     function handleArchive(articleTemplateID: string) {
@@ -64,11 +67,12 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                 <PageHeader subtitle={roomID !== undefined ? `Add template to room ${roomID}` : undefined}>
                     Text Storage
                 </PageHeader>
-                <Row className='justify-content-center text-center mb-4'>
+                <Row className='justify-content-center align-items-end text-center mb-4'>
                     <Col md={{ size: 2 }}>
                         <Link className='btn btn-success' to='/upload'>Upload Text</Link>
                     </Col>
                     <Col md={{ size: 3}}>
+                        <Label>Language</Label>
                         <Input type='select' name='languageID' value={languageID} onChange={handleInputChange}>
                             <option value=''>All</option>
                             { (languagesData) &&
@@ -77,11 +81,21 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                             )}
                         </Input>
                     </Col>
+                    <Col md={{ size: 3}}>
+                        <Label>Topic</Label>
+                        <Input type='select' name='topicID' id='topicID' value={topicID} onChange={handleInputChange}>
+                            <option value=''>All</option>
+                            { (topicsData) &&
+                                topicsData.map((e, index) =>
+                                <option key={index} value={e.topicID}>{e.name}</option>
+                            )}
+                        </Input>
+                    </Col>
                     <Col md={{ size: 2 }}>
-                        { archived &&
-                            <Button tag={Link} color='primary' to={`/templates/archived`}>Archive</Button>
-                        }
                         { !archived &&
+                            <Button tag={Link} color='danger' to={`/templates/archived`}>Archive</Button>
+                        }
+                        { archived &&
                             <Button tag={Link} color='primary' to={`/templates/active`}>Active</Button>
                         }
                     </Col>
@@ -106,11 +120,14 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
 
 type State = {
     languageID: string;
+    topicID: string;
 }
 type Action =
 | { _type: 'CHANGE_LANGUAGE_ID', languageID: string }
+| { _type: 'CHANGE_TOPIC_ID', topicID: string }
 function reducer(state: State, action: Action) : State {
     switch (action._type) {
         case 'CHANGE_LANGUAGE_ID': return { ...state, languageID: action.languageID };
+        case 'CHANGE_TOPIC_ID': return { ...state, topicID: action.topicID };
     }
 }

@@ -24,8 +24,8 @@ export function useUserActivityFeedQuery(userID: string) {
 export function useArticleTemplateQuery(articleTemplateID: string) {
     return useQuery(['ARTICLE_TEMPLATE', articleTemplateID], (key, articleTemplateID: string) => ArticleTemplateAPI.get(articleTemplateID).then(res => res.data), defaultConfig);
 }
-export function useArticleTemplatesQuery(deleted: boolean, languageID: string|null) {
-    return useQuery(['ARTICLE_TEMPLATES', deleted, languageID], (key, deleted: boolean, languageID: string) => ArticleTemplateAPI.query(deleted, languageID).then(res => res.data), defaultConfig);
+export function useArticleTemplatesQuery(archived: boolean, languageID: string|null, topicID: string|null) {
+    return useQuery(['ARTICLE_TEMPLATES', archived, languageID, topicID], (key, archived: boolean, languageID: string, topicID: string|null) => ArticleTemplateAPI.query(archived, languageID, topicID).then(res => res.data), defaultConfig);
 }
 export function useRoomQuery(roomID: string) {
     return useQuery(['ROOM', roomID], (key, roomID: string) => RoomAPI.get(roomID).then(res => res.data), defaultConfig);
@@ -45,6 +45,9 @@ export function useRoomsQuery(filter:string, userID:string, languageID1:string, 
 }
 export function useLanguagesQuery() {
     return useQuery(['LANGUAGES'], () => StaticAPI.getLanguages().then(res => res.data), defaultConfig);
+}
+export function useTopicsQuery() {
+    return useQuery(['TOPIC'], () => StaticAPI.getTopics().then(res => res.data), defaultConfig);
 }
 export function useUserQuery(userID: string) {
     return useQuery(['USER', userID], (key, userID: string) => UserAPI.get(userID).then(res => res.data), defaultConfig);

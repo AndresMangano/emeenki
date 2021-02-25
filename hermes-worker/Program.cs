@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Hermes.Worker.Core.Commands;
 using Hermes.Worker.Shell;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Hermes.Worker
 {

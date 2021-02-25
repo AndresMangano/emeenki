@@ -1,4 +1,4 @@
-name: build-api
+name: deploy-api
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
       - 'hermes-api/**'
 
 jobs:
-  build_api:
-    name: Build API
+  deploy_api:
+    name: Deploy API
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,12 +25,12 @@ jobs:
           context: ./hermes-api
           push: true
       - name: Update Service
-          uses: appleboy/ssh-action@v0.1.4
-          with:
-            host: ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USER }}
-            key: ${{ secrets.SSH_KEY }}
-            script: |
-              docker service update \
-                --image ${{ secrets.REGISTRY }}/hermes-api:latest \
-                hermes-api
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker service update \
+              --image ${{ secrets.REGISTRY }}/hermes-api:latest \
+              hermes-api

@@ -14,6 +14,7 @@ namespace Hermes.Worker
             var loggerFactory = LoggerFactory.Create(builder =>
                 builder.AddSimpleConsole(options =>
                 {
+                    options.SingleLine = true;
                     options.ColorBehavior = LoggerColorBehavior.Enabled;
                     options.TimestampFormat = "hh:mm:ss";
                 }));

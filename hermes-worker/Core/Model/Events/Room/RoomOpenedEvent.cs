@@ -1,24 +1,39 @@
 using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.Room
 {
-    public class RoomOpenedEvent
+    public record RoomOpenedEvent(
+        EventHeader<string> Header,
+        Guid Token,
+        string LanguageID1,
+        string LanguageID2,
+        short UsersLimit,
+        bool Restricted,
+        string UserID
+    ) : IEvent<string>
     {
-        public Guid Token { get; }
-        public string LanguageID1 { get; }
-        public string LanguageID2 { get; }
-        public short UsersLimit { get; }
-        public bool Restricted { get; }
-        public string UserID { get; }
-
-        public RoomOpenedEvent(Guid token, string languageID1, string languageID2, short usersLimit, bool restricted, string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            Token = token;
-            LanguageID1 = languageID1;
-            LanguageID2 = languageID2;
-            UsersLimit = usersLimit;
-            Restricted = restricted;
-            UserID = userID;
+            interpreter.InsertRoom(
+                roomID: Header.ID,
+                languageID1: LanguageID1,
+                languageID2: LanguageID2,
+                closed: false,
+                restricted: Restricted,
+                usersLimit: UsersLimit
+            );
+            interpreter.InsertRoomUser(
+                roomID: Header.ID,
+                userID: UserID,
+                permission: "admin"
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID, "rooms");
         }
     }
 }

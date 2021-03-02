@@ -1,30 +1,66 @@
 using System;
 using System.Collections.Generic;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.Article
 {
-    public class ArticleTemplateTakenEvent
+    public record ArticleTemplateTakenEvent(
+        EventHeader<Guid> Header,
+        Guid ArticleTemplateID,
+        string RoomID,
+        string OriginalLanguageID,
+        string TranslationLanguageID,
+        List<string> Title,
+        List<string> Text,
+        string Source,
+        string PhotoURL
+    ) : IEvent<Guid>
     {
-        public Guid ArticleTemplateID { get; }
-        public string RoomID { get; }
-        public string OriginalLanguageID { get; }
-        public string TranslationLanguageID { get; }
-        public List<string> Title { get; }
-        public List<string> Text { get; }
-        public string Source { get; }
-        public string PhotoURL { get; }
-
-        public ArticleTemplateTakenEvent(Guid articleTemplateID, string roomID, string originalLanguageID, string translationLanguageID,
-            List<string> title, List<string> text, string source, string photoURL)
+        public void Apply(DBInterpreter interpreter)
         {
-            ArticleTemplateID = articleTemplateID;
-            RoomID = roomID;
-            OriginalLanguageID = originalLanguageID;
-            TranslationLanguageID = translationLanguageID;
-            Title = title;
-            Text = text;
-            Source = source;
-            PhotoURL = photoURL;
+            interpreter.InsertArticles(
+                articleID: Header.ID,
+                roomID: RoomID,
+                title: String.Join(" ", Title),
+                created: Header.Timestamp,
+                originalLanguageID: OriginalLanguageID,
+                translationLanguageID: TranslationLanguageID,
+                photoURL: PhotoURL,
+                archived: false
+            );
+            interpreter.InsertArticle(
+                articleID: Header.ID,
+                articleTemplateID: ArticleTemplateID,
+                archived: false,
+                roomID: RoomID,
+                originalLanguageID: OriginalLanguageID,
+                translationLanguageID: TranslationLanguageID,
+                source: Source,
+                photoURL: PhotoURL,
+                timestamp: Header.Timestamp
+            );
+            for (var index = 0; index < Text.Count; index++) {
+                interpreter.InsertSentence(
+                    articleID: Header.ID,
+                    inText: true,
+                    sentenceIndex: index,
+                    originalText: Text[index]
+                );
+            }
+            for (var index = 0; index < Title.Count; index++) {
+                interpreter.InsertSentence(
+                    articleID: Header.ID,
+                    inText: false,
+                    sentenceIndex: index,
+                    originalText: Title[index]
+                );
+            }
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, Header.ID.ToString(), "articles");
         }
     }
 }

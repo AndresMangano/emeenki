@@ -37,7 +37,7 @@ namespace Hermes.Shell
         long? ApplyRoomEvent(RoomEvent @event) {
             var index = _roomsRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("room_events", @event.Metadata.EventName, new EventMessage<string, object>(index.Value, @event));
+                SendMessage("room_events", index.Value, @event.Metadata, @event.Payload);
             }
             return index;
         }

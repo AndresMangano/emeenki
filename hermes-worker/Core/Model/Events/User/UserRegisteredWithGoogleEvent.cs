@@ -1,20 +1,32 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserRegisteredWithGoogleEvent
+    public record UserRegisteredWithGoogleEvent(
+        EventHeader<string> Header,
+        string GoogleEmail,
+        string ProfilePhotoURL,
+        string LanguageID,
+        string Rights,
+        string Country
+    ) : IEvent<string>
     {
-        public string GoogleEmail { get; }
-        public string ProfilePhotoURL { get; }
-        public string LanguageID { get; }
-        public string Rights { get; }
-        public string Country { get; }
-
-        public UserRegisteredWithGoogleEvent(string googleEmail, string profilePhotoURL, string languageID, string rights, string country)
+        public void Apply(DBInterpreter interpreter)
         {
-            GoogleEmail = googleEmail;
-            ProfilePhotoURL = profilePhotoURL;
-            LanguageID = languageID;
-            Rights = rights;
-            Country = country;
+            interpreter.InsertUser(
+                userID: Header.ID,
+                rights: Rights,
+                profilePhotoURL: ProfilePhotoURL,
+                nativeLanguageID: LanguageID,
+                country: Country,
+                signInType: "google"
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID, "users");
         }
     }
 }

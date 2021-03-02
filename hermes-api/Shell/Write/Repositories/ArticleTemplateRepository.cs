@@ -28,7 +28,7 @@ namespace Hermes.Shell
         long? ApplyArticleTemplateEvent(ArticleTemplateEvent @event) {
             var index = _articleTemplatesRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("article_template_events", @event.Metadata.EventName, new EventMessage<Guid, object>(index.Value, @event));
+                SendMessage("article_template_events", index.Value, @event.Metadata, @event.Payload);
             }
             return index;
         }

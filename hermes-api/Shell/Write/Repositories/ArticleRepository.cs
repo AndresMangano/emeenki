@@ -35,7 +35,7 @@ namespace Hermes.Shell
         long? ApplyArticleEvent(ArticleEvent @event) {
             var index = _articlesRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("article_events", @event.Metadata.EventName, new EventMessage<Guid, object>(index.Value, @event));
+                SendMessage("article_events", index.Value, @event.Metadata, @event.Payload);
             }
             return index;
         }

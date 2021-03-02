@@ -1,20 +1,32 @@
 using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserPostAddedEvent
+    public record UserPostAddedEvent(
+        EventHeader<string> Header,
+        Guid UserPostID,
+        string Text,
+        string UserID,
+        Guid? ChildUserPostID
+    ) : IEvent<string>
     {
-        public Guid UserPostID { get; }
-        public string Text { get; }
-        public string UserID { get; }
-        public Guid? ChildUserPostID { get; }
-        
-        public UserPostAddedEvent(Guid userPostId, string text, string userID, Guid? childUserPostID)
+        public void Apply(DBInterpreter interpreter)
         {
-            UserPostID = userPostId;
-            Text = text;
-            UserID = userID;
-            ChildUserPostID = childUserPostID;
+            interpreter.InsertUserPost(
+                userPostID: UserPostID,
+                childUserPostID: ChildUserPostID,
+                userID: Header.ID,
+                text: Text,
+                senderUserID: UserID,
+                timestamp: Header.Timestamp
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID, $"user:{Header.ID}");
         }
     }
 }

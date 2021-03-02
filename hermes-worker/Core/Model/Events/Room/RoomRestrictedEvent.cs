@@ -1,12 +1,25 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Room
 {
-    public class RoomRestrictedEvent
+    public record RoomRestrictedEvent(
+        EventHeader<string> Header,
+        string UserID
+    ) : IEvent<string>
     {
-        public string UserID { get; }
-
-        public RoomRestrictedEvent(string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            UserID = userID;
+            interpreter.UpdateRoom(Header.ID,
+                restricted: new DbUpdate<bool>(true));
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID,
+                "rooms",
+                $"room:{Header.ID}");
         }
     }
 }

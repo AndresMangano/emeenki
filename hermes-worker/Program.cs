@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.IO;
-using Hermes.Worker.Core.Commands;
 using Hermes.Worker.Shell;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Hermes.Worker
 {
@@ -11,6 +11,16 @@ namespace Hermes.Worker
     {
         static void Main(string[] args)
         {
+            var loggerFactory = LoggerFactory.Create(builder =>
+                builder.AddSimpleConsole(options =>
+                {
+                    options.ColorBehavior = LoggerColorBehavior.Enabled;
+                    options.TimestampFormat = "hh:mm:ss";
+                }));
+                
+            var logger = loggerFactory.CreateLogger<Program>();
+            
+            logger.LogInformation("Load settings");
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentVariables()
@@ -18,11 +28,12 @@ namespace Hermes.Worker
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .Build();
 
+            logger.LogInformation("Parse settings");
             var appSettings = configuration
                 .Get<AppSettings>();
             
-            Interpreter io = new Interpreter(appSettings);
-            SetupQueuesCommand.Execute<Interpreter, DBInterpreter>(io);
+            Interpreter interpreter = new Interpreter(appSettings, loggerFactory);
+            interpreter.Start();
         }
     }
 }

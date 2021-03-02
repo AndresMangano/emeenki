@@ -1,12 +1,25 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Room
 {
-    public class RoomClosedEvent
+    public record RoomClosedEvent(
+        EventHeader<string> Header,
+        string UserID
+    ) : IEvent<string>
     {
-        public string UserID { get; }
-
-        public RoomClosedEvent(string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            UserID = userID;
+            interpreter.UpdateRoom(Header.ID,
+                closed: new DbUpdate<bool>(true));
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID,
+                "rooms",
+                $"room:{Header.ID}");
         }
     }
 }

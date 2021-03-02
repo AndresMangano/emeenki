@@ -1,21 +1,27 @@
+using System;
 using System.Text;
+using Hermes.Core;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 
 namespace Hermes.Shell
 {
     public partial class DomainInterpreter
     {
-        void SendMessage<T>(string exchange, string routingKey, T message)
+        void SendMessage<TKey, T>(string exchange, long index, DomainEventMetadata<TKey> header, T payload)
         {
             using (var connection = _rabbitMQConnection.CreateConnection()) {
                 using (var channel = connection.CreateModel()) {
                     channel.ExchangeDeclare(exchange, type: ExchangeType.Fanout);
-                    var msg = JsonConvert.SerializeObject(message);
-                    var body = Encoding.UTF8.GetBytes(msg);
+                    var msgHeader = JObject.FromObject(header);
+                    msgHeader.Add("Index", index);
+                    JObject msg = JObject.FromObject(payload);
+                    msg.Add("Header", msgHeader);
+                    var body = Encoding.UTF8.GetBytes(msg.ToString());
                     channel.BasicPublish(
                         exchange,
-                        routingKey,
+                        header.EventName,
                         basicProperties: null,
                         body);
                 }

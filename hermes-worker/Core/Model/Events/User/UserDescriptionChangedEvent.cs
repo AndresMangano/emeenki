@@ -1,12 +1,26 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserDescriptionChangedEvent
+    public record UserDescriptionChangedEvent(
+        EventHeader Header,
+        string ID,
+        string Description
+    ) : IEvent
     {
-        public string Description { get; }
-        
-        public UserDescriptionChangedEvent(string description)
+        public void Apply(DBInterpreter interpreter)
         {
-            Description = description;
+            interpreter.UpdateUser(ID,
+                    description: new DbUpdate<string>(Description));
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID,
+                "users",
+                $"user:{ID}");
         }
     }
 }

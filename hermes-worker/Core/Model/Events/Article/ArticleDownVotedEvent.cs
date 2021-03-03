@@ -1,18 +1,39 @@
+using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Article
 {
-    public class ArticleDownVotedEvent
+    public record ArticleDownVotedEvent(
+        EventHeader Header,
+        Guid ID,
+        bool InText,
+        int SentencePos,
+        int TranslationPos,
+        string UserID
+    ) : IEvent
     {
-        public bool InText { get; }
-        public int SentencePos { get; }
-        public int TranslationPos { get; }
-        public string UserID { get; }
-
-        public ArticleDownVotedEvent(bool inText, int sentencePos, int translationPos, string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            InText = inText;
-            SentencePos = sentencePos;
-            TranslationPos = translationPos;
-            UserID = userID;
+            interpreter.InsertDownVote(
+                articleID: ID,
+                inText: InText,
+                sentenceIndex: SentencePos,
+                translationIndex: TranslationPos,
+                userID: UserID
+            );
+            interpreter.DeleteUpVote(
+                articleID: ID,
+                inText: InText,
+                sentenceIndex: SentencePos,
+                translationIndex: TranslationPos,
+                userID: UserID
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(), $"article:{ID}");
         }
     }
 }

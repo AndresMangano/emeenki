@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Threading;
 using Hermes.Worker.Core.Ports;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -10,12 +11,19 @@ namespace Hermes.Worker.Shell
     public class RabbitMQHandler : IRabbitMQHandler
     {
         readonly IModel _channel;
-        public RabbitMQHandler(IModel channel) {
+        readonly ILogger<RabbitMQHandler> _logger;
+
+        public RabbitMQHandler(IModel channel, ILoggerFactory loggerFactory) {
+            _logger = loggerFactory.CreateLogger<RabbitMQHandler>();
             _channel = channel;
         }
 
         public void DeclareRoute(string queue, string exchange, DefaultConsumer consumer)
         {
+            _logger.LogInformation("Declare queue and exchange {queue}:{exchange}",
+                queue,
+                exchange);
+
             _channel.ExchangeDeclare(
                 exchange: exchange,
                 type: ExchangeType.Fanout
@@ -37,11 +45,14 @@ namespace Hermes.Worker.Shell
                 try {
                     var body = ea.Body.ToArray();
                     var message = Encoding.UTF8.GetString(body);
-                    Console.WriteLine($"Message received => {queue}:{ea.RoutingKey}");
+
+                    _logger.LogInformation("Message received => {queue}:{routingKey}",
+                        queue,
+                        ea.RoutingKey);
                     consumer(ea.RoutingKey, message);
                     _channel.BasicAck(ea.DeliveryTag, false);
                 } catch (Exception ex) {
-                    Console.WriteLine($"Exception => {ex.Message}");
+                    _logger.LogError(ex, "Failed to read message");
                 }
             };
             _channel.BasicConsume(
@@ -64,15 +75,19 @@ namespace Hermes.Worker.Shell
             while (retries > 0) {
                 try {
                     using (var connection = factory.CreateConnection()) {
+                        _logger.LogInformation("RabbitMQ connection succeeded");
                         using (var channel = connection.CreateModel()) {
-                            model(new RabbitMQHandler(channel));
-                            Console.WriteLine("Listening messages...");
+                            _logger.LogInformation("Create model");
+                            model(new RabbitMQHandler(channel, _loggerFactory));
                             retries = 0;
+
+                            _logger.LogInformation("Waiting messages");
                             Thread.Sleep(Timeout.Infinite);
                         }
                     }
                 } catch(Exception ex) {
-                    Console.WriteLine(ex.Message);
+                    _logger.LogError(ex, "Failed to connect to RabbitMQ");
+
                     retries--;
                     Thread.Sleep(5000);
                 }

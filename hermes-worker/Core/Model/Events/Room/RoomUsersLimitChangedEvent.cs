@@ -1,12 +1,26 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Room
 {
-    public class RoomUsersLimitChangedEvent
+    public record RoomUsersLimitChangedEvent(
+        EventHeader Header,
+        string ID,
+        short NewUsersLimit
+    ) : IEvent
     {
-        public short NewUsersLimit { get; }
-
-        public RoomUsersLimitChangedEvent(short newUsersLimit)
+        public void Apply(DBInterpreter interpreter)
         {
-            NewUsersLimit = newUsersLimit;
+            interpreter.UpdateRoom(ID,
+                usersLimit: new DbUpdate<int>(NewUsersLimit));
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
+                "rooms",
+                $"room:{ID}");
         }
     }
 }

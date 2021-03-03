@@ -1,24 +1,62 @@
+using System;
 using System.Collections.Generic;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 {
-    public class ArticleTemplateUploadedEvent
+    public record ArticleTemplateUploadedEvent(
+        EventHeader Header,
+        Guid ID,
+        string TopicID,
+        string LanguageID,
+        List<string> Title,
+        List<string> Text,
+        string Source,
+        string PhotoURL
+    ) : IEvent
     {
-        public string TopicID { get; }
-        public string LanguageID { get; }
-        public List<string> Title { get; }
-        public List<string> Text { get; }
-        public string Source { get; }
-        public string PhotoURL { get; }
-
-        public ArticleTemplateUploadedEvent(string topicID, string languageID, List<string> title, List<string> text, string source, string photoURL)
+        public void Apply(DBInterpreter interpreter)
         {
-            TopicID = topicID;
-            LanguageID = languageID;
-            Title = title;
-            Text = text;
-            Source = source;
-            PhotoURL = photoURL;
+            interpreter.InsertArticleTemplates(
+                articleTemplateID: ID,
+                title: String.Join(" ", Title),
+                created: Header.Timestamp,
+                topicID: TopicID,
+                languageID: LanguageID,
+                photoURL: PhotoURL,
+                archived: false
+            );
+            interpreter.InsertArticleTemplate(
+                articleTemplateID: ID,
+                deleted: false,
+                topicID: TopicID,
+                languageID: LanguageID,
+                source: Source,
+                photoURL: PhotoURL,
+                timestamp: Header.Timestamp
+            );
+            for (var index = 0; index < Text.Count; index++) {
+                interpreter.InsertArticleTemplateSentence(
+                    articleTemplateID: ID,
+                    inText: true,
+                    sentenceIndex: index,
+                    sentence: Text[index]
+                );
+            }
+            for (var index = 0; index < Title.Count; index++) {
+                interpreter.InsertArticleTemplateSentence(
+                    articleTemplateID: ID,
+                    inText: false,
+                    sentenceIndex: index,
+                    sentence: Title[index]
+                );
+            }
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(), "articleTemplates");
         }
     }
 }

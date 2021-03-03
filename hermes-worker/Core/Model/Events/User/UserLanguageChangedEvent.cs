@@ -1,12 +1,26 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserLanguageChangedEvent
+    public record UserLanguageChangedEvent(
+        EventHeader Header,
+        string ID,
+        string NativeLanguageID
+    ) : IEvent
     {
-        public string NativeLanguageID { get; }
-        
-        public UserLanguageChangedEvent(string nativeLanguageID)
+        public void Apply(DBInterpreter interpreter)
         {
-            NativeLanguageID = nativeLanguageID;
+            interpreter.UpdateUser(ID,
+                    nativeLanguageID: new DbUpdate<string>(NativeLanguageID));
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID,
+                "users",
+                $"user:{ID}");
         }
     }
 }

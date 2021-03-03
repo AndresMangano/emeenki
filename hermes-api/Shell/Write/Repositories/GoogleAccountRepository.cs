@@ -7,7 +7,7 @@ namespace Hermes.Shell
     {
         void InitGoogleAccountRepository()
         {
-            _googleAccountsRepository = new EventRepository<string, GoogleAccount>(new SQLEventStorage<string>(
+            GoogleAccountsRepository = new EventRepository<string, GoogleAccount>(new SQLEventStorage<string>(
                 _connection.ConnectionString,
                 "GoogleAccount",
                 ParseGoogleAccountEvent
@@ -23,10 +23,10 @@ namespace Hermes.Shell
             }
         }
         long? ApplyGoogleAccountEvent(GoogleAccountEvent @event) {
-            var index = _googleAccountsRepository.StoreEvent(@event);
+            var index = GoogleAccountsRepository.StoreEvent(@event);
             return index;
         }
 
-        public GoogleAccount FetchGoogleAccount(string googleAccountID) => _googleAccountsRepository.Fetch(googleAccountID, GoogleAccountEvents.Apply);
+        public GoogleAccount FetchGoogleAccount(string googleAccountID) => GoogleAccountsRepository.Fetch(googleAccountID, GoogleAccountEvents.Apply);
     }
 }

@@ -4,6 +4,7 @@ namespace Hermes.Worker
     {
         public string ConnectionString { get; set; }
         public string QueriesHub { get; set; }
+        public string EventStore { get; set; }
         public QueueSettings Queue { get; set; }
     }
 

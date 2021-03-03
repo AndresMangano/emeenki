@@ -1,18 +1,28 @@
 using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserPostDeletedEvent
+    public record UserPostDeletedEvent(
+        EventHeader Header,
+        string ID,
+        Guid UserPostID,
+        Guid? ChildUserPostID,
+        string SenderUserID
+    ) : IEvent
     {
-        public Guid UserPostID { get; }
-        public Guid? ChildUserPostID { get; }
-        public string SenderUserID { get; }
-        
-        public UserPostDeletedEvent(Guid userPostID, Guid? childUserPostID, string senderUserID)
+        public void Apply(DBInterpreter interpreter)
         {
-            UserPostID = userPostID;
-            SenderUserID = senderUserID;
-            ChildUserPostID = childUserPostID;
+            interpreter.DeleteUserPost(
+                userPostID: UserPostID,
+                childUserPostID: ChildUserPostID
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, $"user:{ID}");
         }
     }
 }

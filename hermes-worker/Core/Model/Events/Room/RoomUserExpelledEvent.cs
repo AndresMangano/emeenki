@@ -4,22 +4,21 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.Room
 {
     public record RoomUserExpelledEvent(
-        EventHeader<string> header,
+        EventHeader Header,
+        string ID,
         string UserID
-    ) : IEvent<string>
+    ) : IEvent
     {
-        public EventHeader<string> Header => throw new System.NotImplementedException();
-
         public void Apply(DBInterpreter interpreter)
         {
-            interpreter.DeleteRoomUser(Header.ID, UserID);
+            interpreter.DeleteRoomUser(ID, UserID);
         }
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID,
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
                 "rooms",
-                $"room:{Header.ID}");
+                $"room:{ID}");
         }
     }
 }

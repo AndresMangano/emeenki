@@ -10,7 +10,7 @@ namespace Hermes.Shell
     {
         void InitRoomsRepository()
         {
-            _roomsRepository = new EventRepository<string, Room>(new SQLEventStorage<string>(
+            RoomsRepository = new EventRepository<string, Room>(new SQLEventStorage<string>(
                 _connection.ConnectionString,
                 "Room",
                 ParseRoomEvent
@@ -35,13 +35,18 @@ namespace Hermes.Shell
             }
         }
         long? ApplyRoomEvent(RoomEvent @event) {
-            var index = _roomsRepository.StoreEvent(@event);
+            var index = RoomsRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("room_events", index.Value, @event.Metadata, @event.Payload);
+                SendMessage
+                ("room_events",
+                index.Value,
+                @event.Metadata,
+                @event.Payload,
+                obj => obj.Add("ID", @event.Metadata.ID));
             }
             return index;
         }
 
-        public Room FetchRoom(string id) => _roomsRepository.Fetch(id, RoomEvents.Apply);
+        public Room FetchRoom(string id) => RoomsRepository.Fetch(id, RoomEvents.Apply);
     }
 }

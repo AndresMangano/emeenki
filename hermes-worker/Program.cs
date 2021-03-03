@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using Hermes.Worker.Shell;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,12 +10,11 @@ namespace Hermes.Worker
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var loggerFactory = LoggerFactory.Create(builder =>
                 builder.AddSimpleConsole(options =>
                 {
-                    options.SingleLine = true;
                     options.ColorBehavior = LoggerColorBehavior.Enabled;
                     options.TimestampFormat = "hh:mm:ss";
                 }));
@@ -34,7 +34,7 @@ namespace Hermes.Worker
                 .Get<AppSettings>();
             
             Interpreter interpreter = new Interpreter(appSettings, loggerFactory);
-            interpreter.Start();
+            await interpreter.Start();
         }
     }
 }

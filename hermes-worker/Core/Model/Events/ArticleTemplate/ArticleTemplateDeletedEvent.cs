@@ -6,21 +6,22 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 {
     public record ArticleTemplateDeletedEvent(
-        EventHeader<Guid> Header,
+        EventHeader Header,
+        Guid ID,
         string UserID
-    ) : IEvent<Guid>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
-            interpreter.UpdateArticleTemplate(Header.ID,
+            interpreter.UpdateArticleTemplate(ID,
                 deleted: new DbUpdate<bool>(true));
-            interpreter.UpdateArticleTemplates(Header.ID,
+            interpreter.UpdateArticleTemplates(ID,
                 archived: new DbUpdate<bool>(true));
         }
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, Header.ID.ToString(), "articleTemplates");
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(), "articleTemplates");
         }
     }
 }

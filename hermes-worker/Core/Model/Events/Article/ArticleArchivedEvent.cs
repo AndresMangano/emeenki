@@ -7,24 +7,25 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.Article
 {
     public record ArticleArchivedEvent(
-        EventHeader<Guid> Header,
+        EventHeader Header,
+        Guid ID,
         string UserID
-    ) : IEvent<Guid>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
-            interpreter.UpdateArticle(Header.ID,
+            interpreter.UpdateArticle(ID,
                 archived: new DbUpdate<bool>(true)
             );
-            interpreter.UpdateArticles(Header.ID,
+            interpreter.UpdateArticles(ID,
                 archived: new DbUpdate<bool>(true)
             );
         }
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, Header.ID.ToString(),
-                $"article:{Header.ID}",
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(),
+                $"article:{ID}",
                 "articles");
         }
     }

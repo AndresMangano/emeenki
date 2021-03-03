@@ -6,19 +6,20 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 {
     public record ArticleTemplateUploadedEvent(
-        EventHeader<Guid> Header,
+        EventHeader Header,
+        Guid ID,
         string TopicID,
         string LanguageID,
         List<string> Title,
         List<string> Text,
         string Source,
         string PhotoURL
-    ) : IEvent<Guid>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.InsertArticleTemplates(
-                articleTemplateID: Header.ID,
+                articleTemplateID: ID,
                 title: String.Join(" ", Title),
                 created: Header.Timestamp,
                 topicID: TopicID,
@@ -27,7 +28,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
                 archived: false
             );
             interpreter.InsertArticleTemplate(
-                articleTemplateID: Header.ID,
+                articleTemplateID: ID,
                 deleted: false,
                 topicID: TopicID,
                 languageID: LanguageID,
@@ -37,7 +38,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
             );
             for (var index = 0; index < Text.Count; index++) {
                 interpreter.InsertArticleTemplateSentence(
-                    articleTemplateID: Header.ID,
+                    articleTemplateID: ID,
                     inText: true,
                     sentenceIndex: index,
                     sentence: Text[index]
@@ -45,7 +46,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
             }
             for (var index = 0; index < Title.Count; index++) {
                 interpreter.InsertArticleTemplateSentence(
-                    articleTemplateID: Header.ID,
+                    articleTemplateID: ID,
                     inText: false,
                     sentenceIndex: index,
                     sentence: Title[index]
@@ -55,7 +56,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, Header.ID.ToString(), "articleTemplates");
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(), "articleTemplates");
         }
     }
 }

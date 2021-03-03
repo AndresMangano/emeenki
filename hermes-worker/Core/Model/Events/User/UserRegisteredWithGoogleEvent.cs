@@ -4,18 +4,19 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.User
 {
     public record UserRegisteredWithGoogleEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         string GoogleEmail,
         string ProfilePhotoURL,
         string LanguageID,
         string Rights,
         string Country
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.InsertUser(
-                userID: Header.ID,
+                userID: ID,
                 rights: Rights,
                 profilePhotoURL: ProfilePhotoURL,
                 nativeLanguageID: LanguageID,
@@ -26,7 +27,7 @@ namespace Hermes.Worker.Core.Model.Events.User
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID, "users");
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, "users");
         }
     }
 }

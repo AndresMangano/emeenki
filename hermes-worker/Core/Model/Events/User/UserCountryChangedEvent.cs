@@ -5,21 +5,22 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.User
 {
     public record UserCountryChangedEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         string Country
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
-            interpreter.UpdateUser(Header.ID,
+            interpreter.UpdateUser(ID,
                     country: new DbUpdate<string>(Country));
         }
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID,
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID,
                 "users",
-                $"user:{Header.ID}");
+                $"user:{ID}");
         }
     }
 }

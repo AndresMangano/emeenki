@@ -8,7 +8,7 @@ namespace Hermes.Shell
     {
         void InitUsersRepository()
         {
-            _usersRepository = new EventRepository<string, User>(new SQLEventStorage<string>(
+            UsersRepository = new EventRepository<string, User>(new SQLEventStorage<string>(
                 _connection.ConnectionString,
                 "User",
                 ParseUserEvent
@@ -37,13 +37,18 @@ namespace Hermes.Shell
             }
         }
         long? ApplyUserEvent(UserEvent @event) {
-            var index = _usersRepository.StoreEvent(@event);
+            var index = UsersRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("user_events", index.Value, @event.Metadata, @event.Payload);
+                SendMessage(
+                    "user_events",
+                    index.Value,
+                    @event.Metadata,
+                    @event.Payload,
+                    obj => obj.Add("ID", @event.Metadata.ID));
             }
             return index;
         }
         
-        public User FetchUser(string id) => _usersRepository.Fetch(id.ToLower(), UserEvents.Apply);
+        public User FetchUser(string id) => UsersRepository.Fetch(id.ToLower(), UserEvents.Apply);
     }
 }

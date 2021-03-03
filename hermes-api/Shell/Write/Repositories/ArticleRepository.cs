@@ -9,7 +9,7 @@ namespace Hermes.Shell
     {
         void InitArticlesRepository()
         {
-            _articlesRepository = new EventRepository<Guid, Article>(new SQLEventStorage<Guid>(
+            ArticlesRepository = new EventRepository<Guid, Article>(new SQLEventStorage<Guid>(
                 _connection.ConnectionString,
                 "Article",
                 ParseArticleEvent
@@ -33,13 +33,18 @@ namespace Hermes.Shell
             }
         }
         long? ApplyArticleEvent(ArticleEvent @event) {
-            var index = _articlesRepository.StoreEvent(@event);
+            var index = ArticlesRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("article_events", index.Value, @event.Metadata, @event.Payload);
+                SendMessage(
+                    "article_events",
+                    index.Value,
+                    @event.Metadata,
+                    @event.Payload,
+                    obj => obj.Add("ID", @event.Metadata.ID));
             }
             return index;
         }
 
-        public Article FetchArticle(Guid id) => _articlesRepository.Fetch(id, ArticleEvents.Apply);
+        public Article FetchArticle(Guid id) => ArticlesRepository.Fetch(id, ArticleEvents.Apply);
     }
 }

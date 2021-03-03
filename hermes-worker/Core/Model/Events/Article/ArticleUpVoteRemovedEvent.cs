@@ -5,17 +5,18 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.Article
 {
     public record ArticleUpVoteRemovedEvent(
-        EventHeader<Guid> Header,
+        EventHeader Header,
+        Guid ID,
         bool InText,
         int SentencePos,
         int TranslationPos,
         string UserID
-    ) : IEvent<Guid>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.DeleteUpVote(
-                articleID: Header.ID,
+                articleID: ID,
                 inText: InText,
                 sentenceIndex: SentencePos,
                 translationIndex: TranslationPos,
@@ -25,7 +26,7 @@ namespace Hermes.Worker.Core.Model.Events.Article
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, Header.ID.ToString(), $"article:{Header.ID}");
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(), $"article:{ID}");
         }
     }
 }

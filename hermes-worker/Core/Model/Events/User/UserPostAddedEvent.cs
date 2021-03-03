@@ -5,19 +5,20 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.User
 {
     public record UserPostAddedEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         Guid UserPostID,
         string Text,
         string UserID,
         Guid? ChildUserPostID
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.InsertUserPost(
                 userPostID: UserPostID,
                 childUserPostID: ChildUserPostID,
-                userID: Header.ID,
+                userID: ID,
                 text: Text,
                 senderUserID: UserID,
                 timestamp: Header.Timestamp
@@ -26,7 +27,7 @@ namespace Hermes.Worker.Core.Model.Events.User
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID, $"user:{Header.ID}");
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, $"user:{ID}");
         }
     }
 }

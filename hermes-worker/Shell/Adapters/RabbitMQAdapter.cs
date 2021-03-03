@@ -75,8 +75,9 @@ namespace Hermes.Worker.Shell
             while (retries > 0) {
                 try {
                     using (var connection = factory.CreateConnection()) {
+                        _logger.LogInformation("RabbitMQ connection succeeded");
                         using (var channel = connection.CreateModel()) {
-                            _logger.LogInformation("RabbitMQ connection succeeded");
+                            _logger.LogInformation("Create model");
                             model(new RabbitMQHandler(channel, _loggerFactory));
                             retries = 0;
 

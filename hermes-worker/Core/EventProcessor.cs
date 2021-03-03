@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
 using Hermes.Worker.Core.Model.Events.Article;
 using Hermes.Worker.Core.Model.Events.ArticleTemplate;
@@ -14,112 +16,186 @@ namespace Hermes.Worker.Core
 {
     public class EventProcessor
     {
+        readonly ILogger<EventProcessor> _logger;
         readonly string _connectionString;
         readonly ISignalRPort _signalR;
         readonly IRabbitMQPort _rabbitMQ;
-        readonly ILogger<EventProcessor> _logger;
+        readonly IEventStore _eventStore;
+        readonly IDictionary<string, EventQueue> _eventQueues;
 
-        public EventProcessor(string connectionString, ISignalRPort singalR, IRabbitMQPort rabbitMQ, ILoggerFactory loggerFactory)
+        public EventProcessor(string connectionString, ISignalRPort singalR, IRabbitMQPort rabbitMQ, IEventStore eventStore, ILoggerFactory loggerFactory)
         {
             _logger = loggerFactory.CreateLogger<EventProcessor>();
             _connectionString = connectionString;
             _signalR = singalR;
             _rabbitMQ = rabbitMQ;
+            _eventStore = eventStore;
+            _eventQueues = new Dictionary<string, EventQueue>
+            {
+                ["user"] = new EventQueue("user_queries", "user_events", ParseUserEvent),
+                ["article"] = new EventQueue("article_queries", "article_events", ParseArticleEvent),
+                ["articleTemplate"] = new EventQueue("article_template_queries", "article_template_events", ParseArticleTemplateEvent),
+                ["room"] = new EventQueue("room_queries", "room_events", ParseRoomEvent)
+            };
         }
 
-        public void Start()
+        public async Task Start()
         {
-            _logger.LogInformation("Create model");
+            await LoadEventCounters();
+            await RecoverEvents();
             _rabbitMQ.CreateModelAndWait(handler =>
             {
-                handler.DeclareRoute("user_queries", "user_events", (routingKey, message) => 
-                {
-                    switch (routingKey)
-                    {
-                        case "registered": Handle(JsonConvert.DeserializeObject<UserRegisteredEvent>(message)); break;
-                        case "registered.withGoogle": Handle(JsonConvert.DeserializeObject<UserRegisteredWithGoogleEvent>(message)); break;
-                        case "deleted": Handle(JsonConvert.DeserializeObject<UserDeletedEvent>(message)); break;
-                        case "rights.changed": Handle(JsonConvert.DeserializeObject<UserRightsChangedEvent>(message)); break;
-                        case "profilePhotoChanged": Handle(JsonConvert.DeserializeObject<UserProfilePhotoChangedEvent>(message)); break;
-                        case "post.added": Handle(JsonConvert.DeserializeObject<UserPostAddedEvent>(message)); break;
-                        case "post.deleted": Handle(JsonConvert.DeserializeObject<UserPostDeletedEvent>(message)); break;
-                        case "language.changed": Handle(JsonConvert.DeserializeObject<UserLanguageChangedEvent>(message)); break;
-                        case "description.changed": Handle(JsonConvert.DeserializeObject<UserDescriptionChangedEvent>(message)); break;
-                        case "country.changed": Handle(JsonConvert.DeserializeObject<UserCountryChangedEvent>(message)); break;
-                    }
-                });
-                handler.DeclareRoute("article_queries", "article_events", (routingKey, message) => 
-                {
-                    switch (routingKey)
-                    {
-                        case "main.commented": Handle(JsonConvert.DeserializeObject<ArticleMainCommentedEvent>(message)); break;
-                        case "template.taken": Handle(JsonConvert.DeserializeObject<ArticleTemplateTakenEvent>(message)); break;
-                        case "translated": Handle(JsonConvert.DeserializeObject<ArticleTranslatedEvent>(message)); break;
-                        case "commented": Handle(JsonConvert.DeserializeObject<ArticleCommentedEvent>(message)); break;
-                        case "upvoted": Handle(JsonConvert.DeserializeObject<ArticleUpVotedEvent>(message)); break;
-                        case "upvote.removed": Handle(JsonConvert.DeserializeObject<ArticleUpVoteRemovedEvent>(message)); break;
-                        case "downvoted": Handle(JsonConvert.DeserializeObject<ArticleDownVotedEvent>(message)); break;
-                        case "downvote.removed": Handle(JsonConvert.DeserializeObject<ArticleDownVoteRemovedEvent>(message)); break;
-                        case "archived": Handle(JsonConvert.DeserializeObject<ArticleArchivedEvent>(message)); break;
-                        case "main.comment.deleted": Handle(JsonConvert.DeserializeObject<ArticleMainCommentDeletedEvent>(message)); break;
-                    }
-                });
-                handler.DeclareRoute("article_template_queries", "article_template_events", (routingKey, message) =>
-                {
-                    switch (routingKey)
-                    {
-                        case "uploaded": Handle(JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message)); break;
-                        case "deleted": Handle(JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message)); break;
-                    }
-                });
-                handler.DeclareRoute("room_queries", "room_events", (routingKey, message) =>
-                {
-                    switch (routingKey)
-                    {
-                        case "opened": Handle(JsonConvert.DeserializeObject<RoomOpenedEvent>(message)); break;
-                        case "closed": Handle(JsonConvert.DeserializeObject<RoomClosedEvent>(message)); break;
-                        case "user.queued": Handle(JsonConvert.DeserializeObject<RoomUserQueuedEvent>(message)); break;
-                        case "user.joined": Handle(JsonConvert.DeserializeObject<RoomUserJoinedEvent>(message)); break;
-                        case "user.unqueued": Handle(JsonConvert.DeserializeObject<RoomUserUnqueuedEvent>(message)); break;
-                        case "user.left": Handle(JsonConvert.DeserializeObject<RoomUserLeftEvent>(message)); break;
-                        case "user.expelled": Handle(JsonConvert.DeserializeObject<RoomUserExpelledEvent>(message)); break;
-                        case "usersLimit.changed": Handle(JsonConvert.DeserializeObject<RoomUsersLimitChangedEvent>(message)); break;
-                        case "restricted": Handle(JsonConvert.DeserializeObject<RoomRestrictedEvent>(message)); break;
-                        case "unrestricted": Handle(JsonConvert.DeserializeObject<RoomUnrestrictedEvent>(message)); break;
-                    }
-                });
+                foreach (var (_, queue) in _eventQueues) {
+                    handler.DeclareRoute(queue.Name, queue.Exchange, async (routingKey, message) => 
+                        await Handle(queue.ParseFn(routingKey, message), false));
+                }
             });
         }
 
-        public void Handle<K>(IEvent<K> @event)
+        private async Task Handle(IEvent @event, bool isRecovering)
         {
-            _logger.LogInformation("Handle event {eventName}", @event.Header.EventName);
-            using(MySqlConnection conn = new MySqlConnection(_connectionString)) {
-                conn.Open();
-                using(MySqlTransaction tran = conn.BeginTransaction()) {
-                    try {
-                        _logger.LogInformation("Apply event changes");
-                        @event.Apply(new DBInterpreter(conn, tran));
+            if (@event != null) {
+                var index = _eventQueues[@event.Header.Stream.ToLower()].Index;
+                if (@event.Header.Index == index + 1 || isRecovering) {
+                    _logger.LogInformation("Handle event {eventName}", @event.Header.EventName);
+                    using(MySqlConnection conn = new MySqlConnection(_connectionString)) {
+                        conn.Open();
+                        using(MySqlTransaction tran = conn.BeginTransaction()) {
+                            try {
+                                _logger.LogInformation("Apply event changes");
+                                @event.Apply(new DBInterpreter(conn, tran));
 
-                        _logger.LogInformation("Update handler counters");
-                        conn.Execute(@"
-                            INSERT INTO Worker_Handlers(Stream, SeqID)
-                            VALUES (@stream, @seqId)
-                                ON DUPLICATE KEY UPDATE SeqID = @seqId", new {
-                                stream = @event.Header.Stream,
-                                seqId = @event.Header.Index
-                            });
-                        tran.Commit();
+                                _logger.LogInformation("Update handler counters");
+                                conn.Execute(@"
+                                    INSERT INTO Worker_Handlers(Stream, SeqID)
+                                    VALUES (@stream, @seqId)
+                                        ON DUPLICATE KEY UPDATE SeqID = @seqId", new {
+                                        stream = @event.Header.Stream.ToLower(),
+                                        seqId = @event.Header.Index
+                                    });
+                                tran.Commit();
+                                @event.Notify(_signalR);
+                            } catch (Exception ex) {
+                                _logger.LogError(ex, "Failed to apply event changes");
 
-                        _logger.LogInformation("Notify changes to UI");
-                        @event.Notify(_signalR);
-                    } catch (Exception ex) {
-                        _logger.LogError(ex, "Failed to apply event changes");
-
-                        tran.Rollback();
-                        throw;
+                                tran.Rollback();
+                                throw;
+                            }
+                        }
                     }
                 }
+                else if (@event.Header.Index <= index) {
+                    _logger.LogWarning("Event {stream}:{index} was discarded", @event.Header.Stream, @event.Header.Index);
+                }
+                else if (!isRecovering) {
+                    await RecoverEvents();
+                }
+            }
+            else {
+                _logger.LogError("Event was not recognized");
+            }
+        }
+
+        private async Task RecoverEvents()
+        {
+            _logger.LogInformation("Recover events");
+            try {
+                foreach (var (stream, queue) in _eventQueues) {
+                    var events = await _eventStore.GetMissingEvents(stream, queue.Index);
+                    foreach (var @event in events) {
+                        await Handle(queue.ParseFn(@event.RoutingKey, @event.Payload), true);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "Failed to recover events");
+            }
+        }
+
+        private async Task LoadEventCounters()
+        {
+            _logger.LogInformation("Load event counters");
+            using(MySqlConnection conn = new MySqlConnection(_connectionString)) {
+                conn.Open();
+                try {
+                    var result = await conn.QueryAsync(@"
+                        SELECT Stream, SeqID
+                        FROM Worker_Handlers");
+
+                    foreach (var row in result) {
+                        _eventQueues[row.Stream].Index = row.SeqID;
+                    }
+                } catch (Exception ex) {
+                    _logger.LogError(ex, "Failed to load event counters");
+                }
+            }
+        }
+
+        private IEvent ParseArticleEvent(string routingKey, string message)
+        {
+            switch (routingKey)
+            {
+                case "main.commented": return JsonConvert.DeserializeObject<ArticleMainCommentedEvent>(message);
+                case "template.taken": return JsonConvert.DeserializeObject<ArticleTemplateTakenEvent>(message);
+                case "translated": return JsonConvert.DeserializeObject<ArticleTranslatedEvent>(message);
+                case "commented": return JsonConvert.DeserializeObject<ArticleCommentedEvent>(message);
+                case "upvoted": return JsonConvert.DeserializeObject<ArticleUpVotedEvent>(message);
+                case "upvote.removed": return JsonConvert.DeserializeObject<ArticleUpVoteRemovedEvent>(message);
+                case "downvoted": return JsonConvert.DeserializeObject<ArticleDownVotedEvent>(message);
+                case "downvote.removed": return JsonConvert.DeserializeObject<ArticleDownVoteRemovedEvent>(message);
+                case "archived": return JsonConvert.DeserializeObject<ArticleArchivedEvent>(message);
+                case "main.comment.deleted": return JsonConvert.DeserializeObject<ArticleMainCommentDeletedEvent>(message);
+                default:
+                    return null;
+            }
+        }
+
+        private IEvent ParseArticleTemplateEvent(string routingKey, string message)
+        {
+            switch (routingKey)
+            {
+                case "uploaded": return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message);
+                case "deleted": return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message);
+                default:
+                    return null;
+            }
+        }
+
+        private IEvent ParseUserEvent(string routingKey, string message)
+        {
+            switch (routingKey)
+            {
+                case "registered": return JsonConvert.DeserializeObject<UserRegisteredEvent>(message);
+                case "registered.withGoogle": return JsonConvert.DeserializeObject<UserRegisteredWithGoogleEvent>(message);
+                case "deleted": return JsonConvert.DeserializeObject<UserDeletedEvent>(message);
+                case "rights.changed": return JsonConvert.DeserializeObject<UserRightsChangedEvent>(message);
+                case "profilePhotoChanged": return JsonConvert.DeserializeObject<UserProfilePhotoChangedEvent>(message);
+                case "post.added": return JsonConvert.DeserializeObject<UserPostAddedEvent>(message);
+                case "post.deleted": return JsonConvert.DeserializeObject<UserPostDeletedEvent>(message);
+                case "language.changed": return JsonConvert.DeserializeObject<UserLanguageChangedEvent>(message);
+                case "description.changed": return JsonConvert.DeserializeObject<UserDescriptionChangedEvent>(message);
+                case "country.changed": return JsonConvert.DeserializeObject<UserCountryChangedEvent>(message);
+                default:
+                    return null;
+            }
+        }
+
+        private IEvent ParseRoomEvent(string routingKey, string message)
+        {
+            switch (routingKey)
+            {
+                case "opened": return JsonConvert.DeserializeObject<RoomOpenedEvent>(message);
+                case "closed": return JsonConvert.DeserializeObject<RoomClosedEvent>(message);
+                case "user.queued": return JsonConvert.DeserializeObject<RoomUserQueuedEvent>(message);
+                case "user.joined": return JsonConvert.DeserializeObject<RoomUserJoinedEvent>(message);
+                case "user.unqueued": return JsonConvert.DeserializeObject<RoomUserUnqueuedEvent>(message);
+                case "user.left": return JsonConvert.DeserializeObject<RoomUserLeftEvent>(message);
+                case "user.expelled": return JsonConvert.DeserializeObject<RoomUserExpelledEvent>(message);
+                case "usersLimit.changed": return JsonConvert.DeserializeObject<RoomUsersLimitChangedEvent>(message);
+                case "restricted": return JsonConvert.DeserializeObject<RoomRestrictedEvent>(message);
+                case "unrestricted": return JsonConvert.DeserializeObject<RoomUnrestrictedEvent>(message);
+                default:
+                    return null;
             }
         }
     }

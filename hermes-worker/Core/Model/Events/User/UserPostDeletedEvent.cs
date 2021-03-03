@@ -5,11 +5,12 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.User
 {
     public record UserPostDeletedEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         Guid UserPostID,
         Guid? ChildUserPostID,
         string SenderUserID
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
@@ -21,7 +22,7 @@ namespace Hermes.Worker.Core.Model.Events.User
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, Header.ID, $"user:{Header.ID}");
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, $"user:{ID}");
         }
     }
 }

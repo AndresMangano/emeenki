@@ -2,9 +2,8 @@ using System;
 
 namespace Hermes.Worker.Core
 {
-    public record EventHeader<TKey>(
+    public record EventHeader(
         long Index,
-        TKey ID,
         int Version,
         DateTime Timestamp,
         string Stream,

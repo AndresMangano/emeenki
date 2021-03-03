@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Hermes.Worker.Core;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -18,12 +19,12 @@ namespace Hermes.Worker.Shell
             _logger = loggerFactory.CreateLogger<Interpreter>();
             _settings = settings;
             InitSignalR(_settings.QueriesHub);
-            _handler = new EventProcessor(settings.ConnectionString, this, this, _loggerFactory);
+            _handler = new EventProcessor(settings.ConnectionString, this, this, this, _loggerFactory);
         }
 
-        public void Start()
+        public async Task Start()
         {
-            _handler.Start();
+            await _handler.Start();
         }
     }
 }

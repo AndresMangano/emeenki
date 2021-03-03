@@ -3,9 +3,9 @@ using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core
 {
-    public interface IEvent<TKey>
+    public interface IEvent
     {
-        EventHeader<TKey> Header { get; }
+        EventHeader Header { get; }
         
         void Apply(DBInterpreter interpreter);
         void Notify(ISignalRPort signalR);

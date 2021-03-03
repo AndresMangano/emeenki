@@ -4,15 +4,16 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.Room
 {
     public record RoomUserJoinedEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         string UserID,
         string Permission
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.InsertRoomUser(
-                roomID: Header.ID,
+                roomID: ID,
                 userID: UserID,
                 permission: Permission
             );
@@ -20,9 +21,9 @@ namespace Hermes.Worker.Core.Model.Events.Room
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID,
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
                 "rooms",
-                $"room:{Header.ID}");
+                $"room:{ID}");
         }
     }
 }

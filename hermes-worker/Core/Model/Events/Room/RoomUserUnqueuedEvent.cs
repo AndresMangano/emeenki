@@ -4,20 +4,21 @@ using Hermes.Worker.Shell;
 namespace Hermes.Worker.Core.Model.Events.Room
 {
     public record RoomUserUnqueuedEvent(
-        EventHeader<string> Header,
+        EventHeader Header,
+        string ID,
         string UserID
-    ) : IEvent<string>
+    ) : IEvent
     {
         public void Apply(DBInterpreter interpreter)
         {
-            interpreter.DeleteRoomQueue(Header.ID, UserID);
+            interpreter.DeleteRoomQueue(ID, UserID);
         }
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, Header.ID,
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
                 "rooms",
-                $"room:{Header.ID}");
+                $"room:{ID}");
         }
     }
 }

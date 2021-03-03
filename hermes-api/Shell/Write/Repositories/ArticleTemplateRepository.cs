@@ -10,7 +10,7 @@ namespace Hermes.Shell
     {
         void InitArticleTemplatesRepository()
         {
-            _articleTemplatesRepository = new EventRepository<Guid, ArticleTemplate>(new SQLEventStorage<Guid>(
+            ArticleTemplatesRepository = new EventRepository<Guid, ArticleTemplate>(new SQLEventStorage<Guid>(
                 _connection.ConnectionString,
                 "ArticleTemplate",
                 ParseArticleTemplateEvent
@@ -26,13 +26,18 @@ namespace Hermes.Shell
             }
         }
         long? ApplyArticleTemplateEvent(ArticleTemplateEvent @event) {
-            var index = _articleTemplatesRepository.StoreEvent(@event);
+            var index = ArticleTemplatesRepository.StoreEvent(@event);
             if (index != null) {
-                SendMessage("article_template_events", index.Value, @event.Metadata, @event.Payload);
+                SendMessage(
+                    "article_template_events",
+                    index.Value,
+                    @event.Metadata,
+                    @event.Payload,
+                    obj => obj.Add("ID", @event.Metadata.ID));
             }
             return index;
         }
 
-        public ArticleTemplate FetchArticleTemplate(Guid id) => _articleTemplatesRepository.Fetch(id, ArticleTemplateEvents.Apply);
+        public ArticleTemplate FetchArticleTemplate(Guid id) => ArticleTemplatesRepository.Fetch(id, ArticleTemplateEvents.Apply);
     }
 }

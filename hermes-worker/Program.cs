@@ -24,9 +24,9 @@ namespace Hermes.Worker
             logger.LogInformation("Load settings");
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentVariables()
-                .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
                 .Build();
 
             logger.LogInformation("Parse settings");

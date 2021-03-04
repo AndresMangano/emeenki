@@ -56,8 +56,8 @@ namespace Hermes.Worker.Core
         {
             if (@event != null) {
                 var index = _eventQueues[@event.Header.Stream.ToLower()].Index;
-                if (@event.Header.Index == index + 1 || isRecovering) {
-                    _logger.LogInformation("Handle event {eventName}", @event.Header.EventName);
+                _logger.LogInformation("Handle event {eventName}:{index}", @event.Header.EventName, @event.Header.Index);
+                if (@event.Header.Index == index + 1 || isRecovering) {                    
                     using(MySqlConnection conn = new MySqlConnection(_connectionString)) {
                         conn.Open();
                         using(MySqlTransaction tran = conn.BeginTransaction()) {
@@ -74,7 +74,10 @@ namespace Hermes.Worker.Core
                                         seqId = @event.Header.Index
                                     });
                                 tran.Commit();
-                                @event.Notify(_signalR);
+                                _eventQueues[@event.Header.Stream.ToLower()].Index = @event.Header.Index;
+
+                                if (!isRecovering)
+                                    @event.Notify(_signalR);
                             } catch (Exception ex) {
                                 _logger.LogError(ex, "Failed to apply event changes");
 
@@ -98,9 +101,9 @@ namespace Hermes.Worker.Core
 
         private async Task RecoverEvents()
         {
-            _logger.LogInformation("Recover events");
             try {
                 foreach (var (stream, queue) in _eventQueues) {
+                    _logger.LogInformation("Recover {stream} events starting at {index}", stream, queue.Index);
                     var events = await _eventStore.GetMissingEvents(stream, queue.Index);
                     foreach (var @event in events) {
                         await Handle(queue.ParseFn(@event.RoutingKey, @event.Payload), true);

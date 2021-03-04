@@ -30,10 +30,10 @@ namespace Hermes.Shell
             return _eventStorage.GetMissingEvents(lastIndex);
         }
 
-        public long? StoreEvent(DomainEvent<TKey, object> evnt)
+        public long? StoreEvent(DomainEvent<TKey, object> @event)
         {
             try {
-                var message = _eventStorage.StoreEvent(evnt);
+                var message = _eventStorage.StoreEvent(@event);
                 OnEventStored(message);
                 return message.Index;
             } catch(Exception ex) {

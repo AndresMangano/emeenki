@@ -43,7 +43,7 @@ export function HNavbar({ items }: MainNavbarProps) {
                 </Nav>
                 <Nav className="ml-auto" navbar>
                     { items.map((e, index) =>   
-                            (e.logguedIn === false || userID !== null ) &&
+                            (e.logguedIn === false || userID !== null ) && (rights == 'admin' && e.admin || !e.admin) &&
                                 <NavItem key={index}>
                                     <NavLink className='appBrandFont' tag={Link} to={e.url} style={{ color: '#FFF'}}>{e.label}</NavLink>
                                 </NavItem>    

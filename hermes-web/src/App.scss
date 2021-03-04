@@ -481,3 +481,51 @@ button:focus {
     margin-left: 5px;
     color: rgb(252, 33, 33);
 }
+
+.app-upload-forum-post-form {
+    &-title input {
+        width: 40em;
+    }
+    &-text textarea {
+            width: 59em;
+            height: 14em !important;
+    }
+    &-language {display: flex; flex-direction: column;
+        margin-left: 2px !important;
+        margin-bottom: 15px;
+        select {
+            width: 15em;
+        }
+    }
+}
+
+.app-forum-post-card {
+    border-top: 0.5px solid rgb(182, 182, 182);
+    &-user {
+        font-size: 1.1em;
+    }
+    &-title {
+        word-break:all;
+        font-size: 1.2em;
+        font-weight: bold;
+            &:hover {
+                cursor: pointer;
+            }
+    }
+}
+
+.app-forum-threadpage {
+    margin-top: 5rem !important;
+    &-user {
+        font-size: 1.5em;
+    }
+    &-title {
+        text-align: center;
+        font-size: 2em;
+    }
+    &-text {
+        word-break:all;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+}

@@ -7,7 +7,8 @@ type MainNavbarProps = {
     items: {
         url: string,
         admin: boolean,
-        label: string
+        label: string,
+        logguedIn: boolean,
     }[]
 }
 export function HNavbar({ items }: MainNavbarProps) {
@@ -41,11 +42,11 @@ export function HNavbar({ items }: MainNavbarProps) {
                     </NavItem>
                 </Nav>
                 <Nav className="ml-auto" navbar>
-                    { items.map((e, index) =>
-                        (rights == 'admin' && e.admin || !e.admin) &&
-                            <NavItem key={index}>
-                                <NavLink className='appBrandFont' tag={Link} to={e.url} style={{ color: '#FFF'}}>{e.label}</NavLink>
-                            </NavItem>
+                    { items.map((e, index) =>   
+                            (e.logguedIn === false || userID !== null ) &&
+                                <NavItem key={index}>
+                                    <NavLink className='appBrandFont' tag={Link} to={e.url} style={{ color: '#FFF'}}>{e.label}</NavLink>
+                                </NavItem>    
                     )}
                     { (userID === null) && 
                         <NavItem>

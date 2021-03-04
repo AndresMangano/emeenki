@@ -1,20 +1,35 @@
+using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Article
 {
-    public class ArticleTranslatedEvent
+    public record ArticleTranslatedEvent(
+        EventHeader Header,
+        Guid ID,
+        bool InText,
+        int SentencePos,
+        int TranslationPos,
+        string Translation,
+        string UserID
+    ) : IEvent
     {
-        public bool InText { get; }
-        public int SentencePos { get; }
-        public int TranslationPos { get; }
-        public string Translation { get; }
-        public string UserID { get; }
-
-        public ArticleTranslatedEvent(bool inText, int sentencePos, int translationPos, string translation, string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            InText = inText;
-            SentencePos = sentencePos;
-            TranslationPos = translationPos;
-            Translation = translation;
-            UserID = userID;
+            interpreter.InsertTranslation(
+                articleID:  ID,
+                inText: InText,
+                sentenceIndex: SentencePos,
+                translationIndex: TranslationPos,
+                translation: Translation,
+                userID: UserID,
+                timestamp: Header.Timestamp
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(), $"article:{ID}");
         }
     }
 }

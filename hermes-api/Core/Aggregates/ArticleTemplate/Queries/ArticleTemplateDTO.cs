@@ -8,6 +8,7 @@ namespace Hermes.Core
         public int ID { get; set; }
         public Guid ArticleTemplateID { get; set; }
         public bool Deleted { get; set; }
+        public string TopicID { get; set; }
         public string LanguageID { get; set; }
         public IEnumerable<string> Title { get; set; }
         public IEnumerable<string> Text { get; set; }

@@ -10,6 +10,7 @@ namespace Hermes.Core
         public bool Created { get; set; }
         public bool Deleted { get; set; }
         public string LanguageID { get; set; }
+        public string TopicID { get; set; }
         public List<string> Title { get; set; }
         public List<string> Text { get; set; }
         public string Source { get; set; }

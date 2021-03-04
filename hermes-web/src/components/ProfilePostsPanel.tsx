@@ -5,7 +5,7 @@ import { ProfilePostForm } from './ProfilePostForm';
 
 type ProfilePostsPanelProps = {
     onSubmit: (text: string, parentUserPostID:string|null) => void;
-    onDelete: (userPostID: string) => void;
+    onDelete: (userPostID: string, childUserPostID: string|null) => void;
     userID: string;
     profileUserID: string;
     posts: {

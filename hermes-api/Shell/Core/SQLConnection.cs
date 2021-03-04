@@ -11,6 +11,7 @@ namespace Hermes.Shell
 
         public SQLConnection(string connectionString)
         {
+            Console.WriteLine($"ConnectionString: {connectionString}");
             ConnectionString = connectionString;
             var retries = 10;
             while (retries > 0) {

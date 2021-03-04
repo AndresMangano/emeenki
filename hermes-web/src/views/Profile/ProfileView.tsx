@@ -108,11 +108,11 @@ export function ProfileView({ onError, match, history }: ProfileViewProps) {
         })
         .catch(onError);
     }
-    function handleDeletePost(userPostID: string) {
+    function handleDeletePost(userPostID: string, childUserPostID: string|null) {
         UserAPI.deleteUserPost({
             userID: profileUserID,
             userPostID,
-            childUserPostID: null
+            childUserPostID
         })
         .catch(onError);
     }

@@ -1,14 +1,25 @@
 using System;
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserDeletedEvent
+    public record UserDeletedEvent(
+        EventHeader Header,
+        string ID,
+        Guid SessionID
+    ) : IEvent
     {
-        public Guid SessionID { get; }
-
-        public UserDeletedEvent(Guid sessionID)
+        public void Apply(DBInterpreter interpreter)
         {
-            SessionID = sessionID;
+            interpreter.DeleteUser(ID);
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID,
+                "users",
+                $"user:{ID}");
         }
     }
 }

@@ -1,20 +1,33 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.User
 {
-    public class UserRegisteredEvent
+    public record UserRegisteredEvent(
+        EventHeader Header,
+        string ID,
+        string Password,
+        string ProfilePhotoURL,
+        string LanguageID,
+        string Rights,
+        string Country
+    ) : IEvent
     {
-        public string Password { get; }
-        public string ProfilePhotoURL { get; }
-        public string LanguageID { get; }
-        public string Rights { get; }
-        public string Country { get; }
-
-        public UserRegisteredEvent(string password, string profilePhotoURL, string languageID, string rights, string country)
+        public void Apply(DBInterpreter interpreter)
         {
-            Password = password;
-            ProfilePhotoURL = profilePhotoURL;
-            LanguageID = languageID;
-            Rights = rights;
-            Country = country;
+            interpreter.InsertUser(
+                userID: ID,
+                rights: Rights,
+                profilePhotoURL: ProfilePhotoURL,
+                nativeLanguageID: LanguageID,
+                country: Country,
+                signInType: "password"
+            );
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, "users");
         }
     }
 }

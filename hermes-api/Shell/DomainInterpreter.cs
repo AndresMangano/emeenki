@@ -8,11 +8,11 @@ namespace Hermes.Shell
     {
         readonly SQLConnection _connection;
         readonly ConnectionFactory _rabbitMQConnection;
-        EventRepository<Guid, Article> _articlesRepository;
-        EventRepository<Guid, ArticleTemplate> _articleTemplatesRepository;
-        EventRepository<string, Room> _roomsRepository;
-        EventRepository<string, User> _usersRepository;
-        EventRepository<string, GoogleAccount> _googleAccountsRepository;
+        public EventRepository<Guid, Article> ArticlesRepository { get; private set; }
+        public EventRepository<Guid, ArticleTemplate> ArticleTemplatesRepository { get; private set; }
+        public EventRepository<string, Room> RoomsRepository { get; private set; }
+        public EventRepository<string, User> UsersRepository { get; private set; }
+        public EventRepository<string, GoogleAccount> GoogleAccountsRepository { get; private set; }
 
         public DomainInterpreter(SQLConnection connection, ConnectionFactory rabbitMQConnection)
         {

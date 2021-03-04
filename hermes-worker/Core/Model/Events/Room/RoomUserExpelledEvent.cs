@@ -1,12 +1,24 @@
+using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Shell;
+
 namespace Hermes.Worker.Core.Model.Events.Room
 {
-    public class RoomUserExpelledEvent
+    public record RoomUserExpelledEvent(
+        EventHeader Header,
+        string ID,
+        string UserID
+    ) : IEvent
     {
-        public string UserID { get; }
-
-        public RoomUserExpelledEvent(string userID)
+        public void Apply(DBInterpreter interpreter)
         {
-            UserID = userID;
+            interpreter.DeleteRoomUser(ID, UserID);
+        }
+
+        public void Notify(ISignalRPort signalR)
+        {
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
+                "rooms",
+                $"room:{ID}");
         }
     }
 }

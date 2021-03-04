@@ -26,10 +26,10 @@ namespace Hermes.API
         public async Task<ActionResult<ArticleTemplateDTO>> Get(Guid articleTemplateID)
             => await _queries.Get(articleTemplateID);
 
-        [HttpGet("query/{archived}/{languageID?}")]
-        public async Task<ActionResult<IEnumerable<ArticleTemplatesDTO>>> Query(bool archived, string languageID)
+        [HttpGet("query/{archived}")]
+        public async Task<ActionResult<IEnumerable<ArticleTemplatesDTO>>> Query(bool archived, [FromQuery]string languageID, [FromQuery]string topicID)
         {
-            var result = await _queries.Query(languageID, archived);
+            var result = await _queries.Query(languageID, topicID, archived);
             return Ok(result);
         }
             

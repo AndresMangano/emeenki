@@ -10,10 +10,12 @@ namespace Hermes.Worker.Shell
         {
             _connection.Execute(@"
                 DELETE FROM Query_UserPosts
-                WHERE UserPostID = @userPostID AND (@childUserPostID IS NULL OR @childUserPostID = ChildUserPostID)",
+                WHERE
+                    UserPostID = @userPostID AND
+                    (@childUserPostID IS NULL OR ChildUserPostID = @childUserPostID)",
                 new {
                     userPostID,
-                    childUserPostID
+                    childUserPostID = childUserPostID
                 },
                 transaction: _transaction
             );
@@ -27,7 +29,7 @@ namespace Hermes.Worker.Shell
                     ON DUPLICATE KEY UPDATE UserPostID = @userPostID",
                 new {
                     userPostID,
-                    childUserPostID,
+                    childUserPostID = childUserPostID ?? Guid.Empty,
                     userID,
                     text,
                     senderUserID,

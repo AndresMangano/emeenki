@@ -85,7 +85,7 @@ namespace Hermes.Shell.Read
         {
             using(MySqlConnection conn = new MySqlConnection(_connectionString)){
                 conn.Open();
-                return await conn.QueryAsync<UserPostDTO>(@"
+                return (await conn.QueryAsync<UserPostDTO>(@"
                     SELECT
                         UP.UserPostID,
                         UP.ChildUserPostID,
@@ -96,7 +96,14 @@ namespace Hermes.Shell.Read
                     FROM Query_UserPosts UP
                         JOIN Query_User U ON U.UserID = UP.SenderUserID
                     WHERE UP.UserID = @UserID
-                    ORDER BY UP.`Timestamp` DESC", new { UserID = userID });
+                    ORDER BY UP.`Timestamp` DESC", new { UserID = userID }))
+                    .Select(up => {
+                        if (up.ChildUserPostID == Guid.Empty) {
+                            up.ChildUserPostID = null;
+                        }
+
+                        return up;
+                    });
             }
         }
 

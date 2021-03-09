@@ -26,10 +26,10 @@ namespace Hermes.Core
                 stream: "article",
                 eventName: "main.commented",
                 payload: new ArticleMainCommentedEvent(
-                    commentPos: commentPos,
-                    childCommentPos: childCommentPos,
-                    comment: cmd.Comment,
-                    userID: userID
+                    commentPos,
+                    childCommentPos,
+                    cmd.Comment,
+                    userID
                 )
             ));
         }
@@ -49,7 +49,7 @@ namespace Hermes.Core
                 stream: "article",
                 eventName: "archived",
                 payload: new ArticleArchivedEvent(
-                    userID: userID)));
+                    userID)));
         }
 
         public static void Execute<IO>(IO io, ArticleCommentCommand cmd, string userID)
@@ -68,12 +68,12 @@ namespace Hermes.Core
                     stream: "article",
                     eventName: "commented",
                     payload: new ArticleCommentedEvent(
-                        inText: cmd.InText,
-                        sentencePos: cmd.SentencePos,
-                        translationPos: cmd.TranslationPos,
-                        commentPos: t.Comments.Count,
-                        comment: cmd.Comment,
-                        userID: userID
+                        cmd.InText,
+                        cmd.SentencePos,
+                        cmd.TranslationPos,
+                        t.Comments.Count,
+                        cmd.Comment,
+                        userID
                     )
                 ));
             }
@@ -94,10 +94,10 @@ namespace Hermes.Core
                         stream: "article",
                         eventName: "upvote.removed",
                         payload: new ArticleUpVoteRemovedEvent(
-                            inText: cmd.InText,
-                            sentencePos: cmd.SentencePos,
-                            translationPos: cmd.TranslationPos,
-                            userID: userID
+                            cmd.InText,
+                            cmd.SentencePos,
+                            cmd.TranslationPos,
+                            userID
                         )
                     ));
                 else
@@ -108,10 +108,10 @@ namespace Hermes.Core
                         stream: "article",
                         eventName: "upvoted",
                         payload: new ArticleUpVotedEvent(
-                            inText: cmd.InText,
-                            sentencePos: cmd.SentencePos,
-                            translationPos: cmd.TranslationPos,
-                            userID: userID
+                            cmd.InText,
+                            cmd.SentencePos,
+                            cmd.TranslationPos,
+                            userID
                         )
                     ));
             }
@@ -125,10 +125,10 @@ namespace Hermes.Core
                         stream: "article",
                         eventName: "downvote.removed",
                         payload: new ArticleDownVoteRemovedEvent(
-                            inText: cmd.InText,
-                            sentencePos: cmd.SentencePos,
-                            translationPos: cmd.TranslationPos,
-                            userID: userID
+                            cmd.InText,
+                            cmd.SentencePos,
+                            cmd.TranslationPos,
+                            userID
                         )
                     ));
                 else
@@ -140,10 +140,10 @@ namespace Hermes.Core
                         stream: "article",
                         eventName: "downvoted",
                         payload: new ArticleDownVotedEvent(
-                            inText: cmd.InText,
-                            sentencePos: cmd.SentencePos,
-                            translationPos: cmd.TranslationPos,
-                            userID: userID
+                            cmd.InText,
+                            cmd.SentencePos,
+                            cmd.TranslationPos,
+                            userID
                         )
                     ));
                 }
@@ -168,11 +168,11 @@ namespace Hermes.Core
                     stream: "article",
                     eventName: "translated",
                     payload: new ArticleTranslatedEvent(
-                        inText: cmd.InText,
-                        sentencePos: cmd.SentencePos,
-                        translationPos: shouldReplace ? s.TranslationHistory.Count - 1 : s.TranslationHistory.Count,
-                        translation: cmd.Translation,
-                        userID: userID
+                        cmd.InText,
+                        cmd.SentencePos,
+                        shouldReplace ? s.TranslationHistory.Count - 1 : s.TranslationHistory.Count,
+                        cmd.Translation,
+                        userID
                     )
                 ));
             }
@@ -197,14 +197,14 @@ namespace Hermes.Core
                 stream: "article",
                 eventName: "template.taken",
                 payload: new ArticleTemplateTakenEvent(
-                    articleTemplateID: articleTemplate.ID,
-                    roomID: room.ID,
-                    originalLanguageID: articleTemplate.LanguageID,
-                    translationLanguageID: translationLanguageID,
-                    title: articleTemplate.Title,
-                    text: articleTemplate.Text,
-                    source: articleTemplate.Source,
-                    photoURL: articleTemplate.PhotoURL
+                    articleTemplate.ID,
+                    room.ID,
+                    articleTemplate.LanguageID,
+                    translationLanguageID,
+                    articleTemplate.Title,
+                    articleTemplate.Text,
+                    articleTemplate.Source,
+                    articleTemplate.PhotoURL
                 )
             ));
             return new ArticleTakeTemplateResult(articleID);
@@ -225,8 +225,8 @@ namespace Hermes.Core
                 eventName: "main.comment.deleted",
                 timestamp: DateTime.UtcNow,
                 payload: new ArticleMainCommentDeletedEvent(
-                    commentPos: command.CommentPos,
-                    childCommentPos: command.ChildCommentPos
+                    command.CommentPos,
+                    command.ChildCommentPos
                 )
             ));
         }

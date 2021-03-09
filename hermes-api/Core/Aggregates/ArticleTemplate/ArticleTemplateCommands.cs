@@ -28,12 +28,12 @@ namespace Hermes.Core
                 stream: "articleTemplate",
                 eventName: "uploaded",
                 payload: new ArticleTemplateUploadedEvent(
-                    languageID: language.ID,
-                    title: new List<string>(Regex.Split(cmd.Title, "\\.+\\s")),
-                    text: new List<string>(Regex.Split(cmd.Text, "\\.+\\s")),
-                    source: cmd.Source,
-                    photoURL: cmd.PhotoURL,
-                    topicID: cmd.TopicID
+                    language.ID,
+                    new List<string>(Regex.Split(cmd.Title, "\\.+\\s")),
+                    new List<string>(Regex.Split(cmd.Text, "\\.+\\s")),
+                    cmd.Source,
+                    cmd.PhotoURL,
+                    cmd.TopicID
                 )
             ));
             return new ArticleTemplateUploadResult(articleTemplateID);
@@ -54,7 +54,7 @@ namespace Hermes.Core
                 stream: "articleTemplate",
                 eventName: "deleted",
                 payload: new ArticleTemplateDeletedEvent(
-                    userID: user.ID
+                    user.ID
                 )
             ));
         }

@@ -20,7 +20,7 @@ namespace Hermes.Core
                     eventName: "taken",
                     timestamp: DateTime.UtcNow,
                     payload: new GoogleAccountTakenEvent(
-                        userID: userID
+                        userID
                     )
                 ));
             }

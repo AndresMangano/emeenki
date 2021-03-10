@@ -22,8 +22,6 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleEvent(
                 id: article.ID,
                 version: article.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "article",
                 eventName: "main.commented",
                 payload: new ArticleMainCommentedEvent(
                     commentPos,
@@ -45,8 +43,6 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleEvent(
                 id: article.ID,
                 version: article.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "article",
                 eventName: "archived",
                 payload: new ArticleArchivedEvent(
                     userID)));
@@ -64,8 +60,6 @@ namespace Hermes.Core
                 io.StoreEvent(new ArticleEvent(
                     id: article.ID,
                     version: article.Version + 1,
-                    timestamp: DateTime.UtcNow,
-                    stream: "article",
                     eventName: "commented",
                     payload: new ArticleCommentedEvent(
                         cmd.InText,
@@ -90,8 +84,6 @@ namespace Hermes.Core
                     io.StoreEvent(new ArticleEvent(
                         id: article.ID,
                         version: article.Version + 1,
-                        timestamp: DateTime.UtcNow,
-                        stream: "article",
                         eventName: "upvote.removed",
                         payload: new ArticleUpVoteRemovedEvent(
                             cmd.InText,
@@ -104,8 +96,6 @@ namespace Hermes.Core
                     io.StoreEvent(new ArticleEvent(
                         id: article.ID,
                         version: article.Version + 1,
-                        timestamp: DateTime.UtcNow,
-                        stream: "article",
                         eventName: "upvoted",
                         payload: new ArticleUpVotedEvent(
                             cmd.InText,
@@ -121,8 +111,6 @@ namespace Hermes.Core
                     io.StoreEvent(new ArticleEvent(
                         id: article.ID,
                         version: article.Version + 1,
-                        timestamp: DateTime.UtcNow,
-                        stream: "article",
                         eventName: "downvote.removed",
                         payload: new ArticleDownVoteRemovedEvent(
                             cmd.InText,
@@ -136,8 +124,6 @@ namespace Hermes.Core
                     io.StoreEvent(new ArticleEvent(
                         id: article.ID,
                         version: article.Version + 1,
-                        timestamp: DateTime.UtcNow,
-                        stream: "article",
                         eventName: "downvoted",
                         payload: new ArticleDownVotedEvent(
                             cmd.InText,
@@ -164,8 +150,6 @@ namespace Hermes.Core
                 io.StoreEvent(new ArticleEvent(
                     id: article.ID,
                     version: article.Version + 1,
-                    timestamp: DateTime.UtcNow,
-                    stream: "article",
                     eventName: "translated",
                     payload: new ArticleTranslatedEvent(
                         cmd.InText,
@@ -193,8 +177,6 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleEvent(
                 id: articleID,
                 version: 1,
-                timestamp: DateTime.UtcNow,
-                stream: "article",
                 eventName: "template.taken",
                 payload: new ArticleTemplateTakenEvent(
                     articleTemplate.ID,
@@ -221,9 +203,7 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleEvent(
                 id: command.ArticleID,
                 version: article.Version + 1,
-                stream: "article",
                 eventName: "main.comment.deleted",
-                timestamp: DateTime.UtcNow,
                 payload: new ArticleMainCommentDeletedEvent(
                     command.CommentPos,
                     command.ChildCommentPos

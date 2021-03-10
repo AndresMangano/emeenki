@@ -56,7 +56,8 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(), "articleTemplates");
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(),
+                SignalRGroup.ARTICLE_TEMPLATES);
         }
     }
 }

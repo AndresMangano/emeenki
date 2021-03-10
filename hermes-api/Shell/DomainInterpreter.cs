@@ -13,6 +13,7 @@ namespace Hermes.Shell
         public EventRepository<string, Room> RoomsRepository { get; private set; }
         public EventRepository<string, User> UsersRepository { get; private set; }
         public EventRepository<string, GoogleAccount> GoogleAccountsRepository { get; private set; }
+        public EventRepository<Guid, ForumPost> ForumPostsRepository { get; private set; }
 
         public DomainInterpreter(SQLConnection connection, ConnectionFactory rabbitMQConnection)
         {
@@ -23,6 +24,7 @@ namespace Hermes.Shell
             InitRoomsRepository();
             InitUsersRepository();
             InitGoogleAccountRepository();
+            InitForumPostsRepository();
         }
     }
 }

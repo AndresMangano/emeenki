@@ -18,8 +18,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: cmd.RoomID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "opened",
                 payload: new RoomOpenedEvent(
                     token,
@@ -43,8 +41,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "closed",
                 payload: new RoomClosedEvent(
                     userID
@@ -62,8 +58,6 @@ namespace Hermes.Core
                 io.StoreEvent(new RoomEvent (
                     id: room.ID,
                     version: room.Version + 1,
-                    timestamp: DateTime.UtcNow,
-                    stream: "room",
                     eventName: "user.queued",
                     payload: new RoomUserQueuedEvent(
                         userID
@@ -73,8 +67,6 @@ namespace Hermes.Core
                 io.StoreEvent(new RoomEvent(
                     id: room.ID,
                     version: room.Version + 1,
-                    timestamp: DateTime.UtcNow,
-                    stream: "room",
                     eventName: "user.joined",
                     payload: new RoomUserJoinedEvent(
                         userID,
@@ -93,8 +85,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "user.joined",
                 payload: new RoomUserJoinedEvent(
                     cmd.RoomUserID,
@@ -112,8 +102,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "user.unqueued",
                 payload: new RoomUserUnqueuedEvent(
                     cmd.RoomUserID
@@ -129,8 +117,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "user.left",
                 payload: new RoomUserLeftEvent(
                     userID
@@ -147,8 +133,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "user.expelled",
                 payload: new RoomUserExpelledEvent(
                     cmd.RoomUserID
@@ -165,8 +149,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "usersLimit.changed",
                 payload: new RoomUsersLimitChangedEvent(
                     cmd.NewLimit
@@ -184,8 +166,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "restricted",
                 payload: new RoomRestrictedEvent(
                     userID
@@ -203,8 +183,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "unrestricted",
                 payload: new RoomUnrestrictedEvent(
                     userID
@@ -221,8 +199,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: token.Timestamp,
-                stream: "room",
                 eventName: "token.renewed",
                 payload: new RoomTokenRenewedEvent(
                     token.Token
@@ -241,8 +217,6 @@ namespace Hermes.Core
             io.StoreEvent(new RoomEvent (
                 id: room.ID,
                 version: room.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "room",
                 eventName: "user.joined",
                 payload: new RoomUserJoinedEvent(
                     userID,

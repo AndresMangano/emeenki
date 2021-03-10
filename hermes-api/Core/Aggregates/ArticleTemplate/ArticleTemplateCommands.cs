@@ -24,8 +24,6 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleTemplateEvent (
                 id: articleTemplateID,
                 version: 1,
-                timestamp: DateTime.UtcNow,
-                stream: "articleTemplate",
                 eventName: "uploaded",
                 payload: new ArticleTemplateUploadedEvent(
                     language.ID,
@@ -50,8 +48,6 @@ namespace Hermes.Core
             io.StoreEvent(new ArticleTemplateEvent (
                 id: articleTemplate.ID,
                 version: articleTemplate.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "articleTemplate",
                 eventName: "deleted",
                 payload: new ArticleTemplateDeletedEvent(
                     user.ID

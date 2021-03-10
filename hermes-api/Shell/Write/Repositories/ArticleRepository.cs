@@ -15,6 +15,7 @@ namespace Hermes.Shell
                 ParseArticleEvent
             ));
         }
+        
         object ParseArticleEvent(string eventName, string payload)
         {
             switch(eventName) {
@@ -32,6 +33,7 @@ namespace Hermes.Shell
                     throw new InfrastructureException("Unknown Article Event");
             }
         }
+
         long? ApplyArticleEvent(ArticleEvent @event) {
             var index = ArticlesRepository.StoreEvent(@event);
             if (index != null) {

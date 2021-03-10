@@ -17,8 +17,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "unbanned",
                 payload: new UserUnbannedEvent(
                     adminUser.ID)));
@@ -36,8 +34,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: cmd.UserID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "registered",
                 payload: new UserRegisteredEvent(
                     cmd.Password,
@@ -60,8 +56,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: cmd.UserID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "registered.withGoogle",
                 payload: new UserRegisteredWithGoogleEvent(
                     cmd.GoogleEmail,
@@ -84,8 +78,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "deleted",
                 payload: new UserDeletedEvent(
                     Guid.NewGuid())));
@@ -103,8 +95,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "banned",
                 payload: new UserBannedEvent(
                     cmd.Reason,
@@ -120,8 +110,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "rights.changed",
                 payload: new UserRightsChangedEvent(
                     cmd.NewRights)));
@@ -165,8 +153,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "profilePhotoChanged",
                 payload: new UserProfilePhotoChangedEvent(
                     cmd.ProfilePhotoURL)));
@@ -182,8 +168,6 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent(
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "post.added",
                 payload: new UserPostAddedEvent(
                     cmd.ParentUserPostID == null ? Guid.NewGuid() : cmd.ParentUserPostID.Value,
@@ -210,9 +194,7 @@ namespace Hermes.Core
                 io.StoreEvent(new UserEvent(
                     id: cmd.UserID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "post.deleted",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserPostDeletedEvent(
                         cmd.UserPostID,
                         cmd.ChildUserPostID,
@@ -228,9 +210,7 @@ namespace Hermes.Core
                 io.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "language.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserLanguageChangedEvent(
                         cmd.NativeLanguageID
                     )
@@ -245,9 +225,7 @@ namespace Hermes.Core
                 iO.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "description.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserDescriptionChangedEvent(
                         command.Description
                     )
@@ -262,9 +240,7 @@ namespace Hermes.Core
                 iO.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "country.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserCountryChangedEvent(
                         command.Country
                     )
@@ -281,9 +257,7 @@ namespace Hermes.Core
                     iO.StoreEvent(new UserEvent(
                         id: userID,
                         version: user.Version + 1,
-                        stream: "user",
                         eventName: "password.changed",
-                        timestamp: DateTime.UtcNow,
                         payload: new UserPasswordChangedEvent(
                             command.NewPassword
                         )

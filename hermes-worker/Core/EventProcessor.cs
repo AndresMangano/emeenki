@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Hermes.Worker.Core.Model.Events.Article;
 using Hermes.Worker.Core.Model.Events.ArticleTemplate;
+using Hermes.Worker.Core.Model.Events.ForumPost;
 using Hermes.Worker.Core.Model.Events.Room;
 using Hermes.Worker.Core.Model.Events.User;
 using Hermes.Worker.Core.Ports;
@@ -34,8 +35,9 @@ namespace Hermes.Worker.Core
             {
                 ["user"] = new EventQueue("user_queries", "user_events", ParseUserEvent),
                 ["article"] = new EventQueue("article_queries", "article_events", ParseArticleEvent),
-                ["articleTemplate"] = new EventQueue("article_template_queries", "article_template_events", ParseArticleTemplateEvent),
-                ["room"] = new EventQueue("room_queries", "room_events", ParseRoomEvent)
+                ["articletemplate"] = new EventQueue("article_template_queries", "article_template_events", ParseArticleTemplateEvent),
+                ["room"] = new EventQueue("room_queries", "room_events", ParseRoomEvent),
+                ["forumpost"] = new EventQueue("forum_post_queries", "forum_post_events", ParseForumPostEvent)
             };
         }
 
@@ -197,6 +199,19 @@ namespace Hermes.Worker.Core
                 case "usersLimit.changed": return JsonConvert.DeserializeObject<RoomUsersLimitChangedEvent>(message);
                 case "restricted": return JsonConvert.DeserializeObject<RoomRestrictedEvent>(message);
                 case "unrestricted": return JsonConvert.DeserializeObject<RoomUnrestrictedEvent>(message);
+                default:
+                    return null;
+            }
+        }
+
+        private IEvent ParseForumPostEvent(string routingKey, string message)
+        {
+            switch(routingKey) {
+                case "created": return JsonConvert.DeserializeObject<ForumPostCreatedEvent>(message);
+                case "edited": return JsonConvert.DeserializeObject<ForumPostEditedEvent>(message);
+                case "deleted": return JsonConvert.DeserializeObject<ForumPostDeletedEvent>(message);
+                case "commented": return JsonConvert.DeserializeObject<ForumPostCommentedEvent>(message);
+                case "comment.deleted": return JsonConvert.DeserializeObject<ForumPostCommentDeletedEvent>(message);
                 default:
                     return null;
             }

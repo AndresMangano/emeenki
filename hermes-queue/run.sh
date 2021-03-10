@@ -2,7 +2,7 @@
 for arg in $@
 do
     case $arg in
-        --start)
+        start)
             docker service create \
                 --name hermes-queue \
                 --network hermes-network \
@@ -12,10 +12,10 @@ do
                 --env RABBITMQ_DEFAULT_PASS=${HERMES_QUEUE_PASSWORD:-"aa2b0aad-8ae8-4b89-9f59-1505ca4ed9de"} \
                 rabbitmq:3.8.11-management
             ;;
-        --update)
+        update)
             docker service update hermes-queue --force
             ;;
-        --stop)
+        stop)
             docker service rm hermes-queue
             ;;
         *)

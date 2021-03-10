@@ -34,7 +34,8 @@ namespace Hermes.Worker.Core.Model.Events.Room
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID, "rooms");
+            signalR.SendSignalToGroup(SignalRSignal.ROOM_UPDATED, ID,
+                SignalRGroup.ROOMS);
         }
     }
 }

@@ -22,7 +22,8 @@ namespace Hermes.Worker.Core.Model.Events.User
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID, $"user:{ID}");
+            signalR.SendSignalToGroup(SignalRSignal.USER_UPDATED, ID,
+                SignalRGroup.User(ID));
         }
     }
 }

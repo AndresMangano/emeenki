@@ -47,7 +47,7 @@ namespace Hermes.Core
         }
 
         public static void ValidateUserInQueue(Room room, string userID) {
-            if (!room.Users.Exists(u => u.UserID == userID))
+            if (!room.UsersQueue.Contains(userID))
                 throw new DomainException("The user is not in the queue");
         }
 

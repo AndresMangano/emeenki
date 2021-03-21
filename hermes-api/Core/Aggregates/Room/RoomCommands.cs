@@ -79,6 +79,7 @@ namespace Hermes.Core
         where IO : IEventsRepository, IRoomsRepository
         {
             var room = io.FetchRoom(cmd.RoomID);
+            Console.WriteLine($"Users in queue: {room.UsersQueue.Count}");
             RoomService.ValidateRoomAdmin(room, userID);
             RoomService.ValidateUserInQueue(room, cmd.RoomUserID);
             RoomService.ValidateRoomSpace(room);

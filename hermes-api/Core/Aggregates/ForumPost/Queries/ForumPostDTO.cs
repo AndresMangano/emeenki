@@ -12,5 +12,7 @@ namespace Hermes.Core
         public string ProfilePhotoURL { get; set; }
         public DateTime Timestamp { get; set; }
         public DateTime ModifiedOn { get; set; }
+        public string LastCommentUserID { get; set; }
+        public DateTime LastCommentTimestamp { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using Hermes.Worker.Core.Ports;
+using Hermes.Worker.Core.Repositories.Helpers;
 using Hermes.Worker.Shell;
 
 namespace Hermes.Worker.Core.Model.Events.ForumPost
@@ -15,6 +16,9 @@ namespace Hermes.Worker.Core.Model.Events.ForumPost
         public void Apply(DBInterpreter interpreter)
         {
             interpreter.InsertForumPostComment(ForumPostCommentID, ID, Text, UserID, Header.Timestamp);
+            interpreter.UpdateForumPost(ID,
+                lastCommentUserID: new DbUpdate<string>(UserID),
+                lastCommentTimestamp: new DbUpdate<DateTime>(Header.Timestamp));
         }
 
         public void Notify(ISignalRPort signalR)

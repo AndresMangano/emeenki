@@ -10,7 +10,9 @@ namespace Hermes.Worker.Core.Repositories
             DbUpdate<string> title = null,
             DbUpdate<string> text = null,
             DbUpdate<string> languageID = null,
-            DbUpdate<DateTime> modifiedOn = null);
+            DbUpdate<DateTime> modifiedOn = null,
+            DbUpdate<string> lastCommentUserID = null,
+            DbUpdate<DateTime> lastCommentTimestamp = null);
         void DeleteForumPost(Guid ID);
     }
 }

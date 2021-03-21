@@ -35,6 +35,7 @@ namespace Hermes.API
         public async Task<ActionResult<IEnumerable<UserDTO>>> Query()
             => Ok(await _queries.List());
 
+        [AllowAnonymous]
         [HttpGet("ranking")]
         public async Task<ActionResult<IEnumerable<UserRankingDTO>>> GetRanking()
             => Ok(await _queries.GetRanking());

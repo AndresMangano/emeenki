@@ -30,6 +30,7 @@ namespace Hermes.API
         public async Task<ActionResult<IEnumerable<ArticlesDTO>>> Query(string roomID, bool archived)
             => Ok(await _queries.Query(roomID, archived));
 
+        [AllowAnonymous]
         [HttpGet("activity")]
         public async Task<ActionResult<IEnumerable<ActivityDTO>>> GetActivityFeed(string userID)
         {

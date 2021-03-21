@@ -52,7 +52,7 @@ namespace Hermes.Shell.Read
             using (var conn = new MySqlConnection(_connectionString)) {
                 conn.Open();
                 return await conn.QueryAsync<ForumPostDTO>(@"
-                    SELECT FP.*
+                    SELECT FP.*, U.ProfilePhotoURL
                     FROM Query_ForumPosts FP
                         JOIN Query_User U ON U.UserID = FP.UserID");
             }

@@ -57,8 +57,9 @@ namespace Hermes.Worker.Core
         private async Task Handle(IEvent @event, bool isRecovering)
         {
             if (@event != null) {
-                var index = _eventQueues[@event.Header.Stream.ToLower()].Index;
-                _logger.LogInformation("Handle event {eventName}:{index}", @event.Header.EventName, @event.Header.Index);
+                var stream = @event.Header.Stream.ToLower();
+                var index = _eventQueues[stream].Index;
+                _logger.LogInformation("Handle event {stream}:{eventName}[{index}]", stream, @event.Header.EventName, @event.Header.Index);
                 if (@event.Header.Index == index + 1 || isRecovering) {                    
                     using(MySqlConnection conn = new MySqlConnection(_connectionString)) {
                         conn.Open();
@@ -159,8 +160,8 @@ namespace Hermes.Worker.Core
         {
             switch (routingKey)
             {
-                case "uploaded": return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message);
-                case "deleted": return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message);
+                case "uploaded": return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message);
+                case "deleted": return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message);
                 default:
                     return null;
             }

@@ -35,13 +35,16 @@ namespace Hermes.Worker.Shell
             );
         }
 
-        public void UpdateForumPost(Guid ID, DbUpdate<string> title = null, DbUpdate<string> text = null, DbUpdate<string> languageID = null, DbUpdate<DateTime> modifiedOn = null)
+        public void UpdateForumPost(Guid ID, DbUpdate<string> title = null, DbUpdate<string> text = null, DbUpdate<string> languageID = null, DbUpdate<DateTime> modifiedOn = null,
+            DbUpdate<string> lastCommentUserID = null, DbUpdate<DateTime> lastCommentTimestamp = null)
         {
             _connection.Execute(@"
                 UPDATE Query_ForumPosts
                 SET Title = CASE WHEN @setTitle = 1 THEN @title ELSE Title END,
                     `Text` = CASE WHEN @setText = 1 THEN @text ELSE `Text` END,
-                    LanguageID = CASE WHEN @setLanguageID = 1 THEN @languageID ELSE LanguageID END
+                    LanguageID = CASE WHEN @setLanguageID = 1 THEN @languageID ELSE LanguageID END,
+                    LastCommentUserID = CASE WHEN @setLastCommentUserID = 1 THEN @lastCommentUserID ELSE LastCommentUserID END,
+                    LastCommentTimestamp = CASE WHEN @setLastCommentTimestamp = 1 THEN @lastCommentTimestamp ELSE LastCommentTimestamp END
                 WHERE ID = @ID",
                 new {
                     ID,
@@ -50,7 +53,11 @@ namespace Hermes.Worker.Shell
                     setText = text != null,
                     text = text.Value,
                     setLanguageID = languageID != null,
-                    languageID = languageID.Value
+                    languageID = languageID.Value,
+                    setLastCommentUserID = lastCommentUserID != null,
+                    lastCommentUserID,
+                    setLastCommentTimestamp = lastCommentTimestamp != null,
+                    lastCommentTimestamp
                 },
                 _transaction
             );

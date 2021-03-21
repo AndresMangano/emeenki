@@ -17,6 +17,7 @@ namespace Hermes.Worker.Core.Model.Events.Room
                 userID: UserID,
                 permission: Permission
             );
+            interpreter.DeleteRoomQueue(ID, UserID);
         }
 
         public void Notify(ISignalRPort signalR)

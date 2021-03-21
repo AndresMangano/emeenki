@@ -23,8 +23,8 @@ namespace Hermes.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<ForumPostDTO>> Query()
-            => await _queries.Query();
+        public async Task<IEnumerable<ForumPostDTO>> Query([FromQuery]string languageID)
+            => await _queries.Query(languageID);
 
         [HttpGet("{forumPostID}")]
         public async Task<ForumPostDTO> Get(Guid forumPostID)

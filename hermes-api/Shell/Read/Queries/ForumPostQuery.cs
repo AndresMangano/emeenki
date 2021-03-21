@@ -41,21 +41,26 @@ namespace Hermes.Shell.Read
                     FROM Query_ForumPostComments FPC
                         JOIN Query_User U ON U.UserID = FPC.UserID
                     WHERE FPC.ForumPostID = @forumPostID
-                    ORDER BY `Timestamp` DESC",
+                    ORDER BY FPC.`Timestamp` DESC",
                     new {
                         forumPostID
                     });
             }
         }
 
-        public async Task<IEnumerable<ForumPostDTO>> Query()
+        public async Task<IEnumerable<ForumPostDTO>> Query(string languageID)
         {
             using (var conn = new MySqlConnection(_connectionString)) {
                 conn.Open();
                 return await conn.QueryAsync<ForumPostDTO>(@"
                     SELECT FP.*, U.ProfilePhotoURL
                     FROM Query_ForumPosts FP
-                        JOIN Query_User U ON U.UserID = FP.UserID");
+                        JOIN Query_User U ON U.UserID = FP.UserID
+                    WHERE (@languageID IS NULL OR @languageID = FP.LanguageID)
+                    ORDER BY COALESCE(FP.LastCommentTimestamp, FP.`Timestamp`) DESC",
+                    new {
+                        languageID
+                    });
             }
         }
     }

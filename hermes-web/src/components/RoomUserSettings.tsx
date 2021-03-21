@@ -1,18 +1,25 @@
 import React, { useReducer } from 'react';
 import { Card, CardHeader, CardBody, Form, Row, Button, Input, Label, InputGroup, InputGroupAddon, FormText } from 'reactstrap';
+import { RoomAPI } from '../api/RoomAPI';
 
 type RoomUserSettingsProps = {
     onError: (message: string) => void;
     onUpdateUsersLimit: (usersLimit: number) => void;
-    onRenewInvitationLink: () => void;
+    roomID: string;
     usersLimit: number;
 }
-export function RoomUserSettings({ onError, onUpdateUsersLimit, onRenewInvitationLink, usersLimit }: RoomUserSettingsProps) {
+export function RoomUserSettings({ onError, onUpdateUsersLimit, roomID, usersLimit }: RoomUserSettingsProps) {
     const [{ userID, invitationLink, usersLimitField }, dispatch] = useReducer(reducer, {
         userID: '',
         invitationLink: '',
         usersLimitField: usersLimit
     });
+
+    function handleInviteUser() {
+        RoomAPI.inviteUser({ roomID, userID })
+        .then(response => dispatch({ _type: 'CHANGE_INVITATION_LINK', invitationLink: window.location.host + `/rooms/${roomID}/token/${response.data.token}/${userID}`}))
+        .catch(onError);
+    }
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         switch (event.currentTarget.name) {
@@ -32,7 +39,7 @@ export function RoomUserSettings({ onError, onUpdateUsersLimit, onRenewInvitatio
                         <Label>Invite</Label>
                         <InputGroup>
                             <InputGroupAddon addonType='prepend'>
-                                <Button onClick={() => onRenewInvitationLink()}>Renew Token</Button>
+                                <Button onClick={handleInviteUser}>Renew Token</Button>
                             </InputGroupAddon>
                             <Input placeholder='Username' name='userID' value={userID} onChange={handleInputChange}/>
                             <InputGroupAddon addonType='append'>
@@ -48,7 +55,7 @@ export function RoomUserSettings({ onError, onUpdateUsersLimit, onRenewInvitatio
                             <Input
                                 name='usersLimit'
                                 type='number'
-                                value={usersLimit}
+                                value={usersLimitField}
                                 onChange={handleInputChange}
                             />
                                 { (usersLimit !== usersLimitField) &&

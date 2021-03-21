@@ -43,11 +43,6 @@ export function RoomUsersView({ onError, history, match }: RoomUsersViewProps) {
         return [];
     }, [status, roomUsersData, pendingUsersData]);
 
-    function handleInviteUser() {
-        RoomAPI.inviteUser({ roomID, userID })
-        .then(response => window.location.host+`/rooms/${roomID}/token/${response.data.token}`)
-        .catch(onError);
-    }
     function handleUpdateUsersLimit(newLimit: number) {
         RoomAPI.changeUsersLimit({ roomID, newLimit, userID })
         .catch(onError);
@@ -92,8 +87,8 @@ export function RoomUsersView({ onError, history, match }: RoomUsersViewProps) {
                         { (usersLimit !== undefined) &&
                             <RoomUserSettings
                                 onError={onError}
+                                roomID={roomID}
                                 usersLimit={usersLimit}
-                                onRenewInvitationLink={handleInviteUser}
                                 onUpdateUsersLimit={handleUpdateUsersLimit}
                             />
                         }

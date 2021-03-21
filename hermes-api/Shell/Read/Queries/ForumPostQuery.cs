@@ -40,7 +40,8 @@ namespace Hermes.Shell.Read
                     SELECT FPC.*, U.ProfilePhotoURL
                     FROM Query_ForumPostComments FPC
                         JOIN Query_User U ON U.UserID = FPC.UserID
-                    WHERE FPC.ForumPostID = @forumPostID",
+                    WHERE FPC.ForumPostID = @forumPostID
+                    ORDER BY `Timestamp` DESC",
                     new {
                         forumPostID
                     });

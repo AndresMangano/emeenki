@@ -1,203 +1,67 @@
 import axios from 'axios';
 import { getHeaders } from './Headers';
 
-const DUMMY_FORUM_POST: ForumPostDTO = {
-    forumPostID: '1',
-    userID: 'LongNameeeeee',
-    profilePhoto: 'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-    title: 'VeryLongTitleeeeee eeeeeeeeeeeeeeeeeeeeeeee eeeeeeeeeeeeeeee eeeeeeee eeeeeeeeeeeeeeeee eeeeeeeeee?',
-    text: 'I am testing this forum. Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp  Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp  Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp  Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp  Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp  Asadasdas doaspdj apsodj aopdj poasdj oapsdj aospdj aopsdasodp ',
-    languageID: 'ENG',
-    nativeLanguageID: 'SPA',
-    timestamp: new Date,
-}
-
 export class ForumPostApi
 {
-    static async get(forumPostID: string): Promise<ForumPostDTO>
+    static  getForumPost(forumPostID: string)
     {
-        //return axios.get<ForumPostDTO>(`${process.env.REACT_APP_HERMES_API_URL}api/forum/get/${forumPostID}`, getHeaders());
-        return DUMMY_FORUM_POST;
+        return axios.get<ForumPostDTO>(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/${forumPostID}`, getHeaders());
     }
-    static async query (languageID: string|null): Promise<ForumPostFeedDTO[]>
+    static query (languageID: string|null)
     {
-        //return axios.get<ForumPostFeedDTO[]>(`${process.env.REACT_APP_HERMES_APIURL}api/forum/getPostFeed`, {
-        //    ...getHeaders(),
-        //    params: {
-        //        languageID
-        //    }
-        //})
-        return [
-            {
-                forumPostID: '1',
-                userID: 'ShortName',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'ShortTitleee eeeee',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '2',
-                userID: 'LongNameeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'LongTitleeeeeeeeeeeeeee eeeeeeeeeeeeee e eeeeeee e e e e e ee ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '3',
-                userID: 'VeryLongNameeeeeeeeeeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'VeryLongTitleeeeee eeeeeeeeeeeeeeeeeeeeeeee eeeeeeeeeeeeeeee eeeeeeee eeeeeeeeeeeeeeeee eeeeeeeeee?',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '4',
-                userID: 'LongNameeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'LongTitleeeeeeeeeeeeeee eeeeeeeeeeeeee e eeeeeee e e e e e ee ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '5',
-                userID: 'LongNameeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'asdasdasd asdasdasd ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '6',
-                userID: 'VeryLongNameeeeeeeeeeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: '124124123123 ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '7',
-                userID: '12355 asdasd ',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: '938aijdaisdj 1qwqwda sd asd ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '8',
-                userID: 'VeryLongNameeeeeeeeeeeeee',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: '242asda sd 2d d as asd ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '9',
-                userID: 'asdasd',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: '2141242dasd asd ',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '10',
-                userID: 'h5fdhdfh',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'how?',
-                languageID: 'ENG',
-                created: new Date,
-            },
-            {
-                forumPostID: '11',
-                userID: '9139askd',
-                profilePhoto:'https://images.livemint.com/img/2020/06/16/600x338/FED1_1592323197070_1592323212036.jpg',
-                title: 'okaosdasd2 asi8du89asd',
-                languageID: 'ENG',
-                created: new Date,
+        return axios.get<ForumPostDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost`, {
+            ...getHeaders(),
+            params: {
+                languageID
             }
-        ]
+        })
     }
     static upload (command: ForumUploadCommand)
     {
-        return axios.post<ForumUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/forum/upload`, command, getHeaders());
+        return axios.post<ForumUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/create`, command, getHeaders());
     }
     static edit (command: ForumEditCommand)
     {
-        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forum/edit`, command, getHeaders());
+        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/edit`, command, getHeaders());
     }
     static delete (command: ForumPostDeleteCommand)
     {
-        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forum/delete`, command, getHeaders());
+        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/delete`, command, getHeaders());
     }
     static addForumComment (command: ForumCommentCommand)
     {
-        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}'api/forum/comment`, command, getHeaders());
+        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/comment`, command, getHeaders());
     }
-    static async getUserComments (forumPostID:string): Promise<CommentDTO[]>
+    static getPostComments (forumPostID:string)
     {
-        //return axios.get<CommentDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}'api/forum/${forumPostID}/comments)` , getHeaders());
-        return [
-            {
-                commentIndex: 1,
-                userID: 'Comentador1',
-                profilePhoto: 'https://i.imgur.com/ipAslnw.png',
-                comment: 'Probando el comentario',
-                nativeLanguageID: 'SPA',
-                timestamp: new Date,
-            },
-            {
-                commentIndex: 2,
-                userID: 'Jwerp',
-                profilePhoto: 'https://i.imgur.com/ipAslnw.png',
-                comment: 'Probando un comentario mas largo para ver como queda el comentario largo en los comentarios',
-                nativeLanguageID: 'SPA',
-                timestamp: new Date,
-            },
-            {
-                
-                commentIndex: 3,
-                userID: '3rdUser',
-                profilePhoto: 'https://i.imgur.com/ipAslnw.png',
-                comment: 'asd aad221 12 as dasd asd asd asda s asd aad221 12 as dasd asd asd asda s asd aad221 12 as dasd asd asd asda s asd aad221 12 as dasd asd asd asda s asd aad221 12 as dasd asd asd asda s',
-                nativeLanguageID: 'ENG',
-                timestamp: new Date,
-            },
-        ]
+        return axios.get<CommentDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/${forumPostID}/comments` , getHeaders());
     }
     static deleteForumComment(command: DeleteForumCommentCommand)
     {
-        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forum/deleteComment`, command, getHeaders());
+        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/forumPost/deleteComment`, command, getHeaders());
     }
 }
 
 export type ForumPostDTO = {
-    forumPostID: string;
-    userID: string;
-    profilePhoto: string;
+    id: string;
     title: string;
     text: string;
     languageID: string;
-    nativeLanguageID: string;
-    timestamp: Date;
-}
-
-export type ForumPostFeedDTO = {
-    forumPostID: string;
-    profilePhoto: string;
     userID: string;
-    title: string;
-    languageID: string;
-    created: Date;
+    profilePhotoURL: string;
+    timestamp: Date;
+    modifiedOn: Date;
+    latestCommentUserID: string;
+    latestCommentTimestamp: Date;
 }
 
 export type CommentDTO = {
-    commentIndex: number;
+    id: string;
+    forumPostID: string;
+    text: string;
     userID: string;
-    profilePhoto: string;
-    comment: string;
-    nativeLanguageID: string;
-    timestamp: Date;
+    profilePhotoURL: string;
+    timestamp: Date
 }
 
 export type ForumUploadCommand = {
@@ -208,7 +72,9 @@ export type ForumUploadCommand = {
 
 export type ForumEditCommand = {
     forumPostID: string;
+    title: string;
     text: string;
+    languageID: string;
 }
 
 export type ForumUploadResult = {
@@ -220,10 +86,11 @@ export type ForumPostDeleteCommand = {
 }
 
 export type ForumCommentCommand = {
-    commentIndex: number|null;
-    comment: string;
+    forumPostID: string;
+    text: string;
 }
 
 export type DeleteForumCommentCommand = {
-    commentIndex: number;
+    forumPostID: string;
+    forumPostCommentID: string;
 } 

@@ -2,6 +2,7 @@ import { ENGINE_METHOD_ALL } from 'constants';
 import React, { useReducer } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
+import { ForumPostApi } from '../../api/ForumPostApi';
 import { useLanguagesQuery } from '../../services/queries-service';
 
 type createPostFormProps = RouteComponentProps & {
@@ -9,13 +10,21 @@ type createPostFormProps = RouteComponentProps & {
 }
 
 export function UploadForumPostForm ({onError, history}: createPostFormProps) {
+
+    const { data: languagesData } = useLanguagesQuery();
+
     const [{title, text, languageID }, dispatch] = useReducer(reducer, {
         title: '',
         text: '',
         languageID: 'ENG',
     });
 
-const { data: languagesData } = useLanguagesQuery();
+function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    ForumPostApi.upload({title, text, languageID })
+    .then(() => history.push(`/forum/`))
+    .catch(onError);
+}
 
 function handleInputChange (event: React.ChangeEvent<HTMLInputElement>) {
     switch (event.currentTarget.name) {
@@ -26,7 +35,7 @@ function handleInputChange (event: React.ChangeEvent<HTMLInputElement>) {
 }
 
 return(
-    <Form className="app-upload-forum-post-form">
+    <Form onSubmit={handleSubmit} className="app-upload-forum-post-form">
         <FormGroup className="app-upload-forum-post-form-title">
             <Label for="title">Title</Label>
             <Input type='text' name='title' id='title' value={title} onChange={handleInputChange} required/>

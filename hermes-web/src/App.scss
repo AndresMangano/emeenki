@@ -529,3 +529,35 @@ button:focus {
         font-size: 1.1em;
     }
 }
+
+.app-pagination {
+    :hover, :focus, :active {
+        top: 0px !important;
+    }
+        a {
+            font-size: 20px !important;
+            box-shadow: none !important;
+        }
+            .page-link {
+                color: white;
+                background-color: #8d8d8d;
+                border: none; 
+            }
+}
+
+
+/* .page-numbers {
+    list-style: none;
+    display: flex;
+     li {
+        padding: 7px;
+        border: 1px solid grey;
+        cursor: pointer;
+
+        :active { 
+            background-color: grey
+        }
+     }
+}
+
+*/

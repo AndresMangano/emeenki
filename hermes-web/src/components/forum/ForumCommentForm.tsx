@@ -2,8 +2,8 @@ import React, { useReducer } from 'react';
 import { Button, Col, Container, Form, FormGroup, Input, Row } from 'reactstrap';
 
 type ForumCommentFormProps = {
-    onSubmit: (comment: string, commentIndex: number|null) => void;
-    commentIndex: number|null;
+    onSubmit: (comment: string, commentIndex: string ) => void;
+    commentIndex: string ;
     showSenderName?: string;
 }
 
@@ -12,7 +12,7 @@ export function ForumCommentForm ({onSubmit, commentIndex, showSenderName}: Foru
         comment: showSenderName === undefined ? '' : '@' + showSenderName + ' '
     })
 
-function handleSubmit (event: React.ChangeEvent<HTMLFormElement>) {
+function handleSubmit (event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSubmit(comment, commentIndex);
     dispatch({ _type: 'RESET'});

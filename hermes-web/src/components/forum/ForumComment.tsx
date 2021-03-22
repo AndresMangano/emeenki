@@ -7,11 +7,11 @@ import { ForumCommentForm } from './ForumCommentForm';
 
 
 type forumCommentType = {
-    onSubmit: (comment: string, commentIndex: number|null) => void;
-    onDelete: (commentIndex: number ) => void;
+    onSubmit: (comment: string, commentIndex: string) => void;
+    onDelete: (commentIndex: string ) => void;
     userID: string;
     profilePhoto: string;
-    commentIndex: number;
+    commentIndex: string;
     comment: string;
     timestamp: Date;
 }
@@ -22,12 +22,12 @@ export function ForumComment ({userID, profilePhoto, commentIndex, comment, time
         openedCommentForm: null,
     });
 
-    function handleSubmit (comment: string, commentIndex: number|null) {
+    function handleReplySubmit (comment: string, commentIndex: string) {
         onSubmit(comment, commentIndex);
         dispatch({ _type: 'TOGGLE_COMMENT_REPLY_BOX', commentFormIndex: null})
     }
 
-    function handleCommentReply (commentFormIndex: number) {
+    function handleCommentReply (commentFormIndex: string) {
         dispatch({ _type: 'TOGGLE_COMMENT_REPLY_BOX', commentFormIndex: openedCommentForm === commentFormIndex ? null : commentFormIndex });
     }
 
@@ -56,7 +56,7 @@ export function ForumComment ({userID, profilePhoto, commentIndex, comment, time
                 <Row>
                     <Col>
                         <ForumCommentForm 
-                            onSubmit= {handleSubmit}
+                            onSubmit= {handleReplySubmit}
                             commentIndex={commentIndex}
                             showSenderName={userID}
                         />
@@ -69,11 +69,11 @@ export function ForumComment ({userID, profilePhoto, commentIndex, comment, time
 }
 
 type State = {
-    openedCommentForm: number|null;
+    openedCommentForm: string|null;
 }
 
 type Action = 
-| {_type: 'TOGGLE_COMMENT_REPLY_BOX', commentFormIndex: number|null}
+| {_type: 'TOGGLE_COMMENT_REPLY_BOX', commentFormIndex: string|null}
 
 function reducer (state: State, action: Action): State {
     switch (action._type) {

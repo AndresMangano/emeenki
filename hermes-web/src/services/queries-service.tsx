@@ -66,12 +66,12 @@ export function useUserPostsQuery(userID: string) {
     return useQuery(['USER_POSTS', userID], (key, userID: string) => UserAPI.getUserPosts(userID).then(res => res.data), defaultConfig);
 }
 export function useForumQuery(forumPostID: string) {
-    return useQuery(['FORUM_POST', forumPostID], (key, forumPostID: string) => ForumPostApi.get(forumPostID).then(res => res), defaultConfig);
+    return useQuery(['FORUM_POST', forumPostID], (key, forumPostID: string) => ForumPostApi.getForumPost(forumPostID).then(res => res.data), defaultConfig);
 }
 export function useForumFeedQuery( languageID: string|null ) {
-    return useQuery(['FORUM_FEED', languageID ], (key, languageID: string ) => ForumPostApi.query(languageID).then(res => res), defaultConfig);
+    return useQuery(['FORUM_FEED', languageID ], (key, languageID: string ) => ForumPostApi.query(languageID).then(res => res.data), defaultConfig);
 }
 export function useUsersComments( forumPostID: string ) {
-    return useQuery(['FORUM_COMMENTS', forumPostID ], (key, forumPostID: string ) => ForumPostApi.getUserComments(forumPostID).then(res => res), defaultConfig);
+    return useQuery(['FORUM_COMMENTS', forumPostID ], (key, forumPostID: string ) => ForumPostApi.getPostComments(forumPostID).then(res => res.data), defaultConfig);
 }
 

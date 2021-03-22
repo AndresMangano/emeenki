@@ -10,9 +10,11 @@ type ForumCardProps = {
     title: string;
     languageID: string;
     timestamp: Date; 
+    latestCommentUserID: string;
+    latestCommentTimestamp: Date;
 }
 
-export function ForumPostCard ({userID, profilePhoto, title, languageID, timestamp, onClick}: ForumCardProps ) {
+export function ForumPostCard ({userID, profilePhoto, title, languageID, timestamp, latestCommentUserID, latestCommentTimestamp, onClick}: ForumCardProps ) {
     return (
         <Row className='app-forum-post-card'>
             <Col md={3} className='d-flex flex-column align-self-center mt-2 mb-2 border-right border-grey'>
@@ -36,6 +38,10 @@ export function ForumPostCard ({userID, profilePhoto, title, languageID, timesta
             </Col>
             <Col className='d-flex align-self-center' md={2}>
                 {moment.utc(timestamp).fromNow()}
+            </Col>
+            <Col> 
+                <Link className="app-forum-post-card-user d-flex align-self-center" to={`/profile/${userID}`}><strong>{latestCommentUserID}</strong></Link>
+                {moment.utc(latestCommentTimestamp).fromNow()}   
             </Col>
         </Row>  
     )

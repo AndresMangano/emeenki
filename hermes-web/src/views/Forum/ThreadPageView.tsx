@@ -1,8 +1,7 @@
-import React, { useReducer } from 'react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Container, Row } from 'reactstrap';
-import { ForumPostApi } from '../../api/ForumPostApi';
-import { CommentForm } from '../../components/CommentForm';
+import { ForumPostApi } from '../../api/ForumPostApi'; 
 import { ForumComment } from '../../components/forum/ForumComment';
 import { ForumCommentForm } from '../../components/forum/ForumCommentForm';
 import { ForumCommentsPanel } from '../../components/forum/ForumCommentsPanel';
@@ -15,27 +14,48 @@ type ThreadPageViewProps = RouteComponentProps<{forumPostID:string}> & {
 
 export function ThreadPageView({ onError, match, history }: ThreadPageViewProps) {
 
+    const { forumPostID: commentPostiD } = match.params;
     const { forumPostID } = match.params;
 
+
     const { data: threadData } = useForumQuery(forumPostID);
-    const { data: commentsData } = useUsersComments (forumPostID);
+    const { data: commentsData } = useUsersComments (commentPostiD);
 
-    function handleDeleteComment (commentIndex: number) {
-        ForumPostApi.deleteForumComment({
-            commentIndex
+   function handleSubmitEdit (forumPostID: string, text: string) {
+       if (threadData !== undefined) {
+        ForumPostApi.edit ({
+            forumPostID,
+            text,
+            title: threadData.title,
+            languageID: threadData.languageID
         })
+       }
+   }    
+
+    function handleDeletePost (forumPostID: string) {
+        ForumPostApi.delete({
+            forumPostID
+        })
+        .then(() => history.push(`/forum`))
         .catch(onError);
     }
     
-    function handleAddComment (comment: string, commentIndex: number|null) {
+    function handleAddComment (text: string) {
         ForumPostApi.addForumComment({
-            comment,
-            commentIndex
+            forumPostID: commentPostiD,
+            text
+        })
+        .catch(onError);
+    }
+
+    function handleDeleteComment (forumPostCommentID: string) {
+        ForumPostApi.deleteForumComment({
+            forumPostID: commentPostiD,
+            forumPostCommentID
         })
         .catch(onError);
     }
     
-
     return (
         <Container>
             <Row>
@@ -43,11 +63,14 @@ export function ThreadPageView({ onError, match, history }: ThreadPageViewProps)
                     { threadData &&
                         <ForumThread
                             userID={threadData.userID}
-                            profilePhoto={threadData.profilePhoto}
+                            forumPostID={threadData.id}
+                            profilePhoto={threadData.profilePhotoURL}
                             title={threadData.title}
                             text={threadData.text}
                             timestamp={threadData.timestamp}
-                            nativeLanguageID={threadData.nativeLanguageID}
+                            languageID={threadData.languageID}
+                            onDelete={handleDeletePost}
+                            onSubmitEdit={handleSubmitEdit}
                         />
                     }
                 </Col>
@@ -69,9 +92,9 @@ export function ThreadPageView({ onError, match, history }: ThreadPageViewProps)
                                 <ForumComment key={comments.userID}
                                     onSubmit={handleAddComment}
                                     userID={comments.userID}
-                                    profilePhoto={comments.profilePhoto}
-                                    commentIndex={comments.commentIndex}
-                                    comment={comments.comment}
+                                    profilePhoto={comments.profilePhotoURL}
+                                    commentIndex={comments.id}
+                                    comment={comments.text}
                                     timestamp={comments.timestamp}
                                     onDelete={handleDeleteComment}
                                 />

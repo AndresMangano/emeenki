@@ -55,9 +55,9 @@ namespace Hermes.Worker.Shell
                     setLanguageID = languageID != null,
                     languageID = languageID?.Value,
                     setLastCommentUserID = lastCommentUserID != null,
-                    lastCommentUserID,
+                    lastCommentUserID = lastCommentUserID?.Value,
                     setLastCommentTimestamp = lastCommentTimestamp != null,
-                    lastCommentTimestamp
+                    lastCommentTimestamp = lastCommentTimestamp?.Value
                 },
                 _transaction
             );

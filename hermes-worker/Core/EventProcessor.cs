@@ -98,7 +98,7 @@ namespace Hermes.Worker.Core
                 }
             }
             else {
-                _logger.LogError("Event was not recognized");
+                _logger.LogWarning("Event was not recognized");
             }
         }
 

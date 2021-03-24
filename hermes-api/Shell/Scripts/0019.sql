@@ -1,0 +1,2 @@
+ALTER TABLE Query_Room
+MODIFY COLUMN UsersLimit INT;

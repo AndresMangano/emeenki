@@ -74,5 +74,18 @@ namespace Hermes.API.Controllers
                         obj => obj.Add("ID", e.Message.Metadata.ID))
                         .ToString()
                 ));
+
+        [HttpGet("forumPost/{index}")]
+        public IEnumerable<EventDTO<string>> GetForumPostEvents(int index) =>
+            _interpreter.ForumPostsRepository.GetMissingEvents(index)
+                .Select(e => new EventDTO<string>(
+                    e.Message.Metadata.EventName,
+                    _interpreter.ParseEvent(
+                        e.Index,
+                        e.Message.Metadata,
+                        e.Message.Payload,
+                        obj => obj.Add("ID", e.Message.Metadata.ID))
+                        .ToString()
+                ));
     }
 }

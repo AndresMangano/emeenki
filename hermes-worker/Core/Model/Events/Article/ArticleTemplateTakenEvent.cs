@@ -61,7 +61,8 @@ namespace Hermes.Worker.Core.Model.Events.Article
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(), "articles");
+            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(),
+                SignalRGroup.ARTICLES);
         }
     }
 }

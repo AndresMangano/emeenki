@@ -1,8 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
 import { RoomAPI } from '../../api/RoomAPI';
-import { Container } from 'reactstrap';
+import { Button, Container } from 'reactstrap';
 
 type RoomUserInvitationViewProps = RouteComponentProps<{roomID: string; token: string; username: string; }>;
 export function RoomUserInvitationView({ history, match }: RoomUserInvitationViewProps) {
@@ -29,6 +29,7 @@ export function RoomUserInvitationView({ history, match }: RoomUserInvitationVie
                 { (validToken === false) && <>Invalid Token</> }
                 { (validToken) && <>Welcome to {roomID}</> }
             </PageHeader>
+            { (validToken) && <Button tag={Link} to={`/rooms/${roomID}/articles/active`} color='primary'>Go To Room</Button>}
         </Container>
     );
 }

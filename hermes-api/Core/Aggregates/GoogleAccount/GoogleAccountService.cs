@@ -16,11 +16,9 @@ namespace Hermes.Core
                 io.StoreEvent(new GoogleAccountEvent(
                     id: googleAccountID,
                     version: googleAccount.Version + 1,
-                    stream: "googleAccounts",
                     eventName: "taken",
-                    timestamp: DateTime.UtcNow,
                     payload: new GoogleAccountTakenEvent(
-                        userID: userID
+                        userID
                     )
                 ));
             }
@@ -33,9 +31,7 @@ namespace Hermes.Core
                 io.StoreEvent(new GoogleAccountEvent(
                     id: googleAccountID,
                     version: googleAccount.Version + 1,
-                    stream : "googleAccounts",
                     eventName: "released",
-                    timestamp: DateTime.UtcNow,
                     payload: new GoogleAccountReleasedEvent()
                 ));
             }

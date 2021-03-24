@@ -15,6 +15,7 @@ namespace Hermes.Shell
                 case RoomEvent e: ApplyRoomEvent(e); break;
                 case UserEvent e: ApplyUserEvent(e); break;
                 case GoogleAccountEvent e: ApplyGoogleAccountEvent(e); break;
+                case ForumPostEvent e: ApplyForumPostEvent(e); break;
                 default:
                     throw new DomainException("Invalid Event");
             }

@@ -17,11 +17,9 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "unbanned",
                 payload: new UserUnbannedEvent(
-                    adminUserID: adminUser.ID)));
+                    adminUser.ID)));
         }
 
         public static UserRegisterResult Execute<IO>(IO io, UserRegisterWithPasswordCommand cmd)
@@ -36,15 +34,13 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: cmd.UserID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "registered",
                 payload: new UserRegisteredEvent(
-                    password: cmd.Password,
-                    profilePhotoURL: cmd.ProfilePhotoURL,
-                    languageID: language.ID,
-                    rights: "user",
-                    country: cmd.Country)));
+                    cmd.Password,
+                    cmd.ProfilePhotoURL,
+                    language.ID,
+                    "user",
+                    cmd.Country)));
             return new UserRegisterResult(cmd.UserID);
         }
 
@@ -60,15 +56,13 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: cmd.UserID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "registered.withGoogle",
                 payload: new UserRegisteredWithGoogleEvent(
-                    googleEmail: cmd.GoogleEmail,
-                    profilePhotoURL: cmd.ProfilePhotoURL,
-                    languageID: language.ID,
-                    rights: "user",
-                    country: cmd.Country
+                    cmd.GoogleEmail,
+                    cmd.ProfilePhotoURL,
+                    language.ID,
+                    "user",
+                    cmd.Country
                 )
             ));
             return new UserRegisterResult(cmd.UserID);
@@ -84,11 +78,9 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "deleted",
                 payload: new UserDeletedEvent(
-                    sessionID: Guid.NewGuid())));
+                    Guid.NewGuid())));
         }
 
         public static void Execute<IO>(IO io, UserBanCommand cmd, string userID)
@@ -103,12 +95,10 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "banned",
                 payload: new UserBannedEvent(
-                    reason: cmd.Reason,
-                    adminUserID: adminUser.ID)));
+                    cmd.Reason,
+                    adminUser.ID)));
         }
 
         public static void Execute<IO>(IO io, UserSetRightsCommand cmd, string userID)
@@ -120,11 +110,9 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "rights.changed",
                 payload: new UserRightsChangedEvent(
-                    newRights: cmd.NewRights)));
+                    cmd.NewRights)));
         }
 
         public static UserLogInResult Execute<IO>(IO io, UserLogInWithPasswordCommand cmd)
@@ -165,11 +153,9 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent (
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "profilePhotoChanged",
                 payload: new UserProfilePhotoChangedEvent(
-                    profilePhotoURL: cmd.ProfilePhotoURL)));
+                    cmd.ProfilePhotoURL)));
         }
         public static void Execute<IO>(IO io, UserAddPostCommand cmd, string userID)
         where IO : IEventsRepository, IUsersRepository
@@ -182,14 +168,12 @@ namespace Hermes.Core
             io.StoreEvent(new UserEvent(
                 id: user.ID,
                 version: user.Version + 1,
-                timestamp: DateTime.UtcNow,
-                stream: "user",
                 eventName: "post.added",
                 payload: new UserPostAddedEvent(
-                    userPostId: cmd.ParentUserPostID == null ? Guid.NewGuid() : cmd.ParentUserPostID.Value,
-                    text: cmd.Text,
-                    userID: userID,
-                    childUserPostID: cmd.ParentUserPostID == null ? (Guid?)null : Guid.NewGuid()
+                    cmd.ParentUserPostID == null ? Guid.NewGuid() : cmd.ParentUserPostID.Value,
+                    cmd.Text,
+                    userID,
+                    cmd.ParentUserPostID == null ? (Guid?)null : Guid.NewGuid()
                 )
             ));
         }
@@ -210,13 +194,11 @@ namespace Hermes.Core
                 io.StoreEvent(new UserEvent(
                     id: cmd.UserID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "post.deleted",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserPostDeletedEvent(
-                        userPostID: cmd.UserPostID,
-                        childUserPostID: cmd.ChildUserPostID,
-                        senderUserID: userID
+                        cmd.UserPostID,
+                        cmd.ChildUserPostID,
+                        userID
                 )));
         }
         public static void Execute<IO>(IO io, UserChangeLanguageCommand cmd, string userID)
@@ -228,11 +210,9 @@ namespace Hermes.Core
                 io.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "language.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserLanguageChangedEvent(
-                        nativeLanguageID: cmd.NativeLanguageID
+                        cmd.NativeLanguageID
                     )
                 ));
         }
@@ -245,11 +225,9 @@ namespace Hermes.Core
                 iO.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "description.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserDescriptionChangedEvent(
-                        description: command.Description
+                        command.Description
                     )
                 ));
         }
@@ -262,11 +240,9 @@ namespace Hermes.Core
                 iO.StoreEvent(new UserEvent(
                     id: userID,
                     version: user.Version + 1,
-                    stream: "user",
                     eventName: "country.changed",
-                    timestamp: DateTime.UtcNow,
                     payload: new UserCountryChangedEvent(
-                        country: command.Country
+                        command.Country
                     )
                 ));
         }
@@ -281,11 +257,9 @@ namespace Hermes.Core
                     iO.StoreEvent(new UserEvent(
                         id: userID,
                         version: user.Version + 1,
-                        stream: "user",
                         eventName: "password.changed",
-                        timestamp: DateTime.UtcNow,
                         payload: new UserPasswordChangedEvent(
-                            password: command.NewPassword
+                            command.NewPassword
                         )
                     ));
                 } else throw new DomainException("Failed to change the password");

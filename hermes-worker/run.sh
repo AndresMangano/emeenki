@@ -2,13 +2,13 @@
 for arg in $@
 do
     case $arg in
-        --push)
+        push)
             docker build \
                 --tag ${HERMES_REGISTRY:-"localhost:5000"}/hermes-worker:latest \
                 .
             docker push ${HERMES_REGISTRY:-"localhost:5000"}/hermes-worker:latest
             ;;
-        --start)
+        start)
             docker service create \
                 --name hermes-worker \
                 --network hermes-network \
@@ -17,12 +17,12 @@ do
                 --env Queue__Password=${HERMES_QUEUE_PASSWORD:-"aa2b0aad-8ae8-4b89-9f59-1505ca4ed9de"} \
                 ${HERMES_REGISTRY:-"localhost:5000"}/hermes-worker:latest
             ;;
-        --update)
+        update)
             docker service update \
                 --image ${HERMES_REGISTRY:-"localhost:5000"}/hermes-worker:latest \
                 hermes-worker
             ;;
-        --stop)
+        stop)
             docker service rm hermes-worker
             ;;
         *)

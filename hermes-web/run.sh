@@ -2,7 +2,7 @@
 for arg in $@
 do
     case $arg in
-        --push)
+        push)
             docker build \
                 --tag ${HERMES_REGISTRY:-"localhost:5000"}/hermes-web:latest \
                 --build-arg SERVER_CONFIG=${HERMES_WEB_CONFIG:-"local.conf"} \
@@ -10,7 +10,7 @@ do
                 .
             docker push ${HERMES_REGISTRY:-"localhost:5000"}/hermes-web:latest
             ;;
-        --start)
+        start)
             docker service create \
                 --name hermes-web \
                 --network hermes-network \
@@ -20,12 +20,12 @@ do
                 --mount type=bind,src=/var/www/data/.well-known/acme-challenge,dst=/usr/share/nginx/html/.well-known/acme-challenge \
                 ${HERMES_REGISTRY:-"localhost:5000"}/hermes-web:latest
             ;;
-        --update)
+        update)
             docker service update \
                 --image ${HERMES_REGISTRY:-"localhost:5000"}/hermes-web:latest \
                 hermes-web
             ;;
-        --stop)
+        stop)
             docker service rm hermes-web
             ;;
         *)

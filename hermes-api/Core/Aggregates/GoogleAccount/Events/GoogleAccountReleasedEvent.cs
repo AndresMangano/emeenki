@@ -1,4 +1,4 @@
 namespace Hermes.Core
 {
-    public class GoogleAccountReleasedEvent {}
+    public record GoogleAccountReleasedEvent;
 }

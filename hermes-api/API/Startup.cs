@@ -117,6 +117,7 @@ namespace API
             services.AddSingleton<IUserQueries, UserQuery>();
             services.AddSingleton<ILanguageQueries, LanguageQuery>();
             services.AddSingleton<ITopicQueries, TopicQuery>();
+            services.AddSingleton<IForumPostQueries, ForumPostQuery>();
             // Inject Interpreters
             services.AddSingleton<DomainInterpreter>();
         }

@@ -4,7 +4,7 @@ namespace Hermes.Core
 {
     public class RoomEvent : DomainEvent<string, object>
     {
-        public RoomEvent(string id, int version, string stream, string eventName, DateTime timestamp, object payload)
-            : base(id, version, stream, eventName, timestamp, payload) {}
+        public RoomEvent(string id, int version, string eventName, object payload)
+            : base(id, version, "room", eventName, DateTime.UtcNow, payload) {}
     }
 }

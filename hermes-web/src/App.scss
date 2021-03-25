@@ -73,9 +73,10 @@ button:focus {
 }
 
 .app-translation-color-card { display: flex !important; align-items: flex-end !important;
-    width: 50%;
     border: solid 2.2px grey !important;
+    max-height: 12.9em;
     &-body {
+        max-height: 12.9em;
         &-empty {
             color: #3232e0;
             font-weight: bold;
@@ -501,17 +502,22 @@ button:focus {
 
 .app-forum-post-card {
     border-top: 0.5px solid rgb(182, 182, 182);
-    &-user {
-        font-size: 1.1em;
+    &-col {
+        border-right: 0.1px solid rgb(206, 206, 206);
+        margin: 10px 0;
+        &-user {
+            font-size: 1.1em;
+        }
+        &-title {
+            word-break: all;
+            font-size: 1.2em;
+            font-weight: bold;
+                &:hover {
+                    cursor: pointer;
+                }
+        }
     }
-    &-title {
-        word-break:all;
-        font-size: 1.2em;
-        font-weight: bold;
-            &:hover {
-                cursor: pointer;
-            }
-    }
+    
 }
 
 .app-forum-threadpage {

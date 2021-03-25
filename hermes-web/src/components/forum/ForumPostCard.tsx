@@ -1,7 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Col, Row } from 'reactstrap'
+import { Badge, Col, Container, Row } from 'reactstrap'
 
 type ForumCardProps = {
     onClick?:() => void;
@@ -10,39 +10,43 @@ type ForumCardProps = {
     title: string;
     languageID: string;
     timestamp: Date; 
-    latestCommentUserID: string;
-    latestCommentTimestamp: Date;
+    lastCommentUserID: string;
+    lastCommentTimestamp: Date;
 }
 
-export function ForumPostCard ({userID, profilePhoto, title, languageID, timestamp, latestCommentUserID, latestCommentTimestamp, onClick}: ForumCardProps ) {
+export function ForumPostCard ({userID, profilePhoto, title, languageID, timestamp, lastCommentUserID, lastCommentTimestamp, onClick}: ForumCardProps ) {
     return (
-        <Row className='app-forum-post-card'>
-            <Col md={3} className='d-flex flex-column align-self-center mt-2 mb-2 border-right border-grey'>
-                <img
-                    className='d-flex align-self-center'
-                    src={profilePhoto === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhoto}
-                    alt='profile photo'
-                    style={{ width: '47px', height: '47px', borderRadius: '50%', objectFit:'cover', marginRight:'5px'}}
-                />
-                <Link className="app-forum-post-card-user d-flex align-self-center" to={`/profile/${userID}`}><strong>{userID}</strong></Link>
-            </Col>
-            <Col onClick={onClick} md={6} className='app-forum-post-card-title d-flex align-self-center mt-3 mb-2 border-right border-grey'>
-                <p>
-                    {title}
-                </p>
-            </Col>
-            <Col className='d-flex align-self-center' md={1}>
-                <Badge>
-                    {languageID}
-                </Badge>
-            </Col>
-            <Col className='d-flex align-self-center' md={2}>
-                {moment.utc(timestamp).fromNow()}
-            </Col>
-            <Col> 
-                <Link className="app-forum-post-card-user d-flex align-self-center" to={`/profile/${userID}`}><strong>{latestCommentUserID}</strong></Link>
-                {moment.utc(latestCommentTimestamp).fromNow()}   
-            </Col>
-        </Row>  
+        <Container fluid>
+            <Row className='app-forum-post-card'>
+                <Col md={3} className='app-forum-post-card-col d-flex flex-column align-self-center'>
+                    <img
+                        className='d-flex align-self-center'
+                        src={profilePhoto === "" ? "https://i.imgur.com/ipAslnw.png" : profilePhoto}
+                        alt='profile photo'
+                        style={{ width: '47px', height: '47px', borderRadius: '50%', objectFit:'cover', marginRight:'5px'}}
+                    />
+                    <Link className="app-forum-post-card-col-user d-flex align-self-center" to={`/profile/${userID}`}><strong>{userID}</strong></Link>
+                    <span className='d-flex align-self-center'>Posted {moment.utc(timestamp).fromNow()}</span>               
+                </Col>
+                <Col onClick={onClick} md={5} className='app-forum-post-card-col d-flex align-items-center'>
+                    <span className='app-forum-post-card-col-title'>
+                        {title}
+                    </span>
+                </Col>
+                <Col className='app-forum-post-card-col d-flex align-items-center justify-content-center' md={1}>
+                    <Badge>
+                        {languageID}
+                    </Badge>  
+                </Col>
+                {   lastCommentUserID !== null &&
+                <Col className='d-flex flex-column align-self-center' md={3}> 
+                    
+                    <Link className="app-forum-post-card-user d-flex align-self-center" to={`/profile/${lastCommentUserID}`}><strong>{lastCommentUserID}</strong></Link>
+                    <span className='d-flex align-self-center'>Commented {moment.utc(lastCommentTimestamp).fromNow()}</span>   
+                    
+                </Col>
+                }       
+            </Row>  
+        </Container>
     )
 }

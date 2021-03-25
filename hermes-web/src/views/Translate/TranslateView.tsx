@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card, CardBody, Col, Container, Row } from 'reactstrap';
+import { Card, CardBody, CardText, Col, Container, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { ArticleTranslator } from '../../components/ArticleTranslator';
 import { ArticleAPI, ArticleDTO } from '../../api/ArticleAPI';
@@ -181,10 +181,10 @@ export function TranslateView({ onError, history, match }: TranslateViewProps) {
                         <Col className="d-flex justify-content-center" md={6}>
                             <Card className="app-translation-color-card">
                                 <CardBody className="app-translation-color-card-body">
-                                    <p className="app-translation-color-card-body-empty">■ Empty Translation</p>
-                                    <p className="app-translation-color-card-body-your">■ Your Translation or Liked Translation</p>
-                                    <p className="app-translation-color-card-body-activity">■ Activity in your Translation</p>
-                                    <p className="app-translation-color-card-body-other">■ Other User's Translation</p>
+                                    <CardText className="app-translation-color-card-body-empty">■ Empty Translation</CardText>
+                                    <CardText className="app-translation-color-card-body-your">■ Your Translation or Liked Translation</CardText>
+                                    <CardText className="app-translation-color-card-body-activity">■ Activity in your Translation</CardText>
+                                    <CardText className="app-translation-color-card-body-other">■ Other User's Translation</CardText>
                                 </CardBody>
                             </Card>
                         </Col>

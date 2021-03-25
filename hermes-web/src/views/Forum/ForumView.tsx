@@ -36,62 +36,6 @@ export function ForumView ({onError, match, history}: ForumViewProps) {
             :   0
     },
     [forumFeedData] );
-    
-
-    
-    
-    //const currentItems = (forumFeedData !== undefined) && forumFeedData.slice(indexOfFirstItem, indexOfLastItem);
-    //const isLastPage = (currentItems !== false ) && currentItems.length !== itemsPerPage; // || endIndex === items.length 
-    
-    // const totalPages = 
-    
-   
-   
-   
-    // const itemsArray = items.length 
-
-
-   // const endIndex = indexOfLastItem + itemsPerPage;
-
-
-
-
-
-
-
-    /* const pages = [];
-
-    for(let i=1; i<=Math.ceil(data.length/itemsPerPage); i++ ) {
-        pages.push(i);
-    }
-
-    const pageNumbers = pages.map((number => {
-
-        if(number < maxPageNumberLimit+1 && number>minPageNumberLimit) {
-        return (
-            <ul className='page-numbers'>
-                <li key={number} 
-                    id='pageID' 
-                    value={number} 
-                    onClick={() => handleTurnPage}
-                    className={currentPage == number ? "active" : 'null' }>
-                    {number}
-                </li>
-            </ul>
-        );
-        }else{
-            return null;
-        }
-    })); 
-    
-    function handleTurnPage (event: React.ChangeEvent<HTMLLIElement>) {
-        switch (event.currentTarget.id) {
-            case 'pageID': dispatch( {_type: 'CHANGE_CURRENT_PAGE', currentPage: event.currentTarget.value})
-        }
-    }
-
-    */
-
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         dispatch({ _type: 'CHANGE_LANGUAGE_ID', languageID: event.currentTarget.value });    
@@ -146,8 +90,8 @@ export function ForumView ({onError, match, history}: ForumViewProps) {
                                             title={forum.title}
                                             languageID={forum.languageID}
                                             timestamp={forum.timestamp}
-                                            latestCommentUserID={forum.latestCommentUserID}
-                                            latestCommentTimestamp={forum.latestCommentTimestamp}
+                                            lastCommentUserID={forum.lastCommentUserID}
+                                            lastCommentTimestamp={forum.lastCommentTimestamp}
                                         />
                             )}
                         </ForumPostsFeed>
@@ -159,7 +103,6 @@ export function ForumView ({onError, match, history}: ForumViewProps) {
                     </Col>
                 </Row>
             </Container>
-            <hr />
         </>
     )
 }

@@ -51,8 +51,8 @@ export type ForumPostDTO = {
     profilePhotoURL: string;
     timestamp: Date;
     modifiedOn: Date;
-    latestCommentUserID: string;
-    latestCommentTimestamp: Date;
+    lastCommentUserID: string;
+    lastCommentTimestamp: Date;
 }
 
 export type CommentDTO = {

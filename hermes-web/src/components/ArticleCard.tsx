@@ -23,16 +23,16 @@ export function ArticleCard({ onAddToRoom, onArchive, link, enableAddToRoom, ena
         <Card
             className='HArticleList'
             style={{
-                background: `linear-gradient(rgba(255, 255, 255, 0), rgba(0, 0, 0, 1) 99%), url(${photoURL})`,
+                background: `linear-gradient(rgba(255, 255, 255, 0), rgba(0, 0, 0, 1) 97%), url(${photoURL})`,
                 backgroundSize: 'cover'
             }}>
             <CardBody className='HArticleList-item d-flex flex-column justify-content-between text-center'>
                 <CardBody></CardBody>
                 <CardFooter>
-                    <Row>
-                        <h6 className='text-white'>
+                    <Row className='justify-content-center'>
+                        <h5 className='text-white'>
                             <strong>{title}</strong>
-                        </h6>
+                        </h5>
                     </Row>
                     <Row>
                         <Col md={5}>
@@ -40,14 +40,7 @@ export function ArticleCard({ onAddToRoom, onArchive, link, enableAddToRoom, ena
                             <small className='text-white'> {moment.utc(created).fromNow()}</small>
                         </Col>
                         <Col md={7}>
-                            <Row className='justify-content-center text-center'>
-                                { (link !== undefined) && 
-                                    <Col md={4}>
-                                        <Button tag={Link} size='sm' color='primary' to={link !== undefined ? link.url + articleID : ''}>
-                                            {link !== undefined ? link.label : ''}
-                                        </Button>
-                                    </Col>
-                                }
+                            <Row className='justify-content-end text-center'>
                                 { enableAddToRoom &&
                                     <Col md={4}>
                                         <Button size='sm' color='primary' onClick={() => onAddToRoom && onAddToRoom(articleID)}>Add to room</Button>
@@ -56,6 +49,13 @@ export function ArticleCard({ onAddToRoom, onArchive, link, enableAddToRoom, ena
                                 { enableArchive &&
                                     <Col md={4}>
                                         <Button size='sm' color='danger' onClick={() => onArchive(articleID)}>Archive</Button>
+                                    </Col>
+                                }
+                                { (link !== undefined) && 
+                                    <Col md={4}>
+                                        <Button tag={Link} size='sm' color='primary' to={link !== undefined ? link.url + articleID : ''}>
+                                            {link !== undefined ? link.label : ''}
+                                        </Button>
                                     </Col>
                                 }
                             </Row>

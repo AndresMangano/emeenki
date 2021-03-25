@@ -11,6 +11,7 @@ export function ForumPostsFeed({children}: forumFeedProps) {
                     <Row>
                         <Col md={11}>{ children }</Col>
                     </Row>
+                    <hr />
         </Container>
     );
 }

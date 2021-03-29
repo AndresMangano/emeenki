@@ -41,7 +41,7 @@ namespace Hermes.Shell.Read
                     FROM Query_ForumPostComments FPC
                         JOIN Query_User U ON U.UserID = FPC.UserID
                     WHERE FPC.ForumPostID = @forumPostID
-                    ORDER BY FPC.`Timestamp` DESC",
+                    ORDER BY FPC.`Timestamp` ASC",
                     new {
                         forumPostID
                     });

@@ -18,11 +18,11 @@ namespace Hermes.Worker.Core.Ports
         public static string Article(Guid ID) => $"article:{ID}";
         public const string ARTICLE_TEMPLATES = "articleTemplates";
         public const string ROOMS = "rooms";
-        public static string Room(string ID) => $"room:${ID}";
+        public static string Room(string ID) => $"room:{ID}";
         public const string USERS = "users";
-        public static string User(string ID) => $"user:${ID}";
+        public static string User(string ID) => $"user:{ID}";
         public const string FORUM_POSTS = "forumPosts";
-        public static string ForumPost(Guid ID) => $"forumPost:${ID}";
+        public static string ForumPost(Guid ID) => $"forumPost:{ID}";
     }
 
     public interface ISignalRPort

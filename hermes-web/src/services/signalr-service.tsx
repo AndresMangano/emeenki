@@ -116,6 +116,7 @@ export function SignalRProvider(props: { children?: ReactNode }) {
             service.listen('forum-post-updated', (forumPostID) => {
                 console.log("SignalR => forum-post-updated signal received");
                 queryCache.invalidateQueries(['FORUM_COMMENTS', forumPostID])
+                queryCache.invalidateQueries(['FORUM_POST', forumPostID])
             });
             setSignalRService(service);
             

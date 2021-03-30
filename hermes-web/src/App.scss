@@ -73,9 +73,10 @@ button:focus {
 }
 
 .app-translation-color-card { display: flex !important; align-items: flex-end !important;
-    width: 50%;
     border: solid 2.2px grey !important;
+    max-height: 12.9em;
     &-body {
+        max-height: 12.9em;
         &-empty {
             color: #3232e0;
             font-weight: bold;
@@ -481,3 +482,88 @@ button:focus {
     margin-left: 5px;
     color: rgb(252, 33, 33);
 }
+
+.app-upload-forum-post-form {
+    &-title input {
+        width: 40em;
+    }
+    &-text textarea {
+            width: 59em;
+            height: 14em !important;
+    }
+    &-language {display: flex; flex-direction: column;
+        margin-left: 2px !important;
+        margin-bottom: 15px;
+        select {
+            width: 15em;
+        }
+    }
+}
+
+.app-forum-post-card {
+    border-top: 0.5px solid rgb(182, 182, 182);
+    &-col {
+        border-right: 0.1px solid rgb(206, 206, 206);
+        margin: 10px 0;
+        &-user {
+            font-size: 1.1em;
+        }
+        &-title {
+            word-break: all;
+            font-size: 1.2em;
+            font-weight: bold;
+                &:hover {
+                    cursor: pointer;
+                }
+        }
+    }
+    
+}
+
+.app-forum-threadpage {
+    margin-top: 5rem !important;
+    &-user {
+        font-size: 1.5em;
+    }
+    &-title {
+        text-align: center;
+        font-size: 2em;
+    }
+    &-text {
+        word-break:all;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+}
+
+.app-pagination {
+    :hover, :focus, :active {
+        top: 0px !important;
+    }
+        a {
+            font-size: 20px !important;
+            box-shadow: none !important;
+        }
+            .page-link {
+                color: white;
+                background-color: #8d8d8d;
+                border: none; 
+            }
+}
+
+
+/* .page-numbers {
+    list-style: none;
+    display: flex;
+     li {
+        padding: 7px;
+        border: 1px solid grey;
+        cursor: pointer;
+
+        :active { 
+            background-color: grey
+        }
+     }
+}
+
+*/

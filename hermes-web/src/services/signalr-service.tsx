@@ -109,7 +109,17 @@ export function SignalRProvider(props: { children?: ReactNode }) {
                 queryCache.invalidateQueries(['USER_POSTS', userID]);
                 queryCache.invalidateQueries(['ACTIVITY_FEED', userID]);
             });
+            service.listen('forum-post-updated', (languageID) => {
+                console.log("SignalR => forum-post-updated signal received");
+                queryCache.invalidateQueries(['FORUM_FEED', languageID]);
+            });
+            service.listen('forum-post-updated', (forumPostID) => {
+                console.log("SignalR => forum-post-updated signal received");
+                queryCache.invalidateQueries(['FORUM_COMMENTS', forumPostID])
+                queryCache.invalidateQueries(['FORUM_POST', forumPostID])
+            });
             setSignalRService(service);
+            
         });
 
         return function cleanup() {
@@ -117,6 +127,7 @@ export function SignalRProvider(props: { children?: ReactNode }) {
             service.removeListeners('article-template-updated');
             service.removeListeners('room-updated');
             service.removeListeners('user-updated');
+            service.removeListeners('forum-post-updated');
         }
     }, [])
 
@@ -144,3 +155,11 @@ export function useSignalR(...groups: string[]) {
 
     return groupsJoined;
 }
+
+/* señal: 
+
+forum-post-updated
+
+grupos:
+forumPosts
+forumPost:${forumPostID} */

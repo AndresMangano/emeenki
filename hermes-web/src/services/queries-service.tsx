@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query';
 import { ArticleAPI } from '../api/ArticleAPI';
 import { ArticleTemplateAPI } from '../api/ArticleTemplateAPI';
+import { ForumPostApi } from '../api/ForumPostApi';
 import { RoomAPI } from '../api/RoomAPI';
 import { StaticAPI } from '../api/StaticAPI';
 import { UserAPI } from '../api/UserAPI';
@@ -64,3 +65,13 @@ export function useRankingQuery() {
 export function useUserPostsQuery(userID: string) {
     return useQuery(['USER_POSTS', userID], (key, userID: string) => UserAPI.getUserPosts(userID).then(res => res.data), defaultConfig);
 }
+export function useForumQuery(forumPostID: string) {
+    return useQuery(['FORUM_POST', forumPostID], (key, forumPostID: string) => ForumPostApi.getForumPost(forumPostID).then(res => res.data), defaultConfig);
+}
+export function useForumFeedQuery( languageID: string|null ) {
+    return useQuery(['FORUM_FEED', languageID ], (key, languageID: string ) => ForumPostApi.query(languageID).then(res => res.data), defaultConfig);
+}
+export function useUsersComments( forumPostID: string ) {
+    return useQuery(['FORUM_COMMENTS', forumPostID ], (key, forumPostID: string ) => ForumPostApi.getPostComments(forumPostID).then(res => res.data), defaultConfig);
+}
+

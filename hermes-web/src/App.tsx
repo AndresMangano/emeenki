@@ -13,6 +13,9 @@ import { ProfileView } from './views/Profile/ProfileView';
 import { RankingView } from './views/Ranking/RankingView';
 import { Footer } from './components/AppFooter';
 import { ErrorModal } from './components/ErrorModal';
+import { UploadForumPostView } from './views/Upload/UploadForumPostView';
+import { ForumView } from './views/Forum/ForumView';
+import { ThreadPageView } from './views/Forum/ThreadPageView';
 
 export function App() {
     const [{ errorIsOpen, error }, dispatch] = useReducer(reducer, {
@@ -27,9 +30,10 @@ export function App() {
     return (
         <div className="App">
             <HNavbar items={[
-                { label: 'RANKING', url: '/ranking', admin: false },
-                { label: 'TEXT STORAGE', url: '/templates/active', admin: true },
-                { label: 'ROOMS', url: '/rooms', admin: false }
+                { label: 'FORUM', url: '/forum', admin: false, logguedIn: false},
+                { label: 'RANKING', url: '/ranking', admin: false, logguedIn: false },
+                { label: 'TEXT STORAGE', url: '/templates/active', admin: true, logguedIn: true },
+                { label: 'ROOMS', url: '/rooms', admin: false, logguedIn: true }
             ]}/>
             <Container className='App-MainPanel' fluid>
                 <Switch>
@@ -47,6 +51,9 @@ export function App() {
                     <Route path='/root' render={(props) => <RootView {...props} onError={handleError}/>}/>
                     <Route path='/profile/:userID' render={(props) => <ProfileView {...props} onError={handleError}/>}/>
                     <Route path='/ranking' render={() => <RankingView/>}/>
+                    <Route exact path='/forum' render={(props) => <ForumView {...props} onError={handleError}/>}/>
+                    <Route path='/forum/:forumPostID' render={(props) => <ThreadPageView {...props} onError={handleError}/>}/>
+                    <Route path='/uploadForumPost' render={(props) => <UploadForumPostView {...props} onError={handleError}/>}/>
                 </Switch>
             </Container>
             <Footer />

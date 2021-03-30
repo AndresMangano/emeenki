@@ -2,6 +2,7 @@ import React, { useState, useReducer } from 'react';
 import { Navbar, NavbarBrand, NavbarToggler, Nav, Collapse, NavLink, NavItem, Button, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, Badge } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { UserAPI } from '../api/UserAPI';
+import { TutorialModal } from './TutorialModal';
 
 type MainNavbarProps = {
     items: {
@@ -15,8 +16,9 @@ export function HNavbar({ items }: MainNavbarProps) {
     const rights = localStorage.getItem('hermes.rights');
     const userID = localStorage.getItem('hermes.userID');
     const profilePhotoURL = localStorage.getItem('hermes.profilePhotoURL');
-    const [{ isOpen }, dispatch] = useReducer(reducer, {
-        isOpen: false
+    const [{ isOpen, isTutorialModalOpen }, dispatch] = useReducer(reducer, {
+        isOpen: false,
+        isTutorialModalOpen: false
     });
 
     function handleToggle() {
@@ -24,6 +26,10 @@ export function HNavbar({ items }: MainNavbarProps) {
     }
     function handleLogout() {
         UserAPI.logOut();
+    }
+
+    function handleTooggleTutorialModal () {
+        dispatch({ _type: 'TOGGLE_TUTORIAL_MODAL'})
     }
 
     return (
@@ -41,6 +47,15 @@ export function HNavbar({ items }: MainNavbarProps) {
                         </NavLink>
                     </NavItem>
                 </Nav>
+                <Nav navbar>
+                    <NavItem className='d-flex flex-column'>
+                        <NavLink className='appBrandFont text-white p-0 ml-4' onClick={handleTooggleTutorialModal} style={{ cursor: 'pointer'}}>
+                            Tutorial 
+                        </NavLink>
+                        <Badge className='ml-5'>For beginners</Badge>
+                    </NavItem>
+                </Nav>
+                <TutorialModal show={isTutorialModalOpen} videoLink='https://thumbs.gfycat.com/DeliriousNaturalEquine-mobile.mp4' onClose={handleTooggleTutorialModal}/>
                 <Nav className="ml-auto" navbar>
                     { items.map((e, index) =>   
                             (e.logguedIn === false || userID !== null ) && (rights == 'admin' && e.admin || !e.admin) &&
@@ -76,11 +91,14 @@ export function HNavbar({ items }: MainNavbarProps) {
 
 type State = {
     isOpen: boolean;
+    isTutorialModalOpen: boolean;
 }
 type Action =
 | { _type: 'TOGGLE' }
+| { _type: 'TOGGLE_TUTORIAL_MODAL'}
 function reducer(state: State, action: Action) : State {
     switch (action._type) {
         case 'TOGGLE': return { ...state, isOpen: !state.isOpen };
+        case 'TOGGLE_TUTORIAL_MODAL': return { ...state, isTutorialModalOpen: !state.isTutorialModalOpen }
     }
 }

@@ -7,6 +7,7 @@ import { ForumCommentForm } from '../../components/forum/ForumCommentForm';
 import { ForumCommentsPanel } from '../../components/forum/ForumCommentsPanel';
 import { ForumThread } from '../../components/forum/ForumThread';
 import { useForumQuery, useUsersComments } from '../../services/queries-service';
+import { useSignalR } from '../../services/signalr-service';
 
 type ThreadPageViewProps = RouteComponentProps<{forumPostID:string}> & {
     onError: (error: any) => void;
@@ -14,12 +15,11 @@ type ThreadPageViewProps = RouteComponentProps<{forumPostID:string}> & {
 
 export function ThreadPageView({ onError, match, history }: ThreadPageViewProps) {
 
-    const { forumPostID: commentPostiD } = match.params;
     const { forumPostID } = match.params;
 
-
+    useSignalR('forumPosts', `forumPost:${forumPostID}`);
     const { data: threadData } = useForumQuery(forumPostID);
-    const { data: commentsData } = useUsersComments (commentPostiD);
+    const { data: commentsData } = useUsersComments (forumPostID);
 
    function handleSubmitEdit (forumPostID: string, text: string) {
        if (threadData !== undefined) {
@@ -42,7 +42,7 @@ export function ThreadPageView({ onError, match, history }: ThreadPageViewProps)
     
     function handleAddComment (text: string) {
         ForumPostApi.addForumComment({
-            forumPostID: commentPostiD,
+            forumPostID,
             text
         })
         .catch(onError);
@@ -50,7 +50,7 @@ export function ThreadPageView({ onError, match, history }: ThreadPageViewProps)
 
     function handleDeleteComment (forumPostCommentID: string) {
         ForumPostApi.deleteForumComment({
-            forumPostID: commentPostiD,
+            forumPostID,
             forumPostCommentID
         })
         .catch(onError);

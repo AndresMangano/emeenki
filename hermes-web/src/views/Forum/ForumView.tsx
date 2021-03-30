@@ -6,8 +6,9 @@ import { ForumPostsFeed } from '../../components/forum/ForumPostsFeed';
 import { PageHeader } from '../../components/PageHeader';
 import { PaginationButtons } from '../../controls/PaginationButtons';
 import { useForumFeedQuery, useLanguagesQuery } from '../../services/queries-service';
+import { useSignalR } from '../../services/signalr-service';
 
-type ForumViewProps = RouteComponentProps & {
+type ForumViewProps = RouteComponentProps<{forumPostID:string}> & {
     onError: (error: any) => void;
 }
 
@@ -15,6 +16,8 @@ export function ForumView ({onError, match, history}: ForumViewProps) {
 
     const itemsPerPage = 7;
 
+    const { forumPostID: forumPostID } = match.params;
+    useSignalR('forumPosts', `forumPost:${forumPostID}`);
     const [{ languageID, currentPage }, dispatch] = useReducer(reducer, {
         languageID: '',
         currentPage: 0,

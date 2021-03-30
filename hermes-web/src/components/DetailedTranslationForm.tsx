@@ -86,7 +86,9 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
                         <Col className= "d-flex justify-content-around" md={11}>
                             <Button className="SendButton mr-1 ml-4 rounded-pill p-2.9" color="primary">Submit</Button>
                             <Button className="rounded-pill" tag={Link} color='danger' to={cancelUrl}>Cancel</Button>
-                            { history.length !== 0 && <Button className="ml-auto rounded-pill" color='dark' id='historyToggler'>History</Button>}
+                            { history.length !== 0 && 
+                                <Button className="ml-auto rounded-pill" color='dark' id='historyToggler'>History ({history.length})</Button>
+                            }
                         </Col>
                     </Row>
                 </Form>

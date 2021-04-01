@@ -183,9 +183,11 @@ namespace Hermes.Core
             var user = io.FetchUser(cmd.UserID);
             UserService.ValidateExistence(user);
             var post = user.Posts.SingleOrDefault(p => p.UserPostID == cmd.UserPostID);
+            var childPost = post.Replies.SingleOrDefault(r => r.UserPostID == cmd.ChildUserPostID);
+            var ṕostUserID = childPost == null ? post.UserID : childPost.UserID;
             if (post == null)
                 throw new DomainException("User post not found");
-            else if (post.UserID != userID && userID != cmd.UserID)
+            else if (ṕostUserID != userID && userID != cmd.UserID)
                 throw new DomainException("You cannot delete this post");
             else if (cmd.ChildUserPostID != null && post.Replies.SingleOrDefault(p => p.UserPostID == cmd.ChildUserPostID) == null) {
                 throw new DomainException("User post not found");

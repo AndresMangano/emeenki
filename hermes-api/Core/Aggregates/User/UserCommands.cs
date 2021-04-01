@@ -185,7 +185,7 @@ namespace Hermes.Core
             var post = user.Posts.SingleOrDefault(p => p.UserPostID == cmd.UserPostID);
             if (post == null)
                 throw new DomainException("User post not found");
-            else if (post.UserID != userID || userID != cmd.UserID)
+            else if (post.UserID != userID && userID != cmd.UserID)
                 throw new DomainException("You cannot delete this post");
             else if (cmd.ChildUserPostID != null && post.Replies.SingleOrDefault(p => p.UserPostID == cmd.ChildUserPostID) == null) {
                 throw new DomainException("User post not found");

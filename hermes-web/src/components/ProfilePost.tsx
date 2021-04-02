@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useMemo, useReducer } from 'react';
 import { Media, Button, Modal, ModalHeader, ModalBody, Container, Row, Col } from 'reactstrap';
 import { ProfilePostForm } from './ProfilePostForm';
 import moment from 'moment';
@@ -29,7 +29,12 @@ export function ProfilePost({ onSubmit, onDelete, senderUserID, profilePhotoURL,
     const [{isModalPostRepliesOpen, openedProfilePostForm}, dispatch] = useReducer(reducer, {
         isModalPostRepliesOpen: false,
         openedProfilePostForm: null,
-    });  
+    });
+
+    const sortedReplies = useMemo(() => replies.sort((a, b) => {
+        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    }), [ replies ])  
+
     function handlePostRepliesToggle() {
         dispatch({ _type: 'TOGGLE_POST_REPLIES_MODAL' });
     }
@@ -88,7 +93,7 @@ export function ProfilePost({ onSubmit, onDelete, senderUserID, profilePhotoURL,
                                     </Col>
                                 </Row>
                                 {
-                                    replies.map((r) =>
+                                    sortedReplies.map((r) =>
                                         <Media key={r.childUserPostID!} className='m-3' heading>
                                             <Media className="PostsCommentsUpperPart">
                                                 <img className="PostsCommentsPhoto" src={r.profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : r.profilePhotoURL} alt=''/>

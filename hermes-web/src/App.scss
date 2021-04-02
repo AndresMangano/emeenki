@@ -551,6 +551,23 @@ button:focus {
             }
 }
 
+.app-tutorial-modal {
+    display: flex;
+    justify-content: center;
+    .modal-content {
+        width: 55.3em;
+        height: 29em;
+    }
+    &-body {
+        iframe {
+            width: 53.3em;
+            height: 22em;
+            border: none;
+        }
+    }
+}
+
+
 
 /* .page-numbers {
     list-style: none;

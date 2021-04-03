@@ -12,7 +12,7 @@ export function TutorialModal ({onClose, show, videoLink }: TutorialModalProps) 
         <Modal isOpen={show} toggle={onClose} className='app-tutorial-modal'>
             <ModalHeader className='app-tutorial-modal-header'><strong>Tutorial: For begginers</strong></ModalHeader>
                 <ModalBody className='app-tutorial-modal-body'>
-                    <iframe width="1246" height="631" src={videoLink} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                    <iframe src="https://streamable.com/e/qrejzy" frameBorder="0" width="100%" height="100%" allowFullScreen></iframe>
                 </ModalBody>
         </Modal> 
     )

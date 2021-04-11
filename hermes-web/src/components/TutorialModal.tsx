@@ -3,16 +3,16 @@ import { Modal, ModalBody, ModalHeader } from 'reactstrap';
 
 type TutorialModalProps= {
     onClose:() => void;
-    videoLink: string;
     show: boolean;
+    videoLink: string;
 }
 
-export function TutorialModal ({onClose, show, videoLink}: TutorialModalProps) {
+export function TutorialModal ({onClose, show, videoLink }: TutorialModalProps) {
     return (
         <Modal isOpen={show} toggle={onClose} className='app-tutorial-modal'>
-            <ModalHeader className='app-tutorial-modal-header'>Tutorial: For begginers</ModalHeader>
+            <ModalHeader className='app-tutorial-modal-header'><strong>Tutorial: For begginers</strong></ModalHeader>
                 <ModalBody className='app-tutorial-modal-body'>
-                        <iframe src={videoLink} title='Emeenki Tutorial' width='100%' height='350'  frameBorder='0' allowFullScreen/>
+                    <iframe src="https://streamable.com/e/qrejzy" frameBorder="0" width="100%" height="100%" allowFullScreen></iframe>
                 </ModalBody>
         </Modal> 
     )

@@ -55,7 +55,7 @@ export function HNavbar({ items }: MainNavbarProps) {
                         <Badge className='ml-5'>For beginners</Badge>
                     </NavItem>
                 </Nav>
-                <TutorialModal show={isTutorialModalOpen} videoLink='https://thumbs.gfycat.com/DeliriousNaturalEquine-mobile.mp4' onClose={handleTooggleTutorialModal}/>
+                <TutorialModal show={isTutorialModalOpen} videoLink="https://streamable.com/e/qrejzy" onClose={handleTooggleTutorialModal}/>
                 <Nav className="ml-auto" navbar>
                     { items.map((e, index) =>   
                             (e.logguedIn === false || userID !== null ) && (rights == 'admin' && e.admin || !e.admin) &&

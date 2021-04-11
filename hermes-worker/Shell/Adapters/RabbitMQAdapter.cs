@@ -24,6 +24,7 @@ namespace Hermes.Worker.Shell
                 queue,
                 exchange);
 
+            _channel.BasicQos(0, 1, false);
             _channel.ExchangeDeclare(
                 exchange: exchange,
                 type: ExchangeType.Fanout

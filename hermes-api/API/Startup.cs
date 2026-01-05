@@ -30,23 +30,36 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(c => c.AddDefaultPolicy(build => {
-                build.WithOrigins("http://localhost:3000", Configuration["UIServer"]);
-                build.AllowCredentials();
-                build.AllowAnyHeader();
-                build.AllowAnyMethod();
-            }));
+            // CORS: define a named policy that allows localhost:3000 and the configured UI server
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", builder =>
+                {
+                    var uiServer = Configuration["UIServer"];
+
+                    builder
+                        .WithOrigins("http://localhost:3000", uiServer)
+                        .AllowCredentials()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             InjectDependencies(services);
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options => {
+                .AddJwtBearer(options =>
+                {
                     var secret = Encoding.ASCII.GetBytes(Configuration["Authentication:Secret"]);
-                    options.TokenValidationParameters = new TokenValidationParameters {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(secret),
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
                 });
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer("GoogleToken", options =>
                 {
@@ -61,6 +74,7 @@ namespace API
                         ValidateLifetime = true
                     };
                 });
+
             services.AddControllers();
             services.AddSignalR();
         }
@@ -71,29 +85,42 @@ namespace API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            } else {
+            }
+            else
+            {
                 app.UseHsts();
             }
-            app.UseCors();
+
+            // Global exception handling middleware
             app.Use(async (context, next) =>
             {
-                try {
+                try
+                {
                     await next();
-                } catch(Exception ex){
+                }
+                catch (Exception ex)
+                {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("Exception: ");
                     Console.ResetColor();
                     Console.WriteLine(ex.Message);
                     context.Response.StatusCode = 400;
                     context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new {
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                    {
                         Error = ex.Message
                     }));
                 }
             });
+
             app.UseRouting();
+
+            // Apply the CORS policy between UseRouting and UseEndpoints
+            app.UseCors("AllowFrontend");
+
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -105,11 +132,13 @@ namespace API
         {
             // Init DB
             services.AddSingleton<SQLConnection>(new SQLConnection(Configuration["SQLConnection"]));
-            services.AddSingleton<ConnectionFactory>(new ConnectionFactory {
+            services.AddSingleton<ConnectionFactory>(new ConnectionFactory
+            {
                 HostName = Configuration["Queue:HostName"],
                 UserName = Configuration["Queue:UserName"],
                 Password = Configuration["Queue:Password"]
             });
+
             // Inject Queries
             services.AddSingleton<IArticleQueries, ArticleQuery>();
             services.AddSingleton<IArticleTemplateQueries, ArticleTemplateQuery>();
@@ -118,6 +147,7 @@ namespace API
             services.AddSingleton<ILanguageQueries, LanguageQuery>();
             services.AddSingleton<ITopicQueries, TopicQuery>();
             services.AddSingleton<IForumPostQueries, ForumPostQuery>();
+
             // Inject Interpreters
             services.AddSingleton<DomainInterpreter>();
         }

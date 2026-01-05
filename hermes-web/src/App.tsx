@@ -16,6 +16,7 @@ import { ErrorModal } from './components/ErrorModal';
 import { UploadForumPostView } from './views/Upload/UploadForumPostView';
 import { ForumView } from './views/Forum/ForumView';
 import { ThreadPageView } from './views/Forum/ThreadPageView';
+import { PublicView } from './views/Public/PublicView';
 
 export function App() {
     const [{ errorIsOpen, error }, dispatch] = useReducer(reducer, {
@@ -33,7 +34,8 @@ export function App() {
                 { label: 'FORUM', url: '/forum', admin: false, logguedIn: false},
                 { label: 'RANKING', url: '/ranking', admin: false, logguedIn: false },
                 { label: 'TEXT STORAGE', url: '/templates/active', admin: true, logguedIn: true },
-                { label: 'ROOMS', url: '/rooms', admin: false, logguedIn: true }
+                { label: 'ROOMS', url: '/rooms', admin: false, logguedIn: true },
+                { label: 'PUBLIC', url: '/public', admin: false, logguedIn: false }
             ]}/>
             <Container className='App-MainPanel' fluid>
                 <Switch>
@@ -54,6 +56,7 @@ export function App() {
                     <Route exact path='/forum' render={(props) => <ForumView {...props} onError={handleError}/>}/>
                     <Route path='/forum/:forumPostID' render={(props) => <ThreadPageView {...props} onError={handleError}/>}/>
                     <Route path='/uploadForumPost' render={(props) => <UploadForumPostView {...props} onError={handleError}/>}/>
+                    <Route path='/public' render={(props) => <PublicView {...props} onError={handleError}/>}/>
                 </Switch>
             </Container>
             <Footer />

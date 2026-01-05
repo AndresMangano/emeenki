@@ -11,6 +11,7 @@ import { useSignalR } from '../../services/signalr-service';
 type RoomsViewProps = RouteComponentProps & {
     onError: (error: any) => void;
 }
+
 export function RoomsView({ onError, history, location }: RoomsViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
     const { filter, languages } = useMemo(() => {
@@ -25,9 +26,13 @@ export function RoomsView({ onError, history, location }: RoomsViewProps) {
     useSignalR('rooms');
     const { data: languagesData } = useLanguagesQuery();
     const { data: roomsData } = useRoomsQuery(filter, userID, languages[0], languages[1]);
+
     const rooms: RoomItemProps[] = useMemo(() => {
         if (roomsData !== undefined) {
-            return roomsData.map(e => ({
+            // Hide PUBLIC rooms from the UI
+            const nonPublicRooms = roomsData.filter(r => !r.roomID.startsWith('PUBLIC_'));
+
+            return nonPublicRooms.map(e => ({
                 roomID: e.roomID,
                 languageID1: e.languageID1,
                 languageID2: e.languageID2,
@@ -41,20 +46,19 @@ export function RoomsView({ onError, history, location }: RoomsViewProps) {
                 restricted: e.restricted,
                 userID: userID,
                 onError: onError,
-                onJoinRoom: (roomID:string, userID:string) => {
-                    RoomAPI.join({ roomID, userID
-                    })
+                onJoinRoom: (roomID: string, userID: string) => {
+                    RoomAPI.join({ roomID, userID })
                     .then(() => history.push(`/rooms/${e.roomID}/articles/active`))
                     .catch(onError);
                 },
-                onLeaveRoom: (roomID:string, userID: string) => {
+                onLeaveRoom: (roomID: string, userID: string) => {
                     RoomAPI.left({ roomID, userID })
                     .catch(onError);
                 }
             }));
         }
         return [];
-    }, [roomsData]);
+    }, [roomsData, userID, onError, history]);
 
     return(
         <Container>

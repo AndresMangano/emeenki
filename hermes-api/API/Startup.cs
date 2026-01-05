@@ -5,6 +5,7 @@ using Hermes.Core;
 using Hermes.Shell;
 using Hermes.Shell.Read;
 using Hermes.Shell.Write;
+using Hermes.Shell.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -82,6 +83,10 @@ namespace API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Initialize PUBLIC room
+            var publicRoomInitializer = new PublicRoomInitializer(Configuration["SQLConnection"]);
+            publicRoomInitializer.EnsurePublicRoomExists();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

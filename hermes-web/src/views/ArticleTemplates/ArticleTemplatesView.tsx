@@ -56,7 +56,28 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                 roomID,
                 userID
             })
-            .then(() => history.push(`/rooms/${roomID}/articles/active`))
+            .then(() => {
+                // Special navigation rules for public rooms
+                if (roomID.startsWith('PUBLIC_')) {
+                    const parts = roomID.split('_'); // e.g. ["PUBLIC", "ENG", "SPA"]
+                    const lang1 = parts[1];
+                    const lang2 = parts[2];
+
+                    if (lang1 === 'ENG' && lang2 === 'SPA') {
+                        // Default public room → plain /public
+                        history.push('/public');
+                    } else if (lang1 && lang2) {
+                        // Other public rooms → /public?languages=CHN&languages=SPA
+                        history.push(`/public?languages=${lang1}&languages=${lang2}`);
+                    } else {
+                        // Fallback in case of unexpected format
+                        history.push('/public');
+                    }
+                } else {
+                    // Non-public rooms keep the original behavior
+                    history.push(`/rooms/${roomID}/articles/active`);
+                }
+            })
             .catch(onError);
         }
     }

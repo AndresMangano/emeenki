@@ -8,15 +8,54 @@ import { RoomUserInvitationView } from './RoomUserInvitationView';
 
 type RoomsIndexProps = RouteComponentProps & {
     onError: (error: any) => void;
-}
+};
+
 export function RoomsIndex({ onError }: RoomsIndexProps) {
-    return(
+    return (
         <Switch>
-            <Route exact path='/rooms' render={(props) => <RoomsView {...props} onError={onError} />} />
-            <Route exact path='/rooms/create' render={(props) => <CreateRoomView {...props} onError={onError} />} />
-            <Route exact path='/rooms/:roomID/articles/:status' render={(props) => <RoomArticlesView {...props} onError={onError} />} />
-            <Route exact path='/rooms/:roomID/users/:status' render={(props) => <RoomUsersView {...props} onError={onError} />} />
-            <Route exact path='/rooms/:roomID/token/:token/:username' component={RoomUserInvitationView}/>
+            <Route
+                exact
+                path='/rooms'
+                render={(props) => (
+                    <RoomsView {...props} onError={onError} />
+                )}
+            />
+            <Route
+                exact
+                path='/rooms/create'
+                render={(props) => (
+                    <CreateRoomView {...props} onError={onError} />
+                )}
+            />
+            <Route
+                exact
+                path='/rooms/:roomID/articles/:status'
+                render={(props) => (
+                    <RoomArticlesView {...props} onError={onError} />
+                )}
+            />
+            <Route
+                exact
+                path='/rooms/:roomID/users/:status'
+                render={(props) => (
+                    <RoomUsersView
+                        {
+                            ...(
+                                props as RouteComponentProps<{
+                                    roomID: string;
+                                    status: 'active' | 'pending';
+                                }>
+                            )
+                        }
+                        onError={onError}
+                    />
+                )}
+            />
+            <Route
+                exact
+                path='/rooms/:roomID/token/:token/:username'
+                component={RoomUserInvitationView}
+            />
         </Switch>
     );
 }

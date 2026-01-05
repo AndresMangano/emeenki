@@ -7,4 +7,7 @@ INSERT INTO Language_Language(LanguageID, Description) VALUES
 ('FRE', 'French'),
 ('GER', 'German'),
 ('POR', 'Portuguese'),
-('DUT', 'Dutch');
+('DUT', 'Dutch'),
+('CHN', 'Chinese'),
+('JPN', 'Japanese'),
+('KOR', 'Korean');

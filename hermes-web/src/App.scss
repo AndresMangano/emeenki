@@ -52,7 +52,7 @@ button:focus {
 .translationColor{
     &-notTranslated{
         font-weight: bold;
-        color: #3232e0;
+        color: #000;
     }
     &-translatedByMe{
         font-weight: bold;
@@ -60,7 +60,8 @@ button:focus {
     }
     &-likedByMe{
         font-weight: bold;
-        color: #25b125;
+        color: #000;
+        background-color: #c9ffcf;
     }
     &-replacedByOthers{
         font-weight: bold;
@@ -68,16 +69,30 @@ button:focus {
     }
     &-translatedByOthers{
         font-weight: bold;
-        color: #252323;
+        color: #000 ;
+    }
+    &-locked {
+        font-weight: bold;
+        color: #3232e0;
+    }
+    &-lockedLiked {
+        font-weight: bold;
+        color: #3232e0;                
+        background-color: #c9ffcf;
     }
 }
 
 .app-translation-color-card { display: flex !important; align-items: flex-end !important;
     border: solid 2.2px grey !important;
-    max-height: 12.9em;
+    max-height: 17em;
     &-body {
-        max-height: 12.9em;
-        &-empty {
+        max-height: 17em;
+        &-lockedLiked {
+            font-weight: bold;
+            color: #3232e0;           
+            background-color: #c9ffcf;
+        }
+        &-locked {
             color: #3232e0;
             font-weight: bold;
         }
@@ -92,6 +107,11 @@ button:focus {
         &-other {
             color: #252323;
             font-weight: bold;
+        }
+        &-otherLiked {
+            color: #252323;
+            font-weight: bold;
+            background-color: #c9ffcf;
         }
     }
 }

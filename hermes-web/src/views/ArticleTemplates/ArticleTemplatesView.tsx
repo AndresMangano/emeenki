@@ -5,13 +5,19 @@ import { PageHeader } from '../../components/PageHeader';
 import { ArticlesList } from '../../components/ArticleList';
 import { ArticleTemplateAPI } from '../../api/ArticleTemplateAPI';
 import { useSignalR } from '../../services/signalr-service';
-import { useArticleTemplatesQuery, useLanguagesQuery, useTopicsQuery } from '../../services/queries-service';
+import {
+    useArticleTemplatesQuery,
+    useLanguagesQuery,
+    useTopicsQuery,
+    useArticleTemplateQuery
+} from '../../services/queries-service';
 import { ArticleCard } from '../../components/ArticleCard';
 import { ArticleAPI } from '../../api/ArticleAPI';
 
 type ArticleTemplatesViewProps = RouteComponentProps<{ roomID?: string; archived: string;}> & {
     onError: (error: any) => void;
-}
+};
+
 export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTemplatesViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
     const rights = localStorage.getItem('hermes.rights') || '';
@@ -26,6 +32,7 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     const { data: languagesData } = useLanguagesQuery();
     const { data: topicsData } = useTopicsQuery();
     const { data: articleTemplatesData } = useArticleTemplatesQuery( archived, languageID, topicID);
+
     const articleTemplates = useMemo(() => {
         if (articleTemplatesData !== undefined) {
             return articleTemplatesData.map(e => ({
@@ -33,22 +40,28 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                 photoURL: e.photoURL,
                 ID: e.articleTemplateID,
                 languageID: e.languageID,
-                created: e.created 
+                created: e.created
             }));
         }
         return [];
-    }, [articleTemplatesData])
+    }, [articleTemplatesData]);
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         switch (event.currentTarget.name) {
-            case 'languageID': dispatch({ _type: 'CHANGE_LANGUAGE_ID', languageID: event.currentTarget.value }); break;
-            case 'topicID': dispatch( { _type: 'CHANGE_TOPIC_ID', topicID: event.currentTarget.value}); break;
+            case 'languageID':
+                dispatch({ _type: 'CHANGE_LANGUAGE_ID', languageID: event.currentTarget.value });
+                break;
+            case 'topicID':
+                dispatch({ _type: 'CHANGE_TOPIC_ID', topicID: event.currentTarget.value });
+                break;
         }
     }
+
     function handleArchive(articleTemplateID: string) {
         ArticleTemplateAPI.delete({ articleTemplateID, userID })
-        .catch(onError)
+            .catch(onError);
     }
+
     function handleAddToRoom(articleTemplateID: string) {
         if (roomID !== undefined) {
             ArticleAPI.takeTemplate({
@@ -125,8 +138,9 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
             <Container fluid>
                 <ArticlesList key={languageID}>
                     { articleTemplates.map((articleTemplate, index) =>
-                        <ArticleCard key={index} {...articleTemplate}
-                            articleID={articleTemplate.ID}
+                        <TemplateArticleCard
+                            key={index}
+                            template={articleTemplate}
                             onArchive={handleArchive}
                             onAddToRoom={handleAddToRoom}
                             enableAddToRoom={roomID !== undefined}
@@ -146,9 +160,67 @@ type State = {
 type Action =
 | { _type: 'CHANGE_LANGUAGE_ID', languageID: string }
 | { _type: 'CHANGE_TOPIC_ID', topicID: string }
+
 function reducer(state: State, action: Action) : State {
     switch (action._type) {
         case 'CHANGE_LANGUAGE_ID': return { ...state, languageID: action.languageID };
         case 'CHANGE_TOPIC_ID': return { ...state, topicID: action.topicID };
     }
+}
+
+/**
+ * Wrapper card used only in Text Storage to fetch the template
+ * and compute the total number of sentences.
+ */
+type TemplateCardData = {
+    ID: string;
+    title: string;
+    photoURL: string;
+    languageID: string;
+    created: Date;
+};
+
+type TemplateArticleCardProps = {
+    template: TemplateCardData;
+    onArchive: (articleTemplateID: string) => void;
+    onAddToRoom: (articleTemplateID: string) => void;
+    enableAddToRoom: boolean;
+    enableArchive: boolean;
+};
+
+function TemplateArticleCard({
+    template,
+    onArchive,
+    onAddToRoom,
+    enableAddToRoom,
+    enableArchive
+}: TemplateArticleCardProps) {
+    // Load full template to compute total sentences
+    const { data: templateData } = useArticleTemplateQuery(template.ID);
+
+    let totalSentences: number | undefined = undefined;
+
+    if (templateData) {
+        // Assuming ArticleTemplateDTO has similar shape: { title: ISentence[], text: ISentence[] }
+        const titleArr = (templateData as any).title || [];
+        const textArr = (templateData as any).text || [];
+        totalSentences = titleArr.length + textArr.length;
+    }
+
+    return (
+        <ArticleCard
+            title={template.title}
+            photoURL={template.photoURL}
+            articleID={template.ID}
+            languageID={template.languageID}
+            created={template.created}
+            onArchive={onArchive}
+            onAddToRoom={onAddToRoom}
+            enableAddToRoom={enableAddToRoom}
+            enableArchive={enableArchive}
+            // override so ArticleCard shows "N sentences"
+            totalSentences={totalSentences}
+            lockedSentences={0}
+        />
+    );
 }

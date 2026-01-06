@@ -9,8 +9,7 @@ import { useSignalR } from '../../services/signalr-service';
 import { ArticleCommentForm } from '../../components/article/ArticleCommentForm';
 import { ArticleComment } from '../../components/article/ArticleComment';
 
-interface ISentence
-{
+interface ISentence {
     sentencePos: number;
     originalText: string;
     translationHistory: {
@@ -27,24 +26,21 @@ interface ISentence
         comments: IComment[];
     }[];
 }
-interface IComment
-{
+interface IComment {
     profilePhotoUrl: string;
     userID: string;
     timestamp: Date;
     comment: string;
 }
-interface IArticleComment
-{
+interface IArticleComment {
     profilePhotoURL: string;
     userID: string;
     timestamp: Date;
     comment: string;
     commentIndex: number;
-    childCommentIndex: number|null;
+    childCommentIndex: number | null;
 }
-interface IArticle
-{
+interface IArticle {
     articleID: string;
     photoUrl: string;
     title: ISentence[];
@@ -52,9 +48,10 @@ interface IArticle
     comments: IArticleComment[];
 }
 
-type TranslateViewProps = RouteComponentProps<{ articleID: string, inText?: string, sentencePos?: string, translationPos?: string, comments?: string }> & {
+type TranslateViewProps = RouteComponentProps<{ articleID: string; inText?: string; sentencePos?: string; translationPos?: string; comments?: string }> & {
     onError: (error: any) => void;
-}
+};
+
 export function TranslateView({ onError, history, match }: TranslateViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
     const { articleID } = match.params;
@@ -65,17 +62,17 @@ export function TranslateView({ onError, history, match }: TranslateViewProps) {
 
     useSignalR(`article:${articleID}`);
     const { data: articleData } = useArticleQuery(articleID);
-    const article: IArticle|undefined = useMemo(() => mapArticle(articleData), [articleData]);
+    const article: IArticle | undefined = useMemo(() => mapArticle(articleData), [articleData]);
 
-    function handleDeleteArticleComment(commentPos: number, childCommentPos: number|null) {
+    function handleDeleteArticleComment(commentPos: number, childCommentPos: number | null) {
         if (article !== undefined) {
             ArticleAPI.deleteMainComment({
                 articleID: article.articleID,
                 commentPos,
                 childCommentPos
             })
-            .then(() => history.push(`/translate/${articleID}`))
-            .catch(onError);
+                .then(() => history.push(`/translate/${articleID}`))
+                .catch(onError);
         }
     }
     function handleCommentArticle(comment: string) {
@@ -85,126 +82,164 @@ export function TranslateView({ onError, history, match }: TranslateViewProps) {
                 comment,
                 parentCommentPos: null
             })
-            .then(() => history.push(`/translate/${articleID}`))
-            .catch(onError);
+                .then(() => history.push(`/translate/${articleID}`))
+                .catch(onError);
         }
     }
 
-    function handleCommentRepliesArticle(comment: string, parentCommentPos: number|null) {
+    function handleCommentRepliesArticle(comment: string, parentCommentPos: number | null) {
         if (article !== undefined) {
             ArticleAPI.commentMain({
                 articleID: article.articleID,
                 comment,
-                parentCommentPos,
+                parentCommentPos
             })
-            .then(() => history.push(`/translate/${articleID}`))
-            .catch(onError);
+                .then(() => history.push(`/translate/${articleID}`))
+                .catch(onError);
         }
     }
-    
+
     return (
         <Container fluid>
-            { (article !== undefined) &&
+            {article !== undefined && (
                 <>
                     <ArticleTranslator
                         onSubmitTranslation={(inText, sentencePos, translation) =>
-                            SubmitTranslation(articleID, userID, inText, sentencePos, translation,
+                            SubmitTranslation(
+                                articleID,
+                                userID,
+                                inText,
+                                sentencePos,
+                                translation,
                                 () => history.push(`/translate/${articleID}`),
                                 onError
-                            )}
+                            )
+                        }
                         onSubmitComment={(inText, sentencePos, translationPos, comment) =>
-                            SubmitComment(articleID, inText, sentencePos, translationPos, comment, userID,
+                            SubmitComment(
+                                articleID,
+                                inText,
+                                sentencePos,
+                                translationPos,
+                                comment,
+                                userID,
                                 () => history.push(`/translate/${articleID}/${inText}/${sentencePos}/${translationPos}/true`),
                                 onError
-                            )}
+                            )
+                        }
                         onUpvote={(inText, sentencePos, translationPos, redirect) =>
-                            UpvoteTranslation(articleID, inText, sentencePos, translationPos, userID,
+                            UpvoteTranslation(
+                                articleID,
+                                inText,
+                                sentencePos,
+                                translationPos,
+                                userID,
                                 !redirect
                                     ? () => history.push(`/translate/${articleID}`)
                                     : () => history.push(`/translate/${articleID}/${inText}/${sentencePos}/${translationPos}`),
                                 onError
-                            )}
+                            )
+                        }
                         onDownvote={(inText, sentencePos, translationPos) =>
-                            DownvoteTranslation(articleID, inText, sentencePos, translationPos, userID,
+                            DownvoteTranslation(
+                                articleID,
+                                inText,
+                                sentencePos,
+                                translationPos,
+                                userID,
                                 () => history.push(`/translate/${articleID}/${inText}/${sentencePos}/${translationPos}`),
                                 onError
-                            )}
+                            )
+                        }
                         buildTranslateUrl={(inText, index) => `/translate/${articleID}/${inText}/${index}`}
-                        buildCommentsUrl={(inText, sentencePos, translationPos) => `/translate/${articleID}/${inText}/${sentencePos}/${translationPos}/true`}
+                        buildCommentsUrl={(inText, sentencePos, translationPos) =>
+                            `/translate/${articleID}/${inText}/${sentencePos}/${translationPos}/true`
+                        }
                         rootUrl={`/translate/${articleID}`}
                         userID={userID}
                         photoUrl={article.photoUrl}
                         title={article.title}
                         text={GroupParagraphs(article.text)}
-                        selected={(pInText === undefined || pSentencePos === undefined)
-                            ?   null
-                            :   {
-                                    inText: pInText,
-                                    sentencePos: pSentencePos,
-                                    translationPos:
-                                        pTranslationPos === undefined
-                                            ?   undefined
-                                            :   pTranslationPos
-                                }
+                        selected={
+                            pInText === undefined || pSentencePos === undefined
+                                ? null
+                                : {
+                                      inText: pInText,
+                                      sentencePos: pSentencePos,
+                                      translationPos: pTranslationPos === undefined ? undefined : pTranslationPos
+                                  }
                         }
-                        comments={comments && pSentencePos !== undefined && pTranslationPos !== undefined
-                            ?   GetComments(article, pInText, pSentencePos, pTranslationPos)
-                            :   null
+                        comments={
+                            comments && pSentencePos !== undefined && pTranslationPos !== undefined
+                                ? GetComments(article, pInText, pSentencePos, pTranslationPos)
+                                : null
                         }
                     />
                     <hr />
                     <Row>
                         <Col md={6}>
                             <ArticleCommentsPanel
-                                form={
-                                    <ArticleCommentForm 
-                                        onSubmit={handleCommentArticle} 
-                                        parentCommentPos={null}
-                                    />
-
-                                }
+                                form={<ArticleCommentForm onSubmit={handleCommentArticle} parentCommentPos={null} />}
                             >
-                                { article.comments.filter(c => c.childCommentIndex === null).map((e, index) =>
-                                    <React.Fragment key={index}>
-                                        <ArticleComment {...e} 
-                                            key={index}
-                                            onSubmit={handleCommentRepliesArticle}
-                                            actualUserID={userID}
-                                            onDelete={handleDeleteArticleComment}
-                                            replies={article.comments.filter(c => c.childCommentIndex !== null && c.commentIndex === e.commentIndex)}
-                                        />
-                                        <hr />
-                                    </React.Fragment>
-                                )}
+                                {article.comments
+                                    .filter(c => c.childCommentIndex === null)
+                                    .map((e, index) => (
+                                        <React.Fragment key={index}>
+                                            <ArticleComment
+                                                {...e}
+                                                key={index}
+                                                onSubmit={handleCommentRepliesArticle}
+                                                actualUserID={userID}
+                                                onDelete={handleDeleteArticleComment}
+                                                replies={article.comments.filter(
+                                                    c =>
+                                                        c.childCommentIndex !== null &&
+                                                        c.commentIndex === e.commentIndex
+                                                )}
+                                            />
+                                            <hr />
+                                        </React.Fragment>
+                                    ))}
                             </ArticleCommentsPanel>
                         </Col>
                         <Col className="d-flex justify-content-center" md={6}>
                             <Card className="app-translation-color-card">
                                 <CardBody className="app-translation-color-card-body">
-                                    <CardText className="app-translation-color-card-body-empty">■ Empty Translation</CardText>
-                                    <CardText className="app-translation-color-card-body-your">■ Your Translation or Liked Translation</CardText>
-                                    <CardText className="app-translation-color-card-body-activity">■ Activity in your Translation</CardText>
-                                    <CardText className="app-translation-color-card-body-other">■ Other User's Translation</CardText>
+                                    <CardText className="app-translation-color-card-body-your">
+                                        ■ Your Translation 
+                                    </CardText>
+                                    <CardText className="app-translation-color-card-body-otherLiked">
+                                        ■ Liked Translation
+                                    </CardText>
+                                    <CardText className="app-translation-color-card-body-activity">
+                                        ■ Activity in your Translation
+                                    </CardText>
+                                    <CardText className="app-translation-color-card-body-other">
+                                        ■ Other User&apos;s Translation
+                                    </CardText>
+                                    <CardText className="app-translation-color-card-body-locked">
+                                        <span>■</span> Locked Translation
+                                    </CardText>
+                                    <CardText className="app-translation-color-card-body-lockedLiked">
+                                        <span>■</span> Locked & Liked Translation
+                                    </CardText>
                                 </CardBody>
                             </Card>
                         </Col>
                     </Row>
                 </>
-            }
+            )}
         </Container>
     );
 }
 
-function GroupParagraphs(
-    sentences: ISentence[]
-) : ISentence[][]
-{
+function GroupParagraphs(sentences: ISentence[]): ISentence[][] {
     let result: ISentence[][] = [];
     result[0] = [];
     let actual = 0;
 
     sentences.forEach((s, index) => {
-        if(s.originalText.charCodeAt(0) === 10){
+        if (s.originalText.charCodeAt(0) === 10) {
             actual++;
             result[actual] = [];
             result[actual].push(s);
@@ -216,64 +251,62 @@ function GroupParagraphs(
     return result;
 }
 
-function mapArticle(article: ArticleDTO|undefined) : IArticle|undefined
-{
+function mapArticle(article: ArticleDTO | undefined): IArticle | undefined {
     return article === undefined
-        ?   undefined
-        :   {
-                articleID: article.articleID,
-                photoUrl: article.photoURL,
-                title: article.title.map((e, index) => ({
-                    sentencePos: e.sentenceIndex,
-                    originalText: e.originalText,
-                    translationHistory: e.translationHistory.map((th, thIndex) => ({
-                        translationPos: th.translationIndex,
-                        translation: th.translation,
-                        userID: th.userID,
-                        profilePhotoURL: th.profilePhotoURL,
-                        nativeLanguageID: th.nativeLanguageID,
-                        timestamp: th.timestamp,
-                        upvotes: th.upvotes,
-                        upvotesCount: th.upvotes.length,
-                        downvotesCount: th.downvotes.length,
-                        commentsCount: th.comments.length,
-                        comments: th.comments.map((c, cIndex) => ({
-                            profilePhotoUrl: c.profilePhotoURL,
-                            userID: c.userID,
-                            timestamp: c.timestamp,
-                            comment: c.comment
-                        }))
-                    }))
-                })),
-                text: article.text.map((e, index) => ({
-                    sentencePos: e.sentenceIndex,
-                    originalText: e.originalText,
-                    translationHistory: e.translationHistory.map((th, thIndex) => ({
-                        translationPos: th.translationIndex,
-                        translation: th.translation,
-                        userID: th.userID,
-                        profilePhotoURL: th.profilePhotoURL,
-                        nativeLanguageID: th.nativeLanguageID,
-                        timestamp: th.timestamp,
-                        upvotes: th.upvotes,
-                        upvotesCount: th.upvotes.length,
-                        downvotesCount: th.downvotes.length,
-                        commentsCount: th.comments.length,
-                        comments: th.comments.map((c, cIndex) => ({
-                            profilePhotoUrl: c.profilePhotoURL,
-                            userID: c.userID,
-                            timestamp: c.timestamp,
-                            comment: c.comment
-                        }))
-                    }))
-                })),
-                comments: article.comments
-            };
+        ? undefined
+        : {
+              articleID: article.articleID,
+              photoUrl: article.photoURL,
+              title: article.title.map((e, index) => ({
+                  sentencePos: e.sentenceIndex,
+                  originalText: e.originalText,
+                  translationHistory: e.translationHistory.map((th, thIndex) => ({
+                      translationPos: th.translationIndex,
+                      translation: th.translation,
+                      userID: th.userID,
+                      profilePhotoURL: th.profilePhotoURL,
+                      nativeLanguageID: th.nativeLanguageID,
+                      timestamp: th.timestamp,
+                      upvotes: th.upvotes,
+                      upvotesCount: th.upvotes.length,
+                      downvotesCount: th.downvotes.length,
+                      commentsCount: th.comments.length,
+                      comments: th.comments.map((c, cIndex) => ({
+                          profilePhotoUrl: c.profilePhotoURL,
+                          userID: c.userID,
+                          timestamp: c.timestamp,
+                          comment: c.comment
+                      }))
+                  }))
+              })),
+              text: article.text.map((e, index) => ({
+                  sentencePos: e.sentenceIndex,
+                  originalText: e.originalText,
+                  translationHistory: e.translationHistory.map((th, thIndex) => ({
+                      translationPos: th.translationIndex,
+                      translation: th.translation,
+                      userID: th.userID,
+                      profilePhotoURL: th.profilePhotoURL,
+                      nativeLanguageID: th.nativeLanguageID,
+                      timestamp: th.timestamp,
+                      upvotes: th.upvotes,
+                      upvotesCount: th.upvotes.length,
+                      downvotesCount: th.downvotes.length,
+                      commentsCount: th.comments.length,
+                      comments: th.comments.map((c, cIndex) => ({
+                          profilePhotoUrl: c.profilePhotoURL,
+                          userID: c.userID,
+                          timestamp: c.timestamp,
+                          comment: c.comment
+                      }))
+                  }))
+              })),
+              comments: article.comments
+          };
 }
 
-function GetComments(article: IArticle, inText: boolean, sentencePos: number, translationPos: number) : IComment[]
-{
-    if(inText){
+function GetComments(article: IArticle, inText: boolean, sentencePos: number, translationPos: number): IComment[] {
+    if (inText) {
         let sentence = article.text.find(t => t.sentencePos === sentencePos);
         let translation = sentence && sentence.translationHistory.find(th => th.translationPos == translationPos);
         return translation === undefined ? [] : translation.comments;
@@ -291,8 +324,8 @@ function SubmitTranslation(
     sentencePos: number,
     translation: string,
     OnSubmit: () => void,
-    onError: (error: any) => void)
-{
+    onError: (error: any) => void
+) {
     ArticleAPI.translate({
         articleID: articleID,
         inText: inText,
@@ -300,8 +333,8 @@ function SubmitTranslation(
         translation: translation,
         userID: userID
     })
-    .then(result => OnSubmit())
-    .catch(onError);
+        .then(result => OnSubmit())
+        .catch(onError);
 }
 
 function SubmitComment(
@@ -312,8 +345,8 @@ function SubmitComment(
     comment: string,
     userID: string,
     OnSubmit: () => void,
-    onError: (error: any) => void)
-{
+    onError: (error: any) => void
+) {
     ArticleAPI.comment({
         articleID: articleID,
         inText: inText,
@@ -322,8 +355,8 @@ function SubmitComment(
         comment: comment,
         userID: userID
     })
-    .then(result => OnSubmit())
-    .catch(onError);
+        .then(result => OnSubmit())
+        .catch(onError);
 }
 
 function UpvoteTranslation(
@@ -333,18 +366,18 @@ function UpvoteTranslation(
     translationPos: number,
     userID: string,
     OnSubmit: () => void,
-    onError: (error: any) => void)
-{
+    onError: (error: any) => void
+) {
     ArticleAPI.vote({
         articleID: articleID,
-        inText:  inText,
+        inText: inText,
         sentencePos: sentencePos,
         translationPos: translationPos,
         positive: true,
         userID: userID
     })
-    .then(result => OnSubmit())
-    .catch(onError);
+        .then(result => OnSubmit())
+        .catch(onError);
 }
 
 function DownvoteTranslation(
@@ -354,16 +387,16 @@ function DownvoteTranslation(
     translationPos: number,
     userID: string,
     OnSubmit: () => void,
-    onError: (error: any) => void)
-{
+    onError: (error: any) => void
+) {
     ArticleAPI.vote({
         articleID: articleID,
-        inText:  inText,
+        inText: inText,
         sentencePos: sentencePos,
         translationPos: translationPos,
         positive: false,
         userID: userID
     })
-    .then(result => OnSubmit())
-    .catch(onError);
+        .then(result => OnSubmit())
+        .catch(onError);
 }

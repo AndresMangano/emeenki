@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import { Card, CardBody, Form, Input, FormGroup, Label, Button, Row, Col, Media } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { TranslationHistory } from './TranslationHistory';
@@ -21,8 +21,19 @@ type DetailedTranslationFormProps = {
         downvotesCount: number;
         commentsCount: number;
     }[];
-}
-export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildCommentsUrl, cancelUrl, history }: DetailedTranslationFormProps) {
+    /** When true, textarea + submit are disabled, but like/cancel/history still work */
+    readOnly?: boolean;
+};
+
+export function DetailedTranslationForm({
+    onSubmit,
+    onUpvote,
+    onDownvote,
+    buildCommentsUrl,
+    cancelUrl,
+    history,
+    readOnly = false
+}: DetailedTranslationFormProps) {
     const [{ newTranslation, translation }, dispatch] = useReducer(reducer, {
         newTranslation: history.length === 0,
         translation: history.length === 0 ? '' : history[0].translation
@@ -30,12 +41,23 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (readOnly) {
+            // Locked: do not submit
+            return;
+        }
         onSubmit(translation);
         dispatch({ _type: 'SUBMIT' });
     }
+
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+        if (readOnly) {
+            // Locked: ignore typing
+            return;
+        }
         switch (event.currentTarget.name) {
-            case 'translation': dispatch({ _type: 'CHANGE_TRANSLATION', translation: event.currentTarget.value }); break;
+            case 'translation':
+                dispatch({ _type: 'CHANGE_TRANSLATION', translation: event.currentTarget.value });
+                break;
         }
     }
 
@@ -45,7 +67,7 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
                 <Form onSubmit={handleSubmit}>
                     <FormGroup>
                         <Media className="d-flex flex-row justify-content-between" heading>
-                        { (!newTranslation && history.length > 0) &&
+                            {(!newTranslation && history.length > 0) &&
                                 <Button
                                     active={true}
                                     className='LikeButton oi oi-thumb-up mr-2'
@@ -55,23 +77,30 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
                                     {history[0].upvotesCount}
                                 </Button>
                             }
-                        <Label className="mr-auto TranslationNumber" for='translationPos'><b>Translation #</b></Label>
-                        { (history.length > 0 && !newTranslation) &&
-                            <>
-                                <Media>
-                                    <img
-                                        className='TranslationPhoto'
-                                        src={history[0].profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : history[0].profilePhotoURL}
-                                        alt='profile photo'
-                                    /> 
-                                    <Link to={`/profile/${history[0].userID}`} className="mr-auto UserNameTranslation">{history[0].userID}</Link>
-                                    <LanguageFlag languageID={history[0].nativeLanguageID} size='24px'/>
-                                </Media>
-                                <Media/>
-                                <p className="h6 ml-auto">Minutes ago</p>
-                                <Media/>
-                            </>
-                        }
+                            <Label className="mr-auto TranslationNumber" htmlFor='translationPos'>
+                                <b>Translation #</b>
+                            </Label>
+                            {(history.length > 0 && !newTranslation) &&
+                                <>
+                                    <Media>
+                                        <img
+                                            className='TranslationPhoto'
+                                            src={history[0].profilePhotoURL === "" ? "https://i.imgur.com/ipAslnw.png" : history[0].profilePhotoURL}
+                                            alt='profile photo'
+                                        />
+                                        <Link
+                                            to={`/profile/${history[0].userID}`}
+                                            className="mr-auto UserNameTranslation"
+                                        >
+                                            {history[0].userID}
+                                        </Link>
+                                        <LanguageFlag languageID={history[0].nativeLanguageID} size='24px' />
+                                    </Media>
+                                    <Media />
+                                    <p className="h6 ml-auto">Minutes ago</p>
+                                    <Media />
+                                </>
+                            }
                         </Media>
                         <Input
                             type='textarea'
@@ -79,27 +108,52 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
                             rows={3}
                             value={translation}
                             onChange={handleInputChange}
-                            style={!newTranslation ? { backgroundColor: '#8cffa6'} : {}}
+                            disabled={readOnly}
+                            readOnly={readOnly}
+                            // Only show green background when it's editable and not a new translation
+                            style={!newTranslation && !readOnly ? { backgroundColor: '#8cffa6' } : {}}
                         />
                     </FormGroup>
                     <Row form>
-                        <Col className= "d-flex justify-content-around" md={11}>
-                            <Button className="SendButton mr-1 ml-4 rounded-pill p-2.9" color="primary">Submit</Button>
-                            <Button className="rounded-pill" tag={Link} color='danger' to={cancelUrl}>Cancel</Button>
-                            { history.length !== 0 && 
-                                <Button className="ml-auto rounded-pill" color='dark' id='historyToggler'>History ({history.length})</Button>
+                        <Col className="d-flex justify-content-around" md={11}>
+                            {/* Submit disabled when readOnly */}
+                            <Button
+                                className="SendButton mr-1 ml-4 rounded-pill p-2.9"
+                                color="primary"
+                                disabled={readOnly}
+                            >
+                                Submit
+                            </Button>
+                            {/* Cancel should always work */}
+                            <Button
+                                className="rounded-pill"
+                                tag={Link}
+                                color='danger'
+                                to={cancelUrl}
+                            >
+                                Cancel
+                            </Button>
+                            {/* History should always work */}
+                            {history.length !== 0 &&
+                                <Button
+                                    className="ml-auto rounded-pill"
+                                    color='dark'
+                                    id='historyToggler'
+                                >
+                                    History ({history.length})
+                                </Button>
                             }
                         </Col>
                     </Row>
                 </Form>
                 <>
-                    { history.length !== 0 &&
+                    {history.length !== 0 &&
                         <TranslationHistory
                             onUpvote={onUpvote}
                             onDownvote={onDownvote}
                             buildCommentsUrl={buildCommentsUrl}
                             history={history}
-                        /> 
+                        />
                     }
                 </>
             </CardBody>
@@ -110,13 +164,16 @@ export function DetailedTranslationForm({ onSubmit, onUpvote, onDownvote, buildC
 type State = {
     newTranslation: boolean;
     translation: string;
-}
+};
 type Action =
-| { _type: 'CHANGE_TRANSLATION', translation: string }
-| { _type: 'SUBMIT' }
-function reducer(state: State, action: Action) : State {
+    | { _type: 'CHANGE_TRANSLATION'; translation: string }
+    | { _type: 'SUBMIT' };
+
+function reducer(state: State, action: Action): State {
     switch (action._type) {
-        case 'CHANGE_TRANSLATION': return { ...state, newTranslation: true, translation: action.translation };
-        case 'SUBMIT': return { ...state, newTranslation: false, translation: '' };
+        case 'CHANGE_TRANSLATION':
+            return { ...state, newTranslation: true, translation: action.translation };
+        case 'SUBMIT':
+            return { ...state, newTranslation: false, translation: '' };
     }
 }

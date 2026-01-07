@@ -53,7 +53,6 @@ export type ArticleTemplateUploadCommand = {
     text: string;
     source: string;
     photoURL: string;
-    userID: string;
 }
 export type ArticleTemplateUploadResult = {
     articleTemplateID: string;

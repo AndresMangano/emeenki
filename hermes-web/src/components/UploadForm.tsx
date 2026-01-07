@@ -22,7 +22,7 @@ export function UploadForm({ onError, history }: UploadFormProps) {
     
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        ArticleTemplateAPI.upload({ languageID, topicID, title, text, source, photoURL, userID })
+        ArticleTemplateAPI.upload({ languageID, topicID, title, text, source, photoURL })
         .then(() => history.push(`/templates/active`))
         .catch(onError);
     }

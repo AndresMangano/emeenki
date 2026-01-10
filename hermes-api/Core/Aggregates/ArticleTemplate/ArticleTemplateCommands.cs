@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Hermes.Core.Ports;
+using Hermes.Core.Services;
 
 namespace Hermes.Core
 {
@@ -33,6 +36,75 @@ namespace Hermes.Core
                     cmd.PhotoURL,
                     cmd.TopicID
                 )
+            ));
+            return new ArticleTemplateUploadResult(articleTemplateID);
+        }
+
+        public static async Task<ArticleTemplateUploadResult> ExecuteAsync<IO>(IO io, ArticleTemplateUploadVideoCommand cmd, string userID)
+        where IO : IEventsRepository, IUsersRepository, ILanguagesRepository, ITopicsRepository
+        {
+            var user = io.FetchUser(userID);
+            var language = io.FetchLanguage(cmd.LanguageID);
+            var topic = io.FetchTopic(cmd.TopicID);
+            UserService.ValidateAdminRights(user);
+            LanguageService.ValidateExistence(language);
+            TopicService.ValidateExistence(topic);
+            if (string.IsNullOrEmpty(cmd.YouTubeURL)) throw new DomainException("Empty YouTube URL");
+
+            // Fetch video data from YouTube
+            var youtubeService = new YouTubeService();
+            var videoData = await youtubeService.FetchVideoDataAsync(cmd.YouTubeURL);
+
+            if (string.IsNullOrEmpty(videoData.Title)) throw new DomainException("Could not fetch video title");
+            if (videoData.Captions == null || videoData.Captions.Count == 0) 
+                throw new DomainException("No captions available for this video");
+
+            // Split title into sentences (keep as single sentence if no period found)
+            var titleSentences = Regex.Split(videoData.Title, "\\.+\\s")
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => new VideoSentence 
+                { 
+                    Text = s.Trim(),
+                    StartTimeMs = null,
+                    EndTimeMs = null
+                })
+                .ToList();
+
+            if (titleSentences.Count == 0)
+            {
+                titleSentences.Add(new VideoSentence 
+                { 
+                    Text = videoData.Title,
+                    StartTimeMs = null,
+                    EndTimeMs = null
+                });
+            }
+
+            // Convert captions to video sentences
+            var textSentences = videoData.Captions
+                .Select(c => new VideoSentence
+                {
+                    Text = c.Text,
+                    StartTimeMs = c.StartTimeMs,
+                    EndTimeMs = c.EndTimeMs
+                })
+                .ToList();
+
+            var articleTemplateID = Guid.NewGuid();
+            io.StoreEvent(new ArticleTemplateEvent (
+                id: articleTemplateID,
+                version: 1,
+                eventName: "video-uploaded",
+                payload: new ArticleTemplateVideoUploadedEvent
+                {
+                    LanguageID = language.ID,
+                    Title = titleSentences,
+                    Text = textSentences,
+                    Source = videoData.VideoUrl,
+                    PhotoURL = videoData.ThumbnailUrl ?? "",
+                    TopicID = cmd.TopicID,
+                    VideoURL = videoData.VideoUrl
+                }
             ));
             return new ArticleTemplateUploadResult(articleTemplateID);
         }

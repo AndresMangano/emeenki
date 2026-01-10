@@ -11,5 +11,7 @@ namespace Hermes.Core
         public string LanguageID { get; set; }
         public string PhotoURL { get; set; }
         public bool Archived { get; set; }
+        public bool IsVideo { get; set; }
+        public string VideoURL { get; set; }
     }
 }

@@ -10,10 +10,19 @@ namespace Hermes.Core
         public bool Deleted { get; set; }
         public string TopicID { get; set; }
         public string LanguageID { get; set; }
-        public IEnumerable<string> Title { get; set; }
-        public IEnumerable<string> Text { get; set; }
+        public IEnumerable<ArticleTemplateSentenceDTO> Title { get; set; }
+        public IEnumerable<ArticleTemplateSentenceDTO> Text { get; set; }
         public string Source { get; set; }
         public string PhotoURL { get; set; }
         public DateTime Timestamp { get; set; }
+        public bool IsVideo { get; set; }
+        public string VideoURL { get; set; }
+    }
+
+    public class ArticleTemplateSentenceDTO
+    {
+        public string Text { get; set; }
+        public long? StartTimeMs { get; set; }
+        public long? EndTimeMs { get; set; }
     }
 }

@@ -155,17 +155,24 @@ namespace Hermes.Worker.Core
                     return null;
             }
         }
+private IEvent ParseArticleTemplateEvent(string routingKey, string message)
+{
+    switch (routingKey)
+    {
+        case "uploaded":
+            return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message);
 
-        private IEvent ParseArticleTemplateEvent(string routingKey, string message)
-        {
-            switch (routingKey)
-            {
-                case "uploaded": return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(message);
-                case "deleted": return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message);
-                default:
-                    return null;
-            }
-        }
+        case "deleted":
+            return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(message);
+
+        case "video-uploaded": // 👈 NEW CASE
+            return JsonConvert.DeserializeObject<ArticleTemplateVideoUploadedEvent>(message);
+
+        default:
+            return null;
+    }
+}
+
 
         private IEvent ParseUserEvent(string routingKey, string message)
         {

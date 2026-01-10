@@ -21,10 +21,20 @@ export class ArticleTemplateAPI
     {
         return axios.post<ArticleTemplateUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload`, command, getHeaders());
     }
+    static uploadVideo(command:ArticleTemplateUploadVideoCommand)
+    {
+        return axios.post<ArticleTemplateUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload-video`, command, getHeaders());
+    }
     static delete(command:ArticleTemplateDeleteCommand)
     {
         return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/delete`, command, getHeaders());
     }
+}
+
+export type ArticleTemplateSentenceDTO = {
+    text: string;
+    startTimeMs?: number;
+    endTimeMs?: number;
 }
 
 export type ArticleTemplateDTO = {
@@ -32,18 +42,23 @@ export type ArticleTemplateDTO = {
     articleTemplateID: string;
     deleted: boolean;
     languageID: string;
-    title: string[];
-    text: string[];
+    title: ArticleTemplateSentenceDTO[];
+    text: ArticleTemplateSentenceDTO[];
     source: string;
     photoURL: string;
     timestamp: Date;
+    isVideo: boolean;
+    videoURL: string;
 }
+
 export type ArticleTemplateListDTO = {
     articleTemplateID: string;
     title: string;
     created: Date;
     languageID: string;
     photoURL: string;
+    isVideo: boolean;
+    videoURL: string;
 }
 
 export type ArticleTemplateUploadCommand = {
@@ -54,9 +69,17 @@ export type ArticleTemplateUploadCommand = {
     source: string;
     photoURL: string;
 }
+
+export type ArticleTemplateUploadVideoCommand = {
+    languageID: string;
+    topicID: string;
+    youtubeURL: string;
+}
+
 export type ArticleTemplateUploadResult = {
     articleTemplateID: string;
 }
+
 export type ArticleTemplateDeleteCommand = {
     articleTemplateID: string;
     userID: string;

@@ -2,7 +2,7 @@ using System;
 
 namespace Hermes.Core
 {
-    public class ArticleTemplateSentenceDTO
+    public class ArticleTemplateSentenceDTOREVERTIFNEEDED
     {
         public Guid ArticleTemplateID { get; set; }
         public bool InText { get; set; }

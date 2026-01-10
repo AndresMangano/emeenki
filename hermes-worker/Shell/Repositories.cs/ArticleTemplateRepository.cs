@@ -26,6 +26,27 @@ namespace Hermes.Worker.Shell
             );
         }
 
+        public void InsertArticleTemplateWithVideo(Guid articleTemplateID, bool deleted, string topicID, string languageID, string source, string photoURL, DateTime timestamp, bool isVideo, string videoURL)
+        {
+            _connection.Execute(@"
+                INSERT INTO Query_ArticleTemplate(ArticleTemplateID, Deleted, TopicID, LanguageID, `Source`, PhotoURL, `Timestamp`, IsVideo, VideoURL)
+                VALUES(@articleTemplateID, @deleted, @topicID, @languageID, @source, @photoURL, @timestamp, @isVideo, @videoURL)
+                    ON DUPLICATE KEY UPDATE ArticleTemplateID = @articleTemplateID",
+                new {
+                    articleTemplateID,
+                    deleted,
+                    topicID,
+                    languageID,
+                    source,
+                    photoURL,
+                    timestamp,
+                    isVideo,
+                    videoURL
+                },
+                transaction: _transaction
+            );
+        }
+
         public void UpdateArticleTemplate(Guid articleTemplateID, DbUpdate<bool> deleted = null)
         {
             if (deleted != null) {

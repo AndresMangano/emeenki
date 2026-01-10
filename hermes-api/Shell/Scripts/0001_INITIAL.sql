@@ -16,7 +16,7 @@ CREATE TABLE Article_Events (
     Version INT NOT NULL,
     EventName VARCHAR(64) NOT NULL,
     `Timestamp` DATETIME NOT NULL,
-    Payload TEXT NOT NULL,
+    Payload LONGTEXT NOT NULL,
 
     UNIQUE(ID, Version)
 );
@@ -27,7 +27,7 @@ CREATE TABLE ArticleTemplate_Events (
     Version INT NOT NULL,
     EventName VARCHAR(64) NOT NULL,
     `Timestamp` DATETIME NOT NULL,
-    Payload TEXT NOT NULL,
+    Payload LONGTEXT NOT NULL,
 
     UNIQUE(ID, Version)
 );

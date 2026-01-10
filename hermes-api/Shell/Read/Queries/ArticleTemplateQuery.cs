@@ -9,6 +9,15 @@ using MySql.Data.MySqlClient;
 
 namespace Hermes.Shell.Read
 {
+    internal class ArticleTemplateSentenceQueryDTO
+    {
+        public bool InText { get; set; }
+        public int SentenceIndex { get; set; }
+        public string Sentence { get; set; }
+        public long? StartTimeMs { get; set; }
+        public long? EndTimeMs { get; set; }
+    }
+
     public class ArticleTemplateQuery : IArticleTemplateQueries
     {
         private readonly string _connectionString;
@@ -24,11 +33,23 @@ namespace Hermes.Shell.Read
                 conn.Open();
                 var articleTemplate = await conn.QuerySingleAsync<ArticleTemplateDTO>("SELECT * FROM Query_ArticleTemplate WHERE ArticleTemplateID = @ArticleTemplateID",
                     new { ArticleTemplateID = articleTemplateID });
-                var sentences = await conn.QueryAsync<ArticleTemplateSentenceDTO>("SELECT * FROM Query_ArticleTemplateSentence WHERE ArticleTemplateID = @ArticleTemplateID",
+                var sentences = await conn.QueryAsync<ArticleTemplateSentenceQueryDTO>("SELECT * FROM Query_ArticleTemplateSentence WHERE ArticleTemplateID = @ArticleTemplateID",
                     new { ArticleTemplateID = articleTemplateID });
 
-                articleTemplate.Title = sentences.Where(s => !s.InText).OrderBy(s => s.SentenceIndex).Select(s => s.Sentence);
-                articleTemplate.Text = sentences.Where(s => s.InText).OrderBy(s => s.InText).Select(s => s.Sentence);
+                articleTemplate.Title = sentences.Where(s => !s.InText).OrderBy(s => s.SentenceIndex)
+                    .Select(s => new ArticleTemplateSentenceDTO 
+                    { 
+                        Text = s.Sentence, 
+                        StartTimeMs = s.StartTimeMs, 
+                        EndTimeMs = s.EndTimeMs 
+                    });
+                articleTemplate.Text = sentences.Where(s => s.InText).OrderBy(s => s.SentenceIndex)
+                    .Select(s => new ArticleTemplateSentenceDTO 
+                    { 
+                        Text = s.Sentence, 
+                        StartTimeMs = s.StartTimeMs, 
+                        EndTimeMs = s.EndTimeMs 
+                    });
 
                 return articleTemplate;
             }

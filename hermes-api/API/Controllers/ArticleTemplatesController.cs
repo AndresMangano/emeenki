@@ -39,6 +39,14 @@ namespace Hermes.API
             var result = ArticleTemplateCommands.Execute(_interpreter, command, GetUserID());
             return Ok(result);
         }
+
+        [HttpPost("upload-video")]
+        public async Task<ActionResult<ArticleTemplateUploadResult>> UploadVideo([FromBody]ArticleTemplateUploadVideoCommand command)
+        {
+            var result = await ArticleTemplateCommands.ExecuteAsync(_interpreter, command, GetUserID());
+            return Ok(result);
+        }
+
         [HttpPost("delete")]
         public ActionResult Delete([FromBody]ArticleTemplateDeleteCommand command)
         {

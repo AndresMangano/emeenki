@@ -40,7 +40,9 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                 photoURL: e.photoURL,
                 ID: e.articleTemplateID,
                 languageID: e.languageID,
-                created: e.created
+                created: e.created,
+                isVideo: e.isVideo,
+                videoURL: e.videoURL
             }));
         }
         return [];
@@ -178,6 +180,8 @@ type TemplateCardData = {
     photoURL: string;
     languageID: string;
     created: Date;
+    isVideo: boolean;
+    videoURL: string;
 };
 
 type TemplateArticleCardProps = {
@@ -207,6 +211,11 @@ function TemplateArticleCard({
         totalSentences = titleArr.length + textArr.length;
     }
 
+    // Determine the link based on whether it's a video article
+    const link = template.isVideo 
+        ? { label: 'View', url: `/video-translate/` }
+        : undefined; // undefined means ArticleCard won't be clickable (default behavior for templates)
+
     return (
         <ArticleCard
             title={template.title}
@@ -218,6 +227,7 @@ function TemplateArticleCard({
             onAddToRoom={onAddToRoom}
             enableAddToRoom={enableAddToRoom}
             enableArchive={enableArchive}
+            link={link}
             // override so ArticleCard shows "N sentences"
             totalSentences={totalSentences}
             lockedSentences={0}

@@ -3,6 +3,7 @@ import React, { useReducer } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { UploadView } from './views/Upload/UploadView';
 import { TranslateView } from './views/Translate/TranslateView';
+import { VideoTranslateView } from './views/Translate/VideoTranslateView';
 import { HNavbar } from './components/MainNavbar';
 import { Container } from 'reactstrap';
 import { LoginView } from './views/LogIn/LoginView';
@@ -49,6 +50,7 @@ export function App() {
                     <Route path='/templates/:archived/:roomID?' render={(props) => <ArticleTemplatesIndex {...props} onError={handleError}/>} />
                     <Route path='/rooms' render={(props) => <RoomsIndex {...props} onError={handleError}/>}/>
                     <Route path='/upload' render={(props) => <UploadView {...props} onError={handleError}/>}/>
+                    <Route path='/video-translate/:articleTemplateID' render={(props) => <VideoTranslateView {...props} onError={handleError}/>}/>
                     <Route path='/translate/:articleID/:inText?/:sentencePos?/:translationPos?/:comments?' render={(props) => <TranslateView {...props} onError={handleError}/>}/>
                     <Route path='/root' render={(props) => <RootView {...props} onError={handleError}/>}/>
                     <Route path='/profile/:userID' render={(props) => <ProfileView {...props} onError={handleError}/>}/>

@@ -16,18 +16,30 @@ namespace Hermes.Shell
                 ParseArticleTemplateEvent
             ));
         }
+
         object ParseArticleTemplateEvent(string eventName, string payload)
         {
-            switch(eventName) {
-                case "uploaded": return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(payload);
-                case "deleted": return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(payload);
+            switch (eventName)
+            {
+                case "uploaded":
+                    return JsonConvert.DeserializeObject<ArticleTemplateUploadedEvent>(payload);
+
+                case "deleted":
+                    return JsonConvert.DeserializeObject<ArticleTemplateDeletedEvent>(payload);
+
+                case "video-uploaded": // 👈 NEW: support video article template events
+                    return JsonConvert.DeserializeObject<ArticleTemplateVideoUploadedEvent>(payload);
+
                 default:
                     throw new InfrastructureException("Unknown Article Template Event");
             }
         }
-        long? ApplyArticleTemplateEvent(ArticleTemplateEvent @event) {
+
+        long? ApplyArticleTemplateEvent(ArticleTemplateEvent @event)
+        {
             var index = ArticleTemplatesRepository.StoreEvent(@event);
-            if (index != null) {
+            if (index != null)
+            {
                 SendMessage(
                     "article_template_events",
                     index.Value,
@@ -38,6 +50,7 @@ namespace Hermes.Shell
             return index;
         }
 
-        public ArticleTemplate FetchArticleTemplate(Guid id) => ArticleTemplatesRepository.Fetch(id, ArticleTemplateEvents.Apply);
+        public ArticleTemplate FetchArticleTemplate(Guid id) =>
+            ArticleTemplatesRepository.Fetch(id, ArticleTemplateEvents.Apply);
     }
 }

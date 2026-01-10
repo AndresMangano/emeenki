@@ -153,20 +153,36 @@ namespace Hermes.Core.Services
 
             // Try to find manual captions in default language
             var manualCaption = vttFiles.FirstOrDefault(f =>
-                f.Contains($".{defaultLanguage}.vtt") && !f.Contains("-auto")
+                f.Contains($".{defaultLanguage}.vtt", StringComparison.OrdinalIgnoreCase) &&
+                !f.Contains("-auto", StringComparison.OrdinalIgnoreCase)
             );
 
             // If not found, try any manual caption
             if (manualCaption == null)
-                manualCaption = vttFiles.FirstOrDefault(f => !f.Contains("-auto"));
+                manualCaption = vttFiles.FirstOrDefault(f =>
+                    !f.Contains("-auto", StringComparison.OrdinalIgnoreCase)
+                );
 
             // If not found, try auto-generated in default language
-            var captionFile = manualCaption ?? vttFiles.FirstOrDefault(f => f.Contains($".{defaultLanguage}.vtt"));
+            var captionFile = manualCaption ?? vttFiles.FirstOrDefault(f =>
+                f.Contains($".{defaultLanguage}.vtt", StringComparison.OrdinalIgnoreCase)
+            );
 
             // If still not found, use the first available
             captionFile = captionFile ?? vttFiles[0];
 
-            return ParseVttFile(captionFile);
+            var cues = ParseVttFile(captionFile);
+
+            // Heuristic: if this looks like the auto-generated "progressive" pattern
+            // (lots of tiny micro-cues at the start), apply the 1,5,9,13… filter
+            // AND normalize the start times as requested.
+            if (LooksLikeProgressiveAutoPattern(cues))
+            {
+                cues = ApplyEveryFourthPattern(cues);
+                cues = NormalizeProgressiveStartTimes(cues);
+            }
+
+            return cues;
         }
 
         private List<CaptionCue> ParseVttFile(string vttFilePath)
@@ -240,6 +256,97 @@ namespace Hermes.Core.Services
             }
 
             return cues;
+        }
+
+        /// <summary>
+        /// Detect the “auto-generated progressive caption” pattern:
+        /// many very short (micro) cues at the beginning, like 10–50ms.
+        /// </summary>
+        private bool LooksLikeProgressiveAutoPattern(List<CaptionCue> cues)
+        {
+            if (cues == null || cues.Count < 4)
+                return false;
+
+            const long MicroThresholdMs = 80; // 0–80 ms
+            int sampleCount = Math.Min(20, cues.Count);
+            int microCount = 0;
+
+            for (int i = 0; i < sampleCount; i++)
+            {
+                var c = cues[i];
+                var duration = c.EndTimeMs - c.StartTimeMs;
+                if (duration > 0 && duration <= MicroThresholdMs)
+                {
+                    microCount++;
+                }
+            }
+
+            // If we see at least 3 micro-cues in the first 20,
+            // it strongly resembles the pattern you showed.
+            return microCount >= 3;
+        }
+
+        /// <summary>
+        /// Apply your specific pattern:
+        /// - Drop the very first cue (index 0)
+        /// - From the next one on, keep every 4th cue:
+        ///   keep indices 1, 5, 9, 13, ...
+        /// </summary>
+        private List<CaptionCue> ApplyEveryFourthPattern(List<CaptionCue> cues)
+        {
+            var result = new List<CaptionCue>();
+
+            if (cues == null || cues.Count == 0)
+                return result;
+
+            if (cues.Count == 1)
+                return new List<CaptionCue>(cues);
+
+            // i = 1, 5, 9, 13, ... (step of 4)
+            for (int i = 1; i < cues.Count; i += 4)
+            {
+                result.Add(cues[i]);
+            }
+
+            // Safety: if the pattern somehow produced nothing, fall back to original
+            if (result.Count == 0)
+                return new List<CaptionCue>(cues);
+
+            return result;
+        }
+
+        /// <summary>
+        /// For auto-generated captions (after filtering with the 1,5,9,13… pattern),
+        /// adjust start times so that:
+        /// - first cue has StartTimeMs = 0
+        /// - each subsequent cue starts exactly at the previous cue's EndTimeMs.
+        /// </summary>
+        private List<CaptionCue> NormalizeProgressiveStartTimes(List<CaptionCue> cues)
+        {
+            if (cues == null || cues.Count == 0)
+                return cues;
+
+            var normalized = new List<CaptionCue>(cues.Count);
+            long lastEnd = 0;
+
+            for (int i = 0; i < cues.Count; i++)
+            {
+                var c = cues[i];
+
+                long start = (i == 0) ? 0 : lastEnd;
+                long end = c.EndTimeMs;
+
+                normalized.Add(new CaptionCue
+                {
+                    StartTimeMs = start,
+                    EndTimeMs = end,
+                    Text = c.Text
+                });
+
+                lastEnd = end;
+            }
+
+            return normalized;
         }
 
         private long ParseTimestamp(string timestamp)

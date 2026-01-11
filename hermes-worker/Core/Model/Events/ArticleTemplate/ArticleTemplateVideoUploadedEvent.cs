@@ -25,24 +25,31 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
     {
         public void Apply(DBInterpreter interpreter)
         {
-            // Insert into Query_ArticleTemplates
+            // This event is *only* for video uploads, so we know it's a video.
+            const bool isVideo = true;
+
+            // Build title string for list view
             var titleTexts = new List<string>();
             foreach (var t in Title)
             {
                 titleTexts.Add(t.Text);
             }
+            var joinedTitle = string.Join(" ", titleTexts);
 
+            // Insert into Query_ArticleTemplates (list table) WITH video fields
             interpreter.InsertArticleTemplates(
                 articleTemplateID: ID,
-                title: String.Join(" ", titleTexts),
+                title: joinedTitle,
                 created: Header.Timestamp,
                 topicID: TopicID,
                 languageID: LanguageID,
                 photoURL: PhotoURL,
-                archived: false
+                archived: false,
+                isVideo: isVideo,
+                videoURL: VideoURL
             );
 
-            // Insert into Query_ArticleTemplate with video fields
+            // Insert into Query_ArticleTemplate (detail table) WITH video fields
             interpreter.InsertArticleTemplateWithVideo(
                 articleTemplateID: ID,
                 deleted: false,
@@ -51,7 +58,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
                 source: Source,
                 photoURL: PhotoURL,
                 timestamp: Header.Timestamp,
-                isVideo: true,
+                isVideo: isVideo,
                 videoURL: VideoURL
             );
 
@@ -68,7 +75,7 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
                 );
             }
 
-            // Insert title sentences
+            // Insert title sentences with timestamps
             for (var index = 0; index < Title.Count; index++)
             {
                 interpreter.InsertArticleTemplateSentenceWithTimestamp(
@@ -84,12 +91,11 @@ namespace Hermes.Worker.Core.Model.Events.ArticleTemplate
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_TEMPLATE_UPDATED, ID.ToString(),
-                SignalRGroup.ARTICLE_TEMPLATES);
+            signalR.SendSignalToGroup(
+                SignalRSignal.ARTICLE_TEMPLATE_UPDATED,
+                ID.ToString(),
+                SignalRGroup.ARTICLE_TEMPLATES
+            );
         }
     }
 }
-
-
-
-

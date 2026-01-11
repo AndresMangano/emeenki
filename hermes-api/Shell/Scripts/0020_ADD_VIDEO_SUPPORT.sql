@@ -3,6 +3,11 @@ ALTER TABLE Query_ArticleTemplate
     ADD COLUMN IsVideo BIT NOT NULL DEFAULT 0,
     ADD COLUMN VideoURL VARCHAR(255) NULL;
 
+    -- Add video support to the article templates list table
+ALTER TABLE Query_ArticleTemplates
+    ADD COLUMN IsVideo BIT NOT NULL DEFAULT 0,
+    ADD COLUMN VideoURL VARCHAR(255) NULL;
+
 -- Add timestamps to sentences for video caption synchronization
 ALTER TABLE Query_ArticleTemplateSentence
 ADD COLUMN StartTimeMs BIGINT NULL,
@@ -19,6 +24,11 @@ ALTER TABLE Query_Sentence
 ADD COLUMN StartTimeMs BIGINT NULL,
 ADD COLUMN EndTimeMs BIGINT NULL;
 
+-- Add video support for Article Cards in Rooms
 
+ALTER TABLE Query_Articles
+    ADD COLUMN IsVideo BIT NOT NULL DEFAULT 0,
+    ADD COLUMN VideoURL VARCHAR(255) NULL,
+    ADD COLUMN ArticleTemplateID CHAR(36) NULL;
 
 

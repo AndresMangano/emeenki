@@ -1,3 +1,4 @@
+// src/views/ArticleTemplates/ArticleTemplatesView.tsx
 import React, { useReducer, useMemo } from 'react';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Input, Label } from 'reactstrap';
@@ -18,6 +19,8 @@ type ArticleTemplatesViewProps = RouteComponentProps<{ roomID?: string; archived
     onError: (error: any) => void;
 };
 
+type ArticleTypeFilter = 'all' | 'text' | 'video';
+
 export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTemplatesViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
     const rights = localStorage.getItem('hermes.rights') || '';
@@ -25,28 +28,53 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     const { roomID } = match.params;
 
     useSignalR('articleTemplates');
-    const [{ languageID, topicID }, dispatch] = useReducer(reducer, {
+    const [{ languageID, topicID, articleType }, dispatch] = useReducer(reducer, {
         languageID: 'ENG',
-        topicID: ''
+        topicID: '',
+        articleType: 'all' as ArticleTypeFilter
     });
+
     const { data: languagesData } = useLanguagesQuery();
     const { data: topicsData } = useTopicsQuery();
     const { data: articleTemplatesData } = useArticleTemplatesQuery( archived, languageID, topicID);
 
+    // map topicID → topic name
+    const topicsById = useMemo(() => {
+        const map: Record<string, string> = {};
+        if (topicsData) {
+            topicsData.forEach((t: any) => {
+                if (t.topicID) {
+                    map[t.topicID] = t.name || t.topicID;
+                }
+            });
+        }
+        return map;
+    }, [topicsData]);
+
     const articleTemplates = useMemo(() => {
         if (articleTemplatesData !== undefined) {
-            return articleTemplatesData.map(e => ({
+            let mapped = articleTemplatesData.map((e: any) => ({
                 title: e.title,
                 photoURL: e.photoURL,
                 ID: e.articleTemplateID,
                 languageID: e.languageID,
                 created: e.created,
-                isVideo: e.isVideo,
-                videoURL: e.videoURL
+                isVideo: e.isVideo ? true : false,
+                videoURL: e.videoURL,
+                topicID: e.topicID,
+                topicName: topicsById[e.topicID] || e.topicID
             }));
+
+            if (articleType === 'video') {
+                mapped = mapped.filter(t => t.isVideo);
+            } else if (articleType === 'text') {
+                mapped = mapped.filter(t => !t.isVideo);
+            }
+
+            return mapped;
         }
         return [];
-    }, [articleTemplatesData]);
+    }, [articleTemplatesData, articleType, topicsById]);
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         switch (event.currentTarget.name) {
@@ -55,6 +83,12 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                 break;
             case 'topicID':
                 dispatch({ _type: 'CHANGE_TOPIC_ID', topicID: event.currentTarget.value });
+                break;
+            case 'articleType':
+                dispatch({
+                    _type: 'CHANGE_ARTICLE_TYPE',
+                    articleType: event.currentTarget.value as ArticleTypeFilter
+                });
                 break;
         }
     }
@@ -67,30 +101,25 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     function handleAddToRoom(articleTemplateID: string) {
         if (roomID !== undefined) {
             ArticleAPI.takeTemplate({
-                articleTemplateID,
-                roomID,
-                userID
+                articleTemplateID: articleTemplateID,
+                roomID: roomID,
+                userID: userID
             })
-            .then(() => {
-                // Special navigation rules for public rooms
+            .then(function () {
                 if (roomID.startsWith('PUBLIC_')) {
                     const parts = roomID.split('_'); // e.g. ["PUBLIC", "ENG", "SPA"]
                     const lang1 = parts[1];
                     const lang2 = parts[2];
 
                     if (lang1 === 'ENG' && lang2 === 'SPA') {
-                        // Default public room → plain /public
                         history.push('/public');
                     } else if (lang1 && lang2) {
-                        // Other public rooms → /public?languages=CHN&languages=SPA
-                        history.push(`/public?languages=${lang1}&languages=${lang2}`);
+                        history.push('/public?languages=' + lang1 + '&languages=' + lang2);
                     } else {
-                        // Fallback in case of unexpected format
                         history.push('/public');
                     }
                 } else {
-                    // Non-public rooms keep the original behavior
-                    history.push(`/rooms/${roomID}/articles/active`);
+                    history.push('/rooms/' + roomID + '/articles/active');
                 }
             })
             .catch(onError);
@@ -100,7 +129,7 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
     return (
         <>
             <Container>
-                <PageHeader subtitle={roomID !== undefined ? `Add template to room ${roomID}` : undefined}>
+                <PageHeader subtitle={roomID !== undefined ? 'Add template to room ' + roomID : undefined}>
                     Text Storage
                 </PageHeader>
                 <Row className='justify-content-center align-items-end text-center mb-4'>
@@ -112,9 +141,12 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                         <Input type='select' name='languageID' value={languageID} onChange={handleInputChange}>
                             <option value=''>All</option>
                             { (languagesData) &&
-                                languagesData.map((e, index) =>
-                                    <option key={index} value={e.languageID}>{e.description}</option>
-                            )}
+                                languagesData.map(function (e: any, index: number) {
+                                    return (
+                                        <option key={index} value={e.languageID}>{e.description}</option>
+                                    );
+                                })
+                            }
                         </Input>
                     </Col>
                     <Col md={{ size: 3}}>
@@ -122,33 +154,51 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
                         <Input type='select' name='topicID' id='topicID' value={topicID} onChange={handleInputChange}>
                             <option value=''>All</option>
                             { (topicsData) &&
-                                topicsData.map((e, index) =>
-                                <option key={index} value={e.topicID}>{e.name}</option>
-                            )}
+                                topicsData.map(function (e: any, index: number) {
+                                    return (
+                                        <option key={index} value={e.topicID}>{e.name}</option>
+                                    );
+                                })
+                            }
+                        </Input>
+                    </Col>
+                    <Col md={{ size: 2 }}>
+                        <Label>Type</Label>
+                        <Input
+                            type='select'
+                            name='articleType'
+                            value={articleType}
+                            onChange={handleInputChange}
+                        >
+                            <option value='all'>All</option>
+                            <option value='text'>Text only</option>
+                            <option value='video'>Video only</option>
                         </Input>
                     </Col>
                     <Col md={{ size: 2 }}>
                         { !archived &&
-                            <Button tag={Link} color='danger' to={`/templates/archived`}>Archive</Button>
+                            <Button tag={Link} color='danger' to='/templates/archived'>Archive</Button>
                         }
                         { archived &&
-                            <Button tag={Link} color='primary' to={`/templates/active`}>Active</Button>
+                            <Button tag={Link} color='primary' to='/templates/active'>Active</Button>
                         }
                     </Col>
                 </Row>
             </Container>
             <Container fluid>
                 <ArticlesList key={languageID}>
-                    { articleTemplates.map((articleTemplate, index) =>
-                        <TemplateArticleCard
-                            key={index}
-                            template={articleTemplate}
-                            onArchive={handleArchive}
-                            onAddToRoom={handleAddToRoom}
-                            enableAddToRoom={roomID !== undefined}
-                            enableArchive={rights === 'admin'}
-                        />
-                    )}
+                    { articleTemplates.map(function (articleTemplate, index) {
+                        return (
+                            <TemplateArticleCard
+                                key={index}
+                                template={articleTemplate}
+                                onArchive={handleArchive}
+                                onAddToRoom={handleAddToRoom}
+                                enableAddToRoom={roomID !== undefined}
+                                enableArchive={rights === 'admin'}
+                            />
+                        );
+                    })}
                 </ArticlesList>
             </Container>
         </>
@@ -158,15 +208,19 @@ export function ArticleTemplatesIndex ({ onError, history, match }: ArticleTempl
 type State = {
     languageID: string;
     topicID: string;
-}
+    articleType: ArticleTypeFilter;
+};
+
 type Action =
-| { _type: 'CHANGE_LANGUAGE_ID', languageID: string }
-| { _type: 'CHANGE_TOPIC_ID', topicID: string }
+    | { _type: 'CHANGE_LANGUAGE_ID', languageID: string }
+    | { _type: 'CHANGE_TOPIC_ID', topicID: string }
+    | { _type: 'CHANGE_ARTICLE_TYPE', articleType: ArticleTypeFilter };
 
 function reducer(state: State, action: Action) : State {
     switch (action._type) {
         case 'CHANGE_LANGUAGE_ID': return { ...state, languageID: action.languageID };
         case 'CHANGE_TOPIC_ID': return { ...state, topicID: action.topicID };
+        case 'CHANGE_ARTICLE_TYPE': return { ...state, articleType: action.articleType };
     }
 }
 
@@ -181,7 +235,9 @@ type TemplateCardData = {
     languageID: string;
     created: Date;
     isVideo: boolean;
-    videoURL: string;
+    videoURL?: string;
+    topicID: string;
+    topicName: string;
 };
 
 type TemplateArticleCardProps = {
@@ -205,16 +261,10 @@ function TemplateArticleCard({
     let totalSentences: number | undefined = undefined;
 
     if (templateData) {
-        // Assuming ArticleTemplateDTO has similar shape: { title: ISentence[], text: ISentence[] }
         const titleArr = (templateData as any).title || [];
         const textArr = (templateData as any).text || [];
         totalSentences = titleArr.length + textArr.length;
     }
-
-    // Determine the link based on whether it's a video article
-    const link = template.isVideo 
-        ? { label: 'View', url: `/video-translate/` }
-        : undefined; // undefined means ArticleCard won't be clickable (default behavior for templates)
 
     return (
         <ArticleCard
@@ -227,8 +277,9 @@ function TemplateArticleCard({
             onAddToRoom={onAddToRoom}
             enableAddToRoom={enableAddToRoom}
             enableArchive={enableArchive}
-            link={link}
-            // override so ArticleCard shows "N sentences"
+            isVideo={template.isVideo}
+            videoURL={template.videoURL}
+            topicName={template.topicName}   // <-- HERE
             totalSentences={totalSentences}
             lockedSentences={0}
         />

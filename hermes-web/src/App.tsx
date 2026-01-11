@@ -50,7 +50,7 @@ export function App() {
                     <Route path='/templates/:archived/:roomID?' render={(props) => <ArticleTemplatesIndex {...props} onError={handleError}/>} />
                     <Route path='/rooms' render={(props) => <RoomsIndex {...props} onError={handleError}/>}/>
                     <Route path='/upload' render={(props) => <UploadView {...props} onError={handleError}/>}/>
-                    <Route path='/video-translate/:articleTemplateID' render={(props) => <VideoTranslateView {...props} onError={handleError}/>}/>
+                    <Route path='/video-translate/:videoArticleID' render={(props) => <VideoTranslateView {...props} onError={handleError}/>}/>
                     <Route path='/translate/:articleID/:inText?/:sentencePos?/:translationPos?/:comments?' render={(props) => <TranslateView {...props} onError={handleError}/>}/>
                     <Route path='/root' render={(props) => <RootView {...props} onError={handleError}/>}/>
                     <Route path='/profile/:userID' render={(props) => <ProfileView {...props} onError={handleError}/>}/>

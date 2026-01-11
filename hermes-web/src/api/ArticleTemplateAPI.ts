@@ -1,33 +1,46 @@
+// src/api/ArticleTemplateAPI.ts
 import axios from 'axios';
 import { getHeaders } from './Headers';
 
-export class ArticleTemplateAPI
-{
-    static get(articleTemplateID:string)
-    {
-        return axios.get<ArticleTemplateDTO>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/get/${articleTemplateID}`, getHeaders());
+export class ArticleTemplateAPI {
+    static get(articleTemplateID: string) {
+        return axios.get<ArticleTemplateDTO>(
+            `${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/get/${articleTemplateID}`,
+            getHeaders()
+        );
     }
-    static query(archived: boolean, languageID:string|null, topicID: string|null)
-    {
-        return axios.get<ArticleTemplateListDTO[]>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/query/${archived}`, { 
-            ...getHeaders(),
-            params: {
-                languageID,
-                topicID
-            }            
-        });
+    static query(archived: boolean, languageID: string | null, topicID: string | null) {
+        return axios.get<ArticleTemplateListDTO[]>(
+            `${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/query/${archived}`,
+            {
+                ...getHeaders(),
+                params: {
+                    languageID,
+                    topicID
+                }
+            }
+        );
     }
-    static upload(command:ArticleTemplateUploadCommand)
-    {
-        return axios.post<ArticleTemplateUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload`, command, getHeaders());
+    static upload(command: ArticleTemplateUploadCommand) {
+        return axios.post<ArticleTemplateUploadResult>(
+            `${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload`,
+            command,
+            getHeaders()
+        );
     }
-    static uploadVideo(command:ArticleTemplateUploadVideoCommand)
-    {
-        return axios.post<ArticleTemplateUploadResult>(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload-video`, command, getHeaders());
+    static uploadVideo(command: ArticleTemplateUploadVideoCommand) {
+        return axios.post<ArticleTemplateUploadResult>(
+            `${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/upload-video`,
+            command,
+            getHeaders()
+        );
     }
-    static delete(command:ArticleTemplateDeleteCommand)
-    {
-        return axios.post(`${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/delete`, command, getHeaders());
+    static delete(command: ArticleTemplateDeleteCommand) {
+        return axios.post(
+            `${process.env.REACT_APP_HERMES_API_URL}/api/articleTemplate/delete`,
+            command,
+            getHeaders()
+        );
     }
 }
 
@@ -35,7 +48,7 @@ export type ArticleTemplateSentenceDTO = {
     text: string;
     startTimeMs?: number;
     endTimeMs?: number;
-}
+};
 
 export type ArticleTemplateDTO = {
     version: number;
@@ -49,7 +62,7 @@ export type ArticleTemplateDTO = {
     timestamp: Date;
     isVideo: boolean;
     videoURL: string;
-}
+};
 
 export type ArticleTemplateListDTO = {
     articleTemplateID: string;
@@ -59,7 +72,8 @@ export type ArticleTemplateListDTO = {
     photoURL: string;
     isVideo: boolean;
     videoURL: string;
-}
+    topicID: string; // NEW
+};
 
 export type ArticleTemplateUploadCommand = {
     languageID: string;
@@ -68,19 +82,19 @@ export type ArticleTemplateUploadCommand = {
     text: string;
     source: string;
     photoURL: string;
-}
+};
 
 export type ArticleTemplateUploadVideoCommand = {
     languageID: string;
     topicID: string;
     youtubeURL: string;
-}
+};
 
 export type ArticleTemplateUploadResult = {
     articleTemplateID: string;
-}
+};
 
 export type ArticleTemplateDeleteCommand = {
     articleTemplateID: string;
     userID: string;
-}
+};

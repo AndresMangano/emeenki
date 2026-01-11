@@ -12,5 +12,11 @@ namespace Hermes.Core
         public string TranslationLanguageID { get; set; }
         public string PhotoURL { get; set; }
         public bool Archived { get; set; }
+        public string TopicID { get; set; }
+
+         // Video Fields
+        public bool IsVideo { get; set; }
+        public string VideoURL { get; set; }
+        public Guid? ArticleTemplateID { get; set; }
     }
 }

@@ -1,21 +1,23 @@
-import React, { useMemo } from 'react';
+// src/views/Public/PublicView.tsx
+import React, { useMemo, useState } from 'react';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import { Container, Row, Col, Input, Label, Button } from 'reactstrap';
 import { PageHeader } from '../../components/PageHeader';
 import { ArticlesList } from '../../components/ArticleList';
 import { ArticleAPI } from '../../api/ArticleAPI';
 import { useSignalR } from '../../services/signalr-service';
-import { useArticlesQuery, useRoomQuery, useLanguagesQuery } from '../../services/queries-service';
+import { useArticlesQuery, useRoomQuery, useLanguagesQuery, useTopicsQuery } from '../../services/queries-service';
 import { ArticleCard } from '../../components/ArticleCard';
 
 type PublicViewProps = RouteComponentProps<{}> & {
     onError: (error: any) => void;
-}
+};
+
+type ArticleTypeFilter = 'all' | 'text' | 'video';
 
 export function PublicView({ onError, history, location }: PublicViewProps) {
     const userID: string = localStorage.getItem('hermes.userID') || '';
 
-    // Read language filters from query string, default to ENG/SPA
     const languages = useMemo(() => {
         const query = new URLSearchParams(location.search);
         const langs = query.getAll('languages');
@@ -25,7 +27,6 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
     const languageID1 = languages[0];
     const languageID2 = languages[1];
 
-    // Room ID for this public language pair, e.g. PUBLIC_ENG_SPA
     const roomID = useMemo(
         () => `PUBLIC_${languageID1}_${languageID2}`,
         [languageID1, languageID2]
@@ -34,10 +35,24 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
     useSignalR('articles', `room:${roomID}`);
 
     const { data: languagesData } = useLanguagesQuery();
-    const { data: articlesData } = useArticlesQuery(roomID, false); // false => active (non-archived)
+    const { data: articlesData } = useArticlesQuery(roomID, false);
     const { data: roomData } = useRoomQuery(roomID);
+    const { data: topicsData } = useTopicsQuery();
 
-    // Human-readable names for header (fallback to code if not loaded)
+    const [articleTypeFilter, setArticleTypeFilter] = useState<ArticleTypeFilter>('all');
+
+    const topicsById = useMemo(() => {
+        const map: Record<string, string> = {};
+        if (topicsData) {
+            topicsData.forEach((t: any) => {
+                if (t.topicID) {
+                    map[t.topicID] = t.name || t.topicID;
+                }
+            });
+        }
+        return map;
+    }, [topicsData]);
+
     const languageName1 = useMemo(() => {
         if (!languagesData) return languageID1;
         const lang = languagesData.find((l: any) => l.languageID === languageID1);
@@ -50,7 +65,6 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
         return lang ? (lang.description || lang.languageID) : languageID2;
     }, [languagesData, languageID2]);
 
-    // Compute room rights for the current user
     const roomRights: string | undefined = useMemo(() => {
         if (roomData !== undefined) {
             const roomUser = roomData.users.find((x: any) => x.userID === userID);
@@ -63,16 +77,29 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
 
     const articles = useMemo(() => {
         if (articlesData !== undefined) {
-            return articlesData.map((e: any) => ({
+            let mapped = articlesData.map((e: any) => ({
                 title: e.title,
                 photoURL: e.photoURL,
                 ID: e.articleID,
                 languageID: e.originalLanguageID,
-                created: e.created
+                created: e.created,
+                isVideo: e.isVideo ? true : false,
+                videoURL: e.videoURL,
+                articleTemplateID: e.articleTemplateID,
+                topicID: e.topicID,
+                topicName: e.topicID ? (topicsById[e.topicID] || e.topicID) : undefined
             }));
+
+            if (articleTypeFilter === 'video') {
+                mapped = mapped.filter(a => a.isVideo);
+            } else if (articleTypeFilter === 'text') {
+                mapped = mapped.filter(a => !a.isVideo);
+            }
+
+            return mapped;
         }
         return [];
-    }, [articlesData]);
+    }, [articlesData, articleTypeFilter, topicsById]);
 
     function navigateForPair(l1: string, l2: string) {
         if (l1 === 'ENG' && l2 === 'SPA') {
@@ -110,7 +137,6 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
                     Public {languageName1} → {languageName2}
                 </PageHeader>
 
-                {/* Centered language pair filter with swap button */}
                 {languagesData && (
                     <Row className='mb-4 justify-content-center align-items-center'>
                         <Col md={3}>
@@ -155,6 +181,24 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
                     </Row>
                 )}
 
+                {/* Article type filter */}
+                <Row className='mb-4 justify-content-center'>
+                    <Col md={3}>
+                        <Label htmlFor='articleTypeFilter'>Article Type</Label>
+                        <Input
+                            type='select'
+                            id='articleTypeFilter'
+                            name='articleTypeFilter'
+                            value={articleTypeFilter}
+                            onChange={e => setArticleTypeFilter(e.currentTarget.value as ArticleTypeFilter)}
+                        >
+                            <option value='all'>All</option>
+                            <option value='text'>Text only</option>
+                            <option value='video'>Video only</option>
+                        </Input>
+                    </Col>
+                </Row>
+
                 {roomRights === 'admin' && (
                     <Row className='justify-content-center text-center mb-5'>
                         <Col md={2}>
@@ -168,20 +212,37 @@ export function PublicView({ onError, history, location }: PublicViewProps) {
 
             <Container fluid>
                 <ArticlesList>
-                    {articles.map((article, index) => (
-                        <ArticleCard
-                            key={index}
-                            {...article}
-                            articleID={article.ID}
-                            link={{
-                                url: '/translate/',
-                                label: 'Translate'
-                            }}
-                            onArchive={handleArchive}
-                            enableArchive={roomRights === 'admin'}
-                            enableAddToRoom={false}
-                        />
-                    ))}
+                    {articles.map((article, index) => {
+                        const isVideo = article.isVideo === true;
+                        const linkBase = isVideo ? '/video-translate/' : '/translate/';
+
+                        const targetIDForLink =
+                            isVideo && article.articleTemplateID
+                                ? article.articleTemplateID
+                                : article.ID;
+
+                        return (
+                            <ArticleCard
+                                key={index}
+                                title={article.title}
+                                photoURL={article.photoURL}
+                                articleID={article.ID}
+                                languageID={article.languageID}
+                                created={article.created}
+                                isVideo={isVideo}
+                                videoURL={article.videoURL}
+                                targetIDForLink={targetIDForLink}
+                                topicName={article.topicName}  // <-- HERE
+                                link={{
+                                    url: linkBase,
+                                    label: isVideo ? 'Watch & translate' : 'Translate'
+                                }}
+                                onArchive={handleArchive}
+                                enableArchive={roomRights === 'admin'}
+                                enableAddToRoom={false}
+                            />
+                        );
+                    })}
                 </ArticlesList>
             </Container>
         </>

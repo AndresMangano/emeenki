@@ -20,16 +20,30 @@ namespace Hermes.Worker.Core.Model.Events.Article
     {
         public void Apply(DBInterpreter interpreter)
         {
+            // Determine if the underlying template is a video template.
+            // For video templates created via YouTube upload, Source is "youtube".
+            var isVideo =
+                !string.IsNullOrWhiteSpace(Source) &&
+                Source.Equals("youtube", StringComparison.OrdinalIgnoreCase);
+
+            // Insert into Query_Articles (list table) with video metadata.
             interpreter.InsertArticles(
                 articleID: ID,
                 roomID: RoomID,
-                title: String.Join(" ", Title),
+                title: string.Join(" ", Title),
                 created: Header.Timestamp,
                 originalLanguageID: OriginalLanguageID,
                 translationLanguageID: TranslationLanguageID,
                 photoURL: PhotoURL,
-                archived: false
+                archived: false,
+                isVideo: isVideo,
+                videoURL: null,                   // optional; ArticleCard will fall back to photoURL
+                articleTemplateID: ArticleTemplateID
             );
+
+            // Insert into Query_Article (detail table) as before.
+            // If you later add video columns here too, you can switch to an InsertArticleWithVideo
+            // variant, similar to InsertArticleTemplateWithVideo used for templates.
             interpreter.InsertArticle(
                 articleID: ID,
                 articleTemplateID: ArticleTemplateID,
@@ -41,7 +55,10 @@ namespace Hermes.Worker.Core.Model.Events.Article
                 photoURL: PhotoURL,
                 timestamp: Header.Timestamp
             );
-            for (var index = 0; index < Text.Count; index++) {
+
+            // Insert text sentences
+            for (var index = 0; index < Text.Count; index++)
+            {
                 interpreter.InsertSentence(
                     articleID: ID,
                     inText: true,
@@ -49,7 +66,10 @@ namespace Hermes.Worker.Core.Model.Events.Article
                     originalText: Text[index]
                 );
             }
-            for (var index = 0; index < Title.Count; index++) {
+
+            // Insert title sentences
+            for (var index = 0; index < Title.Count; index++)
+            {
                 interpreter.InsertSentence(
                     articleID: ID,
                     inText: false,
@@ -61,8 +81,11 @@ namespace Hermes.Worker.Core.Model.Events.Article
 
         public void Notify(ISignalRPort signalR)
         {
-            signalR.SendSignalToGroup(SignalRSignal.ARTICLE_UPDATED, ID.ToString(),
-                SignalRGroup.ARTICLES);
+            signalR.SendSignalToGroup(
+                SignalRSignal.ARTICLE_UPDATED,
+                ID.ToString(),
+                SignalRGroup.ARTICLES
+            );
         }
     }
 }

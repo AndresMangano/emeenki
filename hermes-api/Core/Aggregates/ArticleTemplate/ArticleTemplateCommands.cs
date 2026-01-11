@@ -49,11 +49,11 @@ namespace Hermes.Core
             UserService.ValidateAdminRights(user);
             LanguageService.ValidateExistence(language);
             TopicService.ValidateExistence(topic);
-            if (string.IsNullOrEmpty(cmd.YouTubeURL)) throw new DomainException("Empty YouTube URL");
+            if (string.IsNullOrEmpty(cmd.YoutubeURL)) throw new DomainException("Empty YouTube URL");
 
             // Fetch video data from YouTube
             var youtubeService = new YouTubeService();
-            var videoData = await youtubeService.FetchVideoDataAsync(cmd.YouTubeURL);
+            var videoData = await youtubeService.FetchVideoDataAsync(cmd.YoutubeURL);
 
             if (string.IsNullOrEmpty(videoData.Title)) throw new DomainException("Could not fetch video title");
             if (videoData.Captions == null || videoData.Captions.Count == 0) 
@@ -95,16 +95,18 @@ namespace Hermes.Core
                 id: articleTemplateID,
                 version: 1,
                 eventName: "video-uploaded",
-                payload: new ArticleTemplateVideoUploadedEvent
-                {
-                    LanguageID = language.ID,
-                    Title = titleSentences,
-                    Text = textSentences,
-                    Source = videoData.VideoUrl,
-                    PhotoURL = videoData.ThumbnailUrl ?? "",
-                    TopicID = cmd.TopicID,
-                    VideoURL = videoData.VideoUrl
-                }
+payload: new ArticleTemplateVideoUploadedEvent
+{
+    LanguageID = language.ID,
+    Title = titleSentences,
+    Text = textSentences,
+    // Use the logical source, not the URL
+    Source = string.IsNullOrWhiteSpace(cmd.Source) ? "youtube" : cmd.Source,
+    PhotoURL = videoData.ThumbnailUrl ?? "",
+    TopicID = cmd.TopicID,
+    // Keep the real URL here
+    VideoURL = videoData.VideoUrl
+}
             ));
             return new ArticleTemplateUploadResult(articleTemplateID);
         }

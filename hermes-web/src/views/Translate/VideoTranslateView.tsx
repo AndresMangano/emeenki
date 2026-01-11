@@ -47,7 +47,8 @@ interface IVideoArticle {
     text: ISentence[];
 }
 
-type VideoTranslateViewProps = RouteComponentProps<{ articleTemplateID: string }> & {
+// ⚠️ route param name must match :videoArticleID
+type VideoTranslateViewProps = RouteComponentProps<{ videoArticleID: string }> & {
     onError: (error: any) => void;
 };
 
@@ -56,10 +57,14 @@ type TrackMode = 'off' | 'word' | 'sentence';
 
 export function VideoTranslateView({ onError, history, match }: VideoTranslateViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
-    const { articleTemplateID } = match.params;
+
+    // Read the URL param (videoArticleID) and alias it to articleTemplateID
+    const { videoArticleID } = match.params;
+    const articleTemplateID = videoArticleID;
 
     useSignalR('articleTemplate:' + articleTemplateID);
     const { data: articleTemplateData } = useArticleTemplateQuery(articleTemplateID);
+
     const videoArticle: IVideoArticle | undefined = useMemo(function () {
         return mapVideoArticle(articleTemplateData);
     }, [articleTemplateData]);

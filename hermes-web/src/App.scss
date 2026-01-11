@@ -622,3 +622,54 @@ button:focus {
 }
 
 */
+
+/* -------- Video transcript view (VideoTranslateView) -------- */
+
+.app-video-captions {
+    /* mimic article body from TranslateView */
+    font-family: "Courier New", Menlo, Monaco, Consolas, monospace;
+    font-size: 16px;
+    line-height: 1.7;
+    color: #111;
+  
+    /* same feeling as article body: plenty of space */
+    background: #fff;
+  }
+  
+  /* One “line” / logical sentence */
+  /* One logical caption sentence block */
+.app-video-sentence {
+    /* tighter paragraph block */
+    margin: 0 0 0.25rem 0;     // space between sentences
+    padding: 0.25rem 0.5rem;    // inner padding
+    border-radius: 0.25rem;
+    line-height: 1.2;           // compact line spacing
+  }
+  
+  /* Pieces inside a sentence: keep them inline and marginless */
+  .app-video-sentence-part,
+  .app-video-text,
+  .app-video-timestamp {
+    display: inline;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    line-height: inherit;       // use the 1.2 from app-video-sentence
+  }
+  
+  /* If you want the timestamp slightly lighter but not affecting layout */
+  .app-video-timestamp {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-right: 0.25rem;
+  }
+  
+  
+  /* When a sentence is active in "sentence tracking" mode,
+     VideoTranslateView already sets a light background inline.
+     If you want a subtler highlight, you can override it here: */
+  /*
+  .app-video-sentence.app-video-sentence--active {
+    background-color: #fffbe6;
+  }
+  */

@@ -1,3 +1,4 @@
+// src/views/Translate/VideoTranslateView.tsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Card,
@@ -15,6 +16,21 @@ import YouTube from 'react-youtube';
 import { useArticleTemplateQuery } from '../../services/queries-service';
 import { useSignalR } from '../../services/signalr-service';
 import { ArticleTemplateDTO } from '../../api/ArticleTemplateAPI';
+
+import {
+    CaptionSentencePart,
+    CaptionSentenceUI,
+    CaptionPartTimed,
+    groupCaptionsIntoSentences,
+    getActiveWordIndexForPart
+} from '../../helpers/captionHelpers';
+
+import {
+    useYouTubePlayerTime,
+    getYouTubeVideoId
+} from '../../helpers/videoPlayerHelpers';
+
+import { formatTimestamp } from '../../helpers/timeHelpers';
 
 interface ISentence {
     sentencePos: number;
@@ -35,7 +51,8 @@ type VideoTranslateViewProps = RouteComponentProps<{ articleTemplateID: string }
     onError: (error: any) => void;
 };
 
-type TrackMode = 'word' | 'sentence';
+// NEW: add "off"
+type TrackMode = 'off' | 'word' | 'sentence';
 
 export function VideoTranslateView({ onError, history, match }: VideoTranslateViewProps) {
     const userID = localStorage.getItem('hermes.userID') || '';
@@ -43,57 +60,71 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
 
     useSignalR('articleTemplate:' + articleTemplateID);
     const { data: articleTemplateData } = useArticleTemplateQuery(articleTemplateID);
-    const videoArticle: IVideoArticle | undefined = useMemo(
-        function () {
-            return mapVideoArticle(articleTemplateData);
-        },
-        [articleTemplateData]
-    );
+    const videoArticle: IVideoArticle | undefined = useMemo(function () {
+        return mapVideoArticle(articleTemplateData);
+    }, [articleTemplateData]);
 
-    const playerRef = useRef<any | null>(null);
-    const timeUpdateIntervalRef = useRef<number | null>(null);
-    const [currentTimeMs, setCurrentTimeMs] = useState(0);
+    // Group raw caption chunks into logical sentences + timed parts
+    const grouped = useMemo(function () {
+        if (!videoArticle) {
+            return {
+                sentences: [] as CaptionSentenceUI[],
+                flatParts: [] as CaptionPartTimed[]
+            };
+        }
+        return groupCaptionsIntoSentences(videoArticle.text);
+    }, [videoArticle]);
+
+    const captionSentences = grouped.sentences;
+    const flatParts = grouped.flatParts;
+
+    // Custom hook: player ref + currentTimeMs + react-youtube handlers
+    const {
+        playerRef,
+        currentTimeMs,
+        handlePlayerReady,
+        handlePlayerStateChange
+    } = useYouTubePlayerTime(200);
+
+    // default still "word"
     const [trackMode, setTrackMode] = useState<TrackMode>('word');
 
-    const activeSentencePos = useMemo(
+    // Find the single active part for the current time
+    const activePart: CaptionPartTimed | null = useMemo(
         function () {
-            if (!videoArticle || !videoArticle.text || !videoArticle.text.length) {
-                return null;
-            }
+            if (!flatParts || flatParts.length === 0) return null;
 
-            const sentences = videoArticle.text;
             const now = currentTimeMs;
+            let bestIndex = -1;
 
-            for (let i = 0; i < sentences.length; i++) {
-                const s = sentences[i];
-                if (s.startTimeMs == null) continue;
+            for (let i = 0; i < flatParts.length; i++) {
+                const p = flatParts[i];
+                if (p.startTimeMs == null) continue;
 
-                const start = s.startTimeMs;
-                const next = sentences[i + 1];
-                let end: number;
-
-                if (s.endTimeMs != null) {
-                    end = s.endTimeMs;
-                } else if (next && next.startTimeMs != null) {
-                    end = next.startTimeMs;
-                } else {
-                    end = start + 4000;
-                }
+                const start = p.startTimeMs;
+                const end = p.endTimeMs != null ? p.endTimeMs : start + 4000;
 
                 if (now >= start && now < end) {
-                    return s.sentencePos;
+                    bestIndex = i;
+                    break;
+                }
+                if (now >= start) {
+                    bestIndex = i;
                 }
             }
 
-            return null;
+            if (bestIndex === -1) return null;
+            return flatParts[bestIndex];
         },
-        [currentTimeMs, videoArticle]
+        [currentTimeMs, flatParts]
     );
 
     const activeSentenceRef = useRef<HTMLDivElement | null>(null);
 
+    // Auto-scroll only when tracking is ON (word or sentence)
     useEffect(
         function () {
+            if (trackMode === 'off') return;
             if (activeSentenceRef.current) {
                 activeSentenceRef.current.scrollIntoView({
                     behavior: 'smooth',
@@ -101,45 +132,8 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
                 });
             }
         },
-        [activeSentencePos]
+        [activePart, trackMode]
     );
-
-    const startTimeTracking = () => {
-        if (timeUpdateIntervalRef.current !== null) return;
-
-        timeUpdateIntervalRef.current = window.setInterval(() => {
-            if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
-                const seconds: number = playerRef.current.getCurrentTime();
-                setCurrentTimeMs(seconds * 1000);
-            }
-        }, 200);
-    };
-
-    const stopTimeTracking = () => {
-        if (timeUpdateIntervalRef.current !== null) {
-            window.clearInterval(timeUpdateIntervalRef.current);
-            timeUpdateIntervalRef.current = null;
-        }
-    };
-
-    useEffect(function () {
-        return function () {
-            stopTimeTracking();
-        };
-    }, []);
-
-    const handlePlayerReady = (event: any) => {
-        playerRef.current = event.target;
-    };
-
-    const handlePlayerStateChange = (event: any) => {
-        const state = event.data;
-        if (state === 1) {
-            startTimeTracking();
-        } else if (state === 0 || state === 2) {
-            stopTimeTracking();
-        }
-    };
 
     const handleSentenceClick = (startTimeMs?: number) => {
         if (!playerRef.current || startTimeMs == null) return;
@@ -147,30 +141,22 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
         playerRef.current.playVideo();
     };
 
+    // Seek based on a word within a specific part
     const handleWordClick = (
-        sentence: ISentence,
-        nextSentence: ISentence | undefined,
+        part: CaptionSentencePart,
         wordIndex: number,
         wordCount: number
     ) => {
         if (!playerRef.current) return;
-        if (sentence.startTimeMs == null || wordCount <= 0) return;
+        if (part.startTimeMs == null || part.endTimeMs == null || wordCount <= 0) return;
 
-        let start = sentence.startTimeMs;
-        let end: number;
-
-        if (sentence.endTimeMs != null) {
-            end = sentence.endTimeMs;
-        } else if (nextSentence && nextSentence.startTimeMs != null) {
-            end = nextSentence.startTimeMs;
-        } else {
-            end = start + 4000;
-        }
-
+        const start = part.startTimeMs;
+        const end = part.endTimeMs;
         if (end <= start) return;
 
         let fraction = wordCount === 1 ? 0.0 : (wordIndex + 0.5) / wordCount;
-        fraction = Math.max(0, Math.min(fraction, 1));
+        if (fraction < 0) fraction = 0;
+        if (fraction > 1) fraction = 1;
 
         const targetMs = start + fraction * (end - start);
         const targetSeconds = targetMs / 1000;
@@ -183,12 +169,6 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
         }
     };
 
-    const getYouTubeVideoId = (url: string): string => {
-        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-        const match = url.match(regExp);
-        return match && match[7].length === 11 ? match[7] : '';
-    };
-
     return (
         <Container fluid>
             {videoArticle !== undefined && (
@@ -197,7 +177,9 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
                         <Col md={12}>
                             <h2>
                                 {videoArticle.title
-                                    .map(s => s.originalText)
+                                    .map(function (s) {
+                                        return s.originalText;
+                                    })
                                     .join(' ')}
                             </h2>
                         </Col>
@@ -228,21 +210,36 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
                     <Row className="mb-2">
                         <Col md={6}>
                             <div className="d-flex align-items-center">
-                                <span style={{ marginRight: '0.5rem' }}>
-                                    Caption sync mode:
+                                <span
+                                    style={{
+                                        marginRight: '0.5rem',
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    Track mode:
                                 </span>
                                 <ButtonGroup size="sm">
+                                    <Button
+                                        color={trackMode === 'off' ? 'primary' : 'secondary'}
+                                        onClick={() => setTrackMode('off')}
+                                    >
+                                        Off
+                                    </Button>
                                     <Button
                                         color={trackMode === 'word' ? 'primary' : 'secondary'}
                                         onClick={() => setTrackMode('word')}
                                     >
-                                        Word tracking
+                                        Word
                                     </Button>
                                     <Button
-                                        color={trackMode === 'sentence' ? 'primary' : 'secondary'}
+                                        color={
+                                            trackMode === 'sentence'
+                                                ? 'primary'
+                                                : 'secondary'
+                                        }
                                         onClick={() => setTrackMode('sentence')}
                                     >
-                                        Sentence tracking
+                                        Sentence
                                     </Button>
                                 </ButtonGroup>
                             </div>
@@ -253,129 +250,173 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
                         <Col md={6}>
                             <h4>Original Captions</h4>
                             <div
+                                className="app-video-captions"
                                 style={{
-                                    maxHeight: '600px',
-                                    overflowY: 'auto',
-                                    padding: '1rem',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '0.5rem'
+                                    padding: '1rem'
                                 }}
                             >
-                                {videoArticle.text.map((sentence, index) => {
-                                    const isActiveSentence =
-                                        activeSentencePos !== null &&
-                                        sentence.sentencePos === activeSentencePos;
+                                {captionSentences.map(function (sentence) {
+                                    const isSentenceActive =
+                                        activePart != null &&
+                                        activePart.sentenceIndex ===
+                                            sentence.sentenceIndex;
 
-                                    const nextSentence =
-                                        videoArticle.text[sentence.sentencePos + 1];
+                                    const firstPart =
+                                        sentence.parts.length > 0
+                                            ? sentence.parts[0]
+                                            : null;
+                                    const sentenceStartTimeMs = firstPart
+                                        ? firstPart.startTimeMs
+                                        : undefined;
 
-                                    const words = sentence.originalText
-                                        ? sentence.originalText.split(/\s+/)
-                                        : [];
-
-                                    let activeWordIndex: number | null = null;
-
-                                    if (
-                                        trackMode === 'word' &&
-                                        isActiveSentence &&
-                                        videoArticle
-                                    ) {
-                                        activeWordIndex = getActiveWordIndex(
-                                            sentence,
-                                            nextSentence,
-                                            currentTimeMs,
-                                            words.length
-                                        );
-                                    }
-
-                                    const sentenceBackgroundColor =
-                                        trackMode === 'sentence' && isActiveSentence
+                                    const containerBackground =
+                                        trackMode === 'sentence' && isSentenceActive
                                             ? '#fff3cd'
-                                            : '#f8f9fa';
-
-                                    const sentenceBorder =
-                                        trackMode === 'sentence' && isActiveSentence
+                                            : 'transparent';
+                                    const containerBorder =
+                                        trackMode === 'sentence' && isSentenceActive
                                             ? '1px solid #ffc107'
                                             : '1px solid transparent';
 
                                     return (
                                         <div
-                                            key={index}
-                                            ref={
-                                                isActiveSentence ? activeSentenceRef : null
-                                            }
-                                            onClick={() =>
-                                                handleSentenceClick(sentence.startTimeMs)
-                                            }
+                                            key={sentence.sentenceIndex}
+                                            ref={isSentenceActive ? activeSentenceRef : null}
+                                            onClick={function () {
+                                                handleSentenceClick(sentenceStartTimeMs);
+                                            }}
+                                            className="app-video-sentence"
                                             style={{
-                                                marginBottom: '0.5rem',
-                                                padding: '0.5rem',
-                                                borderRadius: '0.25rem',
                                                 cursor:
-                                                    sentence.startTimeMs !== undefined
+                                                    sentenceStartTimeMs !== undefined
                                                         ? 'pointer'
                                                         : 'default',
-                                                backgroundColor: sentenceBackgroundColor,
-                                                border: sentenceBorder,
+                                                backgroundColor: containerBackground,
+                                                border: containerBorder,
                                                 transition: 'background-color 0.15s ease'
                                             }}
                                         >
-                                            <span
-                                                style={{
-                                                    fontSize: '0.85rem',
-                                                    color: '#6c757d',
-                                                    marginRight: '0.5rem'
-                                                }}
-                                            >
-                                                {formatTimestamp(sentence.startTimeMs)}
-                                            </span>
+                                            {sentence.parts.map(function (part, partIndex) {
+                                                const partStartMs = part.startTimeMs;
 
-                                            {trackMode === 'word' ? (
-                                                <span>
-                                                    {words.map((w, wi) => {
-                                                        const isCurrentWord =
-                                                            isActiveSentence &&
-                                                            activeWordIndex !== null &&
-                                                            wi === activeWordIndex;
-                                                        return (
+                                                // Original chunk for this part
+                                                const originalChunk =
+                                                    videoArticle &&
+                                                    videoArticle.text[part.chunkIndex];
+                                                const originalStartMs = originalChunk
+                                                    ? originalChunk.startTimeMs
+                                                    : undefined;
+
+                                                // Only show timestamp if this part's start time
+                                                // is exactly the original chunk's startTimeMs
+                                                const showTimestamp =
+                                                    typeof originalStartMs === 'number' &&
+                                                    partStartMs === originalStartMs;
+
+                                                const isActivePart =
+                                                    activePart != null &&
+                                                    activePart.sentenceIndex ===
+                                                        sentence.sentenceIndex &&
+                                                    activePart.partIndexInSentence ===
+                                                        partIndex;
+
+                                                const words =
+                                                    part.text && part.text.length > 0
+                                                        ? part.text.split(/\s+/)
+                                                        : [];
+                                                let activeWordIndex: number | null = null;
+
+                                                if (
+                                                    trackMode === 'word' &&
+                                                    isActivePart &&
+                                                    words.length > 0 &&
+                                                    part.startTimeMs != null &&
+                                                    part.endTimeMs != null
+                                                ) {
+                                                    activeWordIndex = getActiveWordIndexForPart(
+                                                        part,
+                                                        currentTimeMs,
+                                                        words.length
+                                                    );
+                                                }
+
+                                                return (
+                                                    <span
+                                                        key={partIndex}
+                                                        className="app-video-sentence-part"
+                                                        style={{ marginRight: '0.25rem' }}
+                                                    >
+                                                        {showTimestamp && (
                                                             <span
-                                                                key={wi}
-                                                                onClick={e => {
+                                                                className="app-video-timestamp"
+                                                                onClick={function (e) {
                                                                     e.stopPropagation();
-                                                                    handleWordClick(
-                                                                        sentence,
-                                                                        nextSentence,
-                                                                        wi,
-                                                                        words.length
+                                                                    handleSentenceClick(
+                                                                        partStartMs
                                                                     );
                                                                 }}
                                                                 style={{
-                                                                    cursor:
-                                                                        sentence.startTimeMs !==
-                                                                        undefined
-                                                                            ? 'pointer'
-                                                                            : 'default',
-                                                                    backgroundColor:
-                                                                        isCurrentWord
-                                                                            ? '#ffe58a'
-                                                                            : 'transparent',
-                                                                    fontWeight:
-                                                                        isCurrentWord
-                                                                            ? 600
-                                                                            : 400
+                                                                    fontSize: '0.85rem',
+                                                                    color: '#6c757d',
+                                                                    marginRight: '0.25rem'
                                                                 }}
                                                             >
-                                                                {w}
-                                                                {wi < words.length - 1
-                                                                    ? ' '
-                                                                    : ''}
+                                                                ({formatTimestamp(partStartMs)})
                                                             </span>
-                                                        );
-                                                    })}
-                                                </span>
-                                            ) : (
-                                                <span>{sentence.originalText}</span>
-                                            )}
+                                                        )}
+
+                                                        {trackMode === 'word' ? (
+                                                            <span className="app-video-text">
+                                                                {words.map(function (w, wi) {
+                                                                    const isCurrentWord =
+                                                                        isActivePart &&
+                                                                        activeWordIndex !==
+                                                                            null &&
+                                                                        wi ===
+                                                                            activeWordIndex;
+
+                                                                    return (
+                                                                        <span
+                                                                            key={wi}
+                                                                            onClick={function (
+                                                                                e
+                                                                            ) {
+                                                                                e.stopPropagation();
+                                                                                handleWordClick(
+                                                                                    part,
+                                                                                    wi,
+                                                                                    words.length
+                                                                                );
+                                                                            }}
+                                                                            style={{
+                                                                                cursor:
+                                                                                    partStartMs !==
+                                                                                    undefined
+                                                                                        ? 'pointer'
+                                                                                        : 'default',
+                                                                                backgroundColor:
+                                                                                    isCurrentWord
+                                                                                        ? '#ffe58a'
+                                                                                        : 'transparent'
+                                                                            }}
+                                                                        >
+                                                                            {w}
+                                                                            {wi <
+                                                                            words.length - 1
+                                                                                ? ' '
+                                                                                : ''}
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="app-video-text">
+                                                                {part.text}
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     );
                                 })}
@@ -420,7 +461,9 @@ export function VideoTranslateView({ onError, history, match }: VideoTranslateVi
     );
 }
 
-function mapVideoArticle(articleTemplate: ArticleTemplateDTO | undefined): IVideoArticle | undefined {
+function mapVideoArticle(
+    articleTemplate: ArticleTemplateDTO | undefined
+): IVideoArticle | undefined {
     if (articleTemplate === undefined) {
         return undefined;
     }
@@ -429,64 +472,21 @@ function mapVideoArticle(articleTemplate: ArticleTemplateDTO | undefined): IVide
         articleTemplateID: articleTemplate.articleTemplateID,
         videoURL: articleTemplate.videoURL,
         photoUrl: articleTemplate.photoURL,
-        title: articleTemplate.title.map((e, index) => ({
-            sentencePos: index,
-            originalText: e.text,
-            startTimeMs: e.startTimeMs,
-            endTimeMs: e.endTimeMs
-        })),
-        text: articleTemplate.text.map((e, index) => ({
-            sentencePos: index,
-            originalText: e.text,
-            startTimeMs: e.startTimeMs,
-            endTimeMs: e.endTimeMs
-        }))
+        title: articleTemplate.title.map(function (e, index) {
+            return {
+                sentencePos: index,
+                originalText: e.text,
+                startTimeMs: e.startTimeMs,
+                endTimeMs: e.endTimeMs
+            };
+        }),
+        text: articleTemplate.text.map(function (e, index) {
+            return {
+                sentencePos: index,
+                originalText: e.text,
+                startTimeMs: e.startTimeMs,
+                endTimeMs: e.endTimeMs
+            };
+        })
     };
-}
-
-function formatTimestamp(ms?: number): string {
-    if (ms === undefined) return '00:00';
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return (
-        minutes.toString().padStart(2, '0') +
-        ':' +
-        remainingSeconds.toString().padStart(2, '0')
-    );
-}
-
-function getActiveWordIndex(
-    sentence: ISentence,
-    nextSentence: ISentence | undefined,
-    currentTimeMs: number,
-    wordCount: number
-): number | null {
-    if (wordCount === 0) return null;
-    if (sentence.startTimeMs == null) return null;
-
-    let start = sentence.startTimeMs;
-    let end: number;
-
-    if (sentence.endTimeMs != null) {
-        end = sentence.endTimeMs;
-    } else if (nextSentence && nextSentence.startTimeMs != null) {
-        end = nextSentence.startTimeMs;
-    } else {
-        end = start + 4000;
-    }
-
-    if (end <= start) return null;
-
-    if (currentTimeMs < start) return 0;
-    if (currentTimeMs > end) return wordCount - 1;
-
-    const totalDuration = end - start;
-    const elapsed = currentTimeMs - start;
-
-    let relative = elapsed / totalDuration;
-    relative = Math.max(0, Math.min(relative, 1));
-
-    let idx = Math.floor(relative * wordCount);
-    return Math.min(idx, wordCount - 1);
 }
